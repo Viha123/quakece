@@ -1,0 +1,1 @@
+// this is the internal representation of the board. 
