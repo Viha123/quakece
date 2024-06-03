@@ -8,3 +8,11 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 
 ## Goals for Version 2:
 - [ ] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
+
+### To build:
+```cmake --build ./build```
+### To run: 
+```build/bin/main```
+
+### To add more executables:
+- still trying to figure out
