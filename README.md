@@ -5,7 +5,9 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - [ ] basic class structure for internal and external representation of board
 - [ ] make sure all moves are implemented correctly
 - [ ] Test if all moves are implemented correctly using the test cases given in the wiki. 
-
+## Task List for V1:
+- [ ] Make a test folder 
+- [ ] Test multiple fen strings
 ## Goals for Version 2:
 - [ ] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
 

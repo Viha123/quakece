@@ -14,15 +14,22 @@ class BoardDisplay : public sf::Drawable
       int num = 0; //num to represent square
       piece_values piece = nopiece; //5 bit number to represent piece on square
       unique_ptr<sf::Sprite> sprite = nullptr;
+      int clicked = false;
     };
-    array<array<Square, 8>, 8> boardOutWardRepresentation;
+    
     //constructor is default add different fenString
     BoardDisplay();
     BoardDisplay(string fen);
+
+    piece_values getPieceClicked(int mouseX, int mouseY);
     // array<sf::Sprite, 13> sprites; //vectors to store all sprites after they are displayed
-    vector<unique_ptr<sf::Texture>> textures; // this stores the pointers to the textures 
+    
   private:
     virtual void draw (sf::RenderTarget& target, sf::RenderStates states) const;
     void parseFenString(string fenString); //parses fenString and fills the board representation accordingly
     void generateSprite(string path, int xPos, int yPos, piece_values value);
+    vector<unique_ptr<sf::Texture>> textures; // this stores the pointers to the textures 
+    array<array<Square, 8>, 8> boardOutWardRepresentation;
+    int prevRowClicked = -1;
+    int prevColClicked = -1; 
 };
