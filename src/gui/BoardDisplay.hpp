@@ -9,8 +9,8 @@ class BoardDisplay : public sf::Drawable
 {
   public: 
     struct Square {
-      int num; //num to represent square
-      piece_values piece; //5 bit number to represent piece on square
+      int num = 0; //num to represent square
+      piece_values piece = nopiece; //5 bit number to represent piece on square
       
     };
     array<array<Square, 8>, 8> boardOutWardRepresentation;

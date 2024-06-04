@@ -31,12 +31,11 @@ void BoardDisplay::parseFenString(string fenString) {
     }
     int end = token.find("/");
     string trow = token.substr(0, end);
-    // cout << trow << endl;
     token = token.substr(end + 1);
     // cout << r << endl;
-    int col = -1;
+    int col = 0;
     for (char c : trow) {
-      col += 1;
+
       switch (c) {
       case 'B': {
         Square whiteBishop{0, wbishop};
@@ -99,15 +98,23 @@ void BoardDisplay::parseFenString(string fenString) {
         break;
       }
       default: { // is an integer and need to skip squares
-        int intv = c - 'a';
+        int intv = c - '0';
+        // cout << "before for loop" << intv << " " << col << endl;
+        for (int tc = 0; tc < intv; tc += 1) {
+          Square empty{0, nopiece};
+          // col += 1;
+          // cout << "during " << intv << " " << r - 1 << " " << col + tc << endl;
+          boardOutWardRepresentation[r - 1][col + tc] = empty;
+          col += 1;
+        }
+        // cout << "after " << col << endl;
         col -= 1;
-        col += intv % 8;
-        Square empty{0, nopiece};
-        boardOutWardRepresentation[r - 1][col] = empty;
         break;
       }
       }
+      col += 1;
     }
+    // cout << boardOutWardRepresentation[1][7].piece << endl;
   }
 }
 void BoardDisplay::draw(sf::RenderTarget &target,
@@ -121,6 +128,8 @@ void BoardDisplay::draw(sf::RenderTarget &target,
       int yPos = BOX * rank;
       // cout << "xpos : " << xPos << endl;
       // cout << "ypos : " << yPos << endl;
+      // cout << rank << " " << file << " " <<
+      // boardOutWardRepresentation[rank][file].piece << endl;
       sf::RectangleShape rect(sf::Vector2f(BOX, BOX));
       rect.setPosition(xPos, yPos);
       if ((rank + file) % 2 == 0) {
@@ -138,6 +147,7 @@ void BoardDisplay::draw(sf::RenderTarget &target,
         drawSprite(target, "assets/wbishop.png", xPos, yPos);
       }
       if (boardOutWardRepresentation[rank][file].piece == bpawn) {
+        // cout << "IN BLack pawn" << rank << file << endl;
         drawSprite(target, "assets/bpawn.png", xPos, yPos);
       }
       if (boardOutWardRepresentation[rank][file].piece == wpawn) {
@@ -170,7 +180,8 @@ void BoardDisplay::draw(sf::RenderTarget &target,
     }
   }
 }
-void BoardDisplay::drawSprite(sf::RenderTarget &target, string path, int xPos, int yPos) const {
+void BoardDisplay::drawSprite(sf::RenderTarget &target, string path, int xPos,
+                              int yPos) const {
   sf::Texture texture;
   if (!texture.loadFromFile(path)) {
     // Error...

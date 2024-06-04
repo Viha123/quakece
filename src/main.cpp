@@ -8,7 +8,8 @@ using namespace std;
 int main() {
   sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI");
   cout << "Window created" << endl;
-  BoardDisplay guiBoard;
+  BoardDisplay guiBoard("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");
+  // BoardDisplay guiBoard;
   window.draw(guiBoard); //only rerender when required 
   window.display();
 
