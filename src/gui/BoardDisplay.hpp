@@ -1,6 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <memory>
 #include <string>
 #include "../../Headers/gui.hpp"
 
@@ -11,15 +13,16 @@ class BoardDisplay : public sf::Drawable
     struct Square {
       int num = 0; //num to represent square
       piece_values piece = nopiece; //5 bit number to represent piece on square
-      
+      unique_ptr<sf::Sprite> sprite = nullptr;
     };
     array<array<Square, 8>, 8> boardOutWardRepresentation;
     //constructor is default add different fenString
     BoardDisplay();
     BoardDisplay(string fen);
-    
+    // array<sf::Sprite, 13> sprites; //vectors to store all sprites after they are displayed
+    vector<unique_ptr<sf::Texture>> textures; // this stores the pointers to the textures 
   private:
     virtual void draw (sf::RenderTarget& target, sf::RenderStates states) const;
     void parseFenString(string fenString); //parses fenString and fills the board representation accordingly
-    void drawSprite(sf::RenderTarget& target, string path, int xPos, int yPos) const;
+    void generateSprite(string path, int xPos, int yPos, piece_values value);
 };

@@ -7,7 +7,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <cstddef>
 #include <iostream>
+#include <memory>
 #include <string>
 using namespace std;
 BoardDisplay::BoardDisplay() {
@@ -23,7 +25,6 @@ BoardDisplay::BoardDisplay(string fen) {
 void BoardDisplay::parseFenString(string fenString) {
   string token = fenString.substr(0, fenString.find(" ")); // part 1 of string
   int r = 0;
-  array<string, 8> boards{};
   while (token.length() != 0) {
     r += 1;
     if (r > 8) {
@@ -35,79 +36,100 @@ void BoardDisplay::parseFenString(string fenString) {
     // cout << r << endl;
     int col = 0;
     for (char c : trow) {
+      int yPos = (r - 1) * BOX;
+      int xPos = col * BOX;
 
       switch (c) {
       case 'B': {
-        Square whiteBishop{0, wbishop};
-        boardOutWardRepresentation[r - 1][col] = whiteBishop;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = wbishop;
+        generateSprite("assets/wbishop.png", r-1, col, wbishop);
+
         break;
       }
       case 'b': {
-        Square blackBishop{0, bbishop};
-        boardOutWardRepresentation[r - 1][col] = blackBishop;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = bbishop;
+        generateSprite("assets/bbishop.png", r-1, col, bbishop);
         break;
       }
       case 'P': {
-        Square whitePawn{0, wpawn};
-        boardOutWardRepresentation[r - 1][col] = whitePawn;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = wpawn;
+        generateSprite("assets/wpawn.png", r-1, col, wpawn);
+
         break;
       }
       case 'p': {
-        Square blackPawn{0, bpawn};
-        boardOutWardRepresentation[r - 1][col] = blackPawn;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = bpawn;
+        generateSprite("assets/bpawn.png", r-1, col, bpawn);
         break;
       }
       case 'N': {
-        Square whiteKnight{0, wknight};
-        boardOutWardRepresentation[r - 1][col] = whiteKnight;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = wknight;
+        generateSprite("assets/wknight.png", r-1, col, wknight);
         break;
       }
       case 'n': {
-        Square blackKnight{0, bknight};
-        boardOutWardRepresentation[r - 1][col] = blackKnight;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = bknight;
+        generateSprite("assets/bknight.png", r-1, col, bknight);
+
         break;
       }
       case 'R': {
-        Square whiteRook{0, wrook};
-        boardOutWardRepresentation[r - 1][col] = whiteRook;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = wrook;
+        generateSprite("assets/wrook.png", r-1, col, wrook);
+
         break;
       }
       case 'r': {
-        Square blackRook{0, brook};
-        boardOutWardRepresentation[r - 1][col] = blackRook;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = brook;
+        generateSprite("assets/brook.png", r-1, col, brook);
+
         break;
       }
       case 'Q': {
-        Square whiteQueen{0, wqueen};
-        boardOutWardRepresentation[r - 1][col] = whiteQueen;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = wqueen;
+        generateSprite("assets/wqueen.png", r-1, col, wqueen);
+
         break;
       }
       case 'q': {
-        Square blackQueen{0, bqueen};
-        boardOutWardRepresentation[r - 1][col] = blackQueen;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = bqueen;
+        generateSprite("assets/bqueen.png", r-1, col, bqueen);
+
         break;
       }
       case 'K': {
         Square whiteKing{0, wking};
-        boardOutWardRepresentation[r - 1][col] = whiteKing;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = wking;
+        generateSprite("assets/bking.png", r-1, col, wking);
+
         break;
       }
       case 'k': {
         Square blackKing{0, bking};
-        boardOutWardRepresentation[r - 1][col] = blackKing;
+        boardOutWardRepresentation[r - 1][col].num = 0;
+        boardOutWardRepresentation[r - 1][col].piece = bking;
+        generateSprite("assets/wking.png", r-1, col, bking);
+
         break;
       }
       default: { // is an integer and need to skip squares
         int intv = c - '0';
-        // cout << "before for loop" << intv << " " << col << endl;
         for (int tc = 0; tc < intv; tc += 1) {
-          Square empty{0, nopiece};
-          // col += 1;
-          // cout << "during " << intv << " " << r - 1 << " " << col + tc << endl;
-          boardOutWardRepresentation[r - 1][col + tc] = empty;
+          boardOutWardRepresentation[r - 1][col + tc].num = 0;
+          boardOutWardRepresentation[r - 1][col + tc].piece = nopiece;
           col += 1;
         }
-        // cout << "after " << col << endl;
         col -= 1;
         break;
       }
@@ -139,55 +161,26 @@ void BoardDisplay::draw(sf::RenderTarget &target,
         rect.setFillColor(black);
       }
       target.draw(rect, states);
-
-      if (boardOutWardRepresentation[rank][file].piece == bbishop) {
-        drawSprite(target, "assets/bbishop.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == wbishop) {
-        drawSprite(target, "assets/wbishop.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == bpawn) {
-        // cout << "IN BLack pawn" << rank << file << endl;
-        drawSprite(target, "assets/bpawn.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == wpawn) {
-        drawSprite(target, "assets/wpawn.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == bknight) {
-        drawSprite(target, "assets/bknight.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == wknight) {
-        drawSprite(target, "assets/wknight.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == brook) {
-        drawSprite(target, "assets/brook.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == wrook) {
-        drawSprite(target, "assets/wrook.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == bqueen) {
-        drawSprite(target, "assets/bqueen.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == wqueen) {
-        drawSprite(target, "assets/wqueen.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == bking) {
-        drawSprite(target, "assets/bking.png", xPos, yPos);
-      }
-      if (boardOutWardRepresentation[rank][file].piece == wking) {
-        drawSprite(target, "assets/wking.png", xPos, yPos);
+      if (boardOutWardRepresentation[rank][file].sprite != nullptr) {
+        target.draw(*boardOutWardRepresentation[rank][file].sprite, states);
       }
     }
   }
+
 }
-void BoardDisplay::drawSprite(sf::RenderTarget &target, string path, int xPos,
-                              int yPos) const {
-  sf::Texture texture;
-  if (!texture.loadFromFile(path)) {
+//@TODO: Rewrite this method to simply create the sprite then return a unique
+// pointer to the sprite. In thsi function we can also append the pointer
+// reference to vector/array make this not const let the displayboard method
+// call target.draw(dereference pointer to sprite)
+void BoardDisplay::generateSprite(string path, int row, int col, piece_values value) {
+  auto texture = make_unique<sf::Texture>();
+  if (!texture->loadFromFile(path)) {
     // Error...
   }
-  sf::Sprite sprite;
-  sprite.setTexture(texture);
-  sprite.setPosition(xPos, yPos);
-  target.draw(sprite);
+  auto sprite = make_unique<sf::Sprite>();
+  sprite->setTexture(*texture);
+  sprite->setPosition(col * BOX, row * BOX);
+  // target.draw(sprite);
+  textures.push_back(std::move(texture));
+  boardOutWardRepresentation[row][col].sprite = std::move(sprite);
 }
