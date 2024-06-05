@@ -3,15 +3,18 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <iostream>
+#include "../engine/Board.hpp"
 using namespace std;
 
 int main() {
+
+  Engine::Board board("4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1");
+  board.display();
   sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                           "CHESS GUI");
   cout << "Window created" << endl;
-  // BoardDisplay guiBoard("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b
-  // KQkq - 1 2");
-  BoardDisplay guiBoard;
+  BoardDisplay guiBoard("4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1");
+  // BoardDisplay guiBoard;
   window.draw(guiBoard); // only rerender when required
   window.display();
 
@@ -24,7 +27,6 @@ int main() {
       if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Left) {
           piece_values piece = guiBoard.getPieceClicked(event.mouseButton.x, event.mouseButton.y);
-          cout << piece << endl;
           window.clear();
           window.draw(guiBoard);
           window.display();

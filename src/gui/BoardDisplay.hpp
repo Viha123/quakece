@@ -14,7 +14,7 @@ class BoardDisplay : public sf::Drawable
       int num = 0; //num to represent square
       piece_values piece = nopiece; //5 bit number to represent piece on square
       unique_ptr<sf::Sprite> sprite = nullptr;
-      int clicked = false;
+      bool clicked = false;
     };
     
     //constructor is default add different fenString

@@ -38,112 +38,96 @@ void BoardDisplay::parseFenString(string fenString) {
     for (char c : trow) {
       int yPos = (r - 1) * BOX;
       int xPos = col * BOX;
-
+      boardOutWardRepresentation[r - 1][col].num = (r - 1) * 8 + col;
       switch (c) {
       case 'B': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
+
         boardOutWardRepresentation[r - 1][col].piece = wbishop;
         generateSprite("assets/wbishop.png", r - 1, col, wbishop);
 
         break;
       }
       case 'b': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = bbishop;
         generateSprite("assets/bbishop.png", r - 1, col, bbishop);
         break;
       }
       case 'P': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = wpawn;
         generateSprite("assets/wpawn.png", r - 1, col, wpawn);
 
         break;
       }
       case 'p': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = bpawn;
         generateSprite("assets/bpawn.png", r - 1, col, bpawn);
         break;
       }
       case 'N': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = wknight;
         generateSprite("assets/wknight.png", r - 1, col, wknight);
         break;
       }
       case 'n': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = bknight;
         generateSprite("assets/bknight.png", r - 1, col, bknight);
 
         break;
       }
       case 'R': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = wrook;
         generateSprite("assets/wrook.png", r - 1, col, wrook);
-
         break;
       }
       case 'r': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = brook;
         generateSprite("assets/brook.png", r - 1, col, brook);
-
         break;
       }
       case 'Q': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = wqueen;
         generateSprite("assets/wqueen.png", r - 1, col, wqueen);
 
         break;
       }
       case 'q': {
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = bqueen;
         generateSprite("assets/bqueen.png", r - 1, col, bqueen);
 
         break;
       }
       case 'K': {
-        Square whiteKing{0, wking};
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = wking;
-        generateSprite("assets/bking.png", r - 1, col, wking);
+        generateSprite("assets/wking.png", r - 1, col, wking);
 
         break;
       }
       case 'k': {
-        Square blackKing{0, bking};
-        boardOutWardRepresentation[r - 1][col].num = 0;
         boardOutWardRepresentation[r - 1][col].piece = bking;
-        generateSprite("assets/wking.png", r - 1, col, bking);
+        generateSprite("assets/bking.png", r - 1, col, bking);
 
         break;
       }
       default: { // is an integer and need to skip squares
         int intv = c - '0';
         for (int tc = 0; tc < intv; tc += 1) {
-          boardOutWardRepresentation[r - 1][col + tc].num = 0;
+          boardOutWardRepresentation[r - 1][col + tc].num =
+              (r - 1) * 8 + (col + tc);
           boardOutWardRepresentation[r - 1][col + tc].piece = nopiece;
-          col += 1;
         }
-        col -= 1;
+        col += intv - 1;
         break;
       }
       }
       col += 1;
     }
-    // cout << boardOutWardRepresentation[1][7].piece << endl;
   }
 }
 void BoardDisplay::draw(sf::RenderTarget &target,
                         sf::RenderStates states) const {
   sf::Color black(0xB7C0D8ff);
   sf::Color white(0xE8EDF9ff);
-
+  sf::Color clicked(0xFAEBD7dd);
   for (int rank = 0; rank < 8; rank++) {
     for (int file = 0; file < 8; file++) {
       int xPos = BOX * file;
@@ -161,9 +145,7 @@ void BoardDisplay::draw(sf::RenderTarget &target,
         rect.setFillColor(black);
       }
       if (boardOutWardRepresentation[rank][file].clicked == true) {
-        rect.setOutlineColor(sf::Color::Red);
-        rect.setOutlineThickness(3);
-        cout << "outlining black" << endl;
+        rect.setFillColor(clicked);
       }
 
       target.draw(rect, states);
@@ -173,25 +155,33 @@ void BoardDisplay::draw(sf::RenderTarget &target,
     }
   }
 }
+
+piece_values BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
+  int row = mouseY / 100;
+  int col = mouseX / 100;
+  // cout << row << " " << col << endl;
+  cout << "prev clicked " << prevRowClicked << prevColClicked << endl;
+
+  boardOutWardRepresentation[row][col].clicked = true;
+  if (prevColClicked == col and prevRowClicked == row) {
+    bool toggle = !boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked;
+    cout << boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked << endl;
+    boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked = toggle;
+  }
+  else if (prevColClicked != -1) {
+    boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked = false;
+  }
+  
+  prevRowClicked = row;
+  prevColClicked = col;
+  // cout << "curr clicked " << row << col << endl;
+  cout << boardOutWardRepresentation[row][col].num << endl;
+  return boardOutWardRepresentation[row][col].piece; // place holder
+}
 //@TODO: Rewrite this method to simply create the sprite then return a unique
 // pointer to the sprite. In thsi function we can also append the pointer
 // reference to vector/array make this not const let the displayboard method
 // call target.draw(dereference pointer to sprite)
-piece_values BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
-  int row = mouseY / 100;
-  int col = mouseX / 100;
-  cout << row << " " << col << endl;
-  cout << "prev clicked " << prevRowClicked << prevColClicked << endl;
-
-  boardOutWardRepresentation[row][col].clicked = true;
-  if (prevColClicked != -1 || boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked != false) {
-    boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked = false;
-  }
-  prevRowClicked = row;
-  prevColClicked = col;
-  cout << "curr clicked " << row << col << endl;
-  return boardOutWardRepresentation[row][col].piece; // place holder
-}
 void BoardDisplay::generateSprite(string path, int row, int col,
                                   piece_values value) {
   auto texture = make_unique<sf::Texture>();
@@ -201,8 +191,7 @@ void BoardDisplay::generateSprite(string path, int row, int col,
   auto sprite = make_unique<sf::Sprite>();
   sprite->setTexture(*texture);
   sprite->setPosition(col * BOX, row * BOX);
-  // target.draw(sprite);
-  cout << sprite->getGlobalBounds().width << endl;
+  // cout << sprite->getGlobalBounds().width << endl;
   textures.push_back(std::move(texture));
   boardOutWardRepresentation[row][col].sprite = std::move(sprite);
 }
