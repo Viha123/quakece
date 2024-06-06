@@ -11,6 +11,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include "../../utils.hpp"
 using namespace std;
 BoardDisplay::BoardDisplay() {
   // nothing
@@ -36,9 +37,9 @@ void BoardDisplay::parseFenString(string fenString) {
     // cout << r << endl;
     int col = 0;
     for (char c : trow) {
-      int yPos = (r - 1) * BOX;
-      int xPos = col * BOX;
-      boardOutWardRepresentation[r - 1][col].num = (r - 1) * 8 + col;
+      int yPos = utils::getYPos(r-1);
+      int xPos = utils::getXPos(c);
+      boardOutWardRepresentation[r - 1][col].num = utils::getNumFromRF(r-1, c);
       switch (c) {
       case 'B': {
 
@@ -130,8 +131,8 @@ void BoardDisplay::draw(sf::RenderTarget &target,
   sf::Color clicked(0xFAEBD7dd);
   for (int rank = 0; rank < 8; rank++) {
     for (int file = 0; file < 8; file++) {
-      int xPos = BOX * file;
-      int yPos = BOX * rank;
+      int xPos = utils::getXPos(file);
+      int yPos = utils::getYPos(rank);
       // cout << "xpos : " << xPos << endl;
       // cout << "ypos : " << yPos << endl;
       // cout << rank << " " << file << " " <<
@@ -190,7 +191,7 @@ void BoardDisplay::generateSprite(string path, int row, int col,
   }
   auto sprite = make_unique<sf::Sprite>();
   sprite->setTexture(*texture);
-  sprite->setPosition(col * BOX, row * BOX);
+  sprite->setPosition(utils::getXPos(col), utils::getYPos(row));
   // cout << sprite->getGlobalBounds().width << endl;
   textures.push_back(std::move(texture));
   boardOutWardRepresentation[row][col].sprite = std::move(sprite);

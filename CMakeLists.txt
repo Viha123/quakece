@@ -12,6 +12,9 @@ FetchContent_MakeAvailable(SFML)
 file(GLOB EXEC_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp
                    ${PROJECT_SOURCE_DIR}/src/gui/*.cpp
                    ${PROJECT_SOURCE_DIR}/engine/*.cpp
+                   ${PROJECT_SOURCE_DIR}/engine/movegen/*.cpp
+                   ${PROJECT_SOURCE_DIR}/utils.cpp
+
                    )
 
 add_executable(main ${EXEC_SRC})

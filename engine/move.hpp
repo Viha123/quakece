@@ -1,3 +1,4 @@
+#pragma once
 #include "../Headers/engine.hpp"
 #include <vector>
 namespace Engine {
