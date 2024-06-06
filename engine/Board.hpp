@@ -6,19 +6,27 @@ namespace Engine {
 class Board {
 public:
   struct Square {
-    Color type; //piece color
+    Color type; // piece color
     Piece piece;
-    char c; //for display purposes
+    char c; // for display purposes
   };
-  int16_t castle_flag = 0b1111; // 1: wk, 2: wq, 4: bk, 8: bq
-  int8_t enpessant_white = 0b0; // all of them are not allowed in the start
-  int8_t enpassant_black = 0b0;
-  Color turn = white; // white to move
-  std::array<Square, 64> board{};
+  struct State {
+    int8_t castle_flag = 0b0000; // 1: wk, 2: wq, 4: bk, 8: bq
+    int8_t enpessant = -1;
+    Color turn = white; // white to move
+  };
+  State state; 
+  std::array<Square, 64>
+      board{};
   Board();
   Board(std::string fen);
-  void display(); //display board for testing purposes
+  void display(); // display board for testing purposes
+  State getState();
 private:
-  void generateBoardFromFen(std::string fen); //updates board array and also initializes all the other variables such as enpessant, castle rights etc.
+  void generateBoardFromFen(
+      std::string fen); // updates board array and also initializes all the
+                        // other variables such as enpessant, castle rights etc.
+  void initialize_remainding_parameters(
+      std::string remaining); // this initializes castle enassatns and turns.
 };
 } // namespace Engine

@@ -14,6 +14,7 @@ Board::Board(std::string fen) { generateBoardFromFen(fen); }
 void Board::generateBoardFromFen(std::string fen) {
   std::string token = fen.substr(0, fen.find(" ")); // part 1 of string
   std::string remaining = fen.substr(fen.find(" ") + 1);
+  initialize_remainding_parameters(remaining);
   int row = 0;
   int i = 0;
   while (token.length() != 0) {
@@ -26,13 +27,11 @@ void Board::generateBoardFromFen(std::string fen) {
     token = token.substr(end + 1);
     
     for (char c : trow) {
-      std::cout << c << " " <<  trow << std::endl;
       if (std::isalpha(c)) {
         board[i].c = c;
       } else {
         board[i].c = '.';
       }
-      std::cout << i << std::endl;
 
       switch (c) {
       case 'B': {
@@ -99,18 +98,52 @@ void Board::generateBoardFromFen(std::string fen) {
         int intv = c - '0';
       
         for (int tc = 0; tc < intv; tc += 1) {
-          std::cout << i + tc << std::endl;
           board[i + tc].piece = e;
           board[i + tc].type = none;
           board[i+tc].c = '.';
         }
         i += intv - 1;
-        std::cout << i << std::endl;
         break;
       }
       }
       i += 1;
     }
+  }
+}
+Board::State Board::getState() {
+  return state;
+}
+void Board::initialize_remainding_parameters(std::string remaining) {
+  std::string turn = remaining.substr(0, remaining.find(" "));
+  remaining = remaining.substr(remaining.find(" ")+1);
+  std::string castling = remaining.substr(0, remaining.find(" ") + 1);
+  remaining = remaining.substr(remaining.find(" ")+1);
+  if (turn[0] == 'w'){
+    state.turn = white;
+  } else{
+    state.turn = black;
+  }
+  std::cout << castling.find("-1") << std::endl;
+  if (castling.find("k") > 0 and castling.find("k") < 4) { //black king side
+    state.castle_flag |= 0b0100;
+  }
+  if (castling.find("K") > 0 and castling.find("K") < 4) { //white king side
+    state.castle_flag |= 0b0001;
+  }
+  if (castling.find("q") > 0 and castling.find("q") < 4) { //black queen side
+    state.castle_flag |= 0b1000;
+  }
+  if (castling.find("Q") > 0 and castling.find("Q") < 4) { //white queen side
+    state.castle_flag |= 0b0010;
+  }
+  //en pessant
+  std::string en_string = remaining.substr(0, remaining.find(" "));
+  if (en_string.find("-") == 0) {
+    state.enpessant = -1;
+  }
+  else {
+    //need to make a utils.cpp to convert chess notation to numbers
+    //TODO
   }
 }
 void Board::display() {
@@ -119,7 +152,7 @@ void Board::display() {
       std::cout << std::endl;
     }
     std::cout << board[i].c << " ";
-    
   }
+  std::cout << std::endl;
 }
 } // namespace Engine
