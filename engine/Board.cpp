@@ -3,6 +3,7 @@
 #include <array>
 #include <cctype>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 namespace Engine {
 Board::Board() {
@@ -144,6 +145,14 @@ void Board::initialize_remainding_parameters(std::string remaining) {
   else {
     //need to make a utils.cpp to convert chess notation to numbers
     //TODO
+  }
+}
+Board::Square Board::getSquare(int num) {
+  if (num < 0 or num > 63) {
+    throw std::invalid_argument("index must be between 0 and 63");
+  }
+  else {
+    return board[num];
   }
 }
 void Board::display() {

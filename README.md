@@ -18,3 +18,8 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 
 ### To add more executables:
 - still trying to figure out
+
+## Major Resources used:
+- https://sites.google.com/site/tscpchess/home?authuser=0
+- https://www.chess.com/terms/fen-chess
+- https://www.chessprogramming.org/Main_Page

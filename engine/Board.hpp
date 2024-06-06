@@ -22,6 +22,7 @@ public:
   Board(std::string fen);
   void display(); // display board for testing purposes
   State getState();
+  Square getSquare(int num); //get piece at index
 private:
   void generateBoardFromFen(
       std::string fen); // updates board array and also initializes all the
