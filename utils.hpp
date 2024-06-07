@@ -8,4 +8,5 @@ namespace utils {
   int getFile(int num);
   int getYPos(int row);
   int getXPos(int col);
+  void printVectorGivenIndex(int num);
 }

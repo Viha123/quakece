@@ -39,7 +39,7 @@ void BoardDisplay::parseFenString(string fenString) {
     for (char c : trow) {
       int yPos = utils::getYPos(r-1);
       int xPos = utils::getXPos(c);
-      boardOutWardRepresentation[r - 1][col].num = utils::getNumFromRF(r-1, c);
+      boardOutWardRepresentation[r - 1][col].num = utils::getNumFromRF(r-1, col);
       switch (c) {
       case 'B': {
 
@@ -157,7 +157,7 @@ void BoardDisplay::draw(sf::RenderTarget &target,
   }
 }
 
-piece_values BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
+int BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
   int row = mouseY / 100;
   int col = mouseX / 100;
   // cout << row << " " << col << endl;
@@ -177,7 +177,7 @@ piece_values BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
   prevColClicked = col;
   // cout << "curr clicked " << row << col << endl;
   cout << boardOutWardRepresentation[row][col].num << endl;
-  return boardOutWardRepresentation[row][col].piece; // place holder
+  return boardOutWardRepresentation[row][col].num; // place holder
 }
 //@TODO: Rewrite this method to simply create the sprite then return a unique
 // pointer to the sprite. In thsi function we can also append the pointer

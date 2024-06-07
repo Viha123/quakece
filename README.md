@@ -23,3 +23,5 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - https://sites.google.com/site/tscpchess/home?authuser=0
 - https://www.chess.com/terms/fen-chess
 - https://www.chessprogramming.org/Main_Page
+## Heavily inspired by:
+- Tom Kerrigen's Simple Chess program

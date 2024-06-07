@@ -12,6 +12,8 @@ enum Directions {
   east,
   south,
 };
+constexpr bool isSlide[6] = {false, false, true, true, true, true};
+
 constexpr int directionOffsets[6][8] = {
     // updated to mailbox method
     {0, 0, 0, 0, 0, 0, 0, 0}, // pawn

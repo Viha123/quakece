@@ -8,3 +8,4 @@
 - take a chess position as input and return the list of all the legal moves as output. 
   - first generate all psuedo legal moves
   - then check if move is legal
+

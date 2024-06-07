@@ -1,7 +1,9 @@
 // things i want here
 // square num to rank file
 // rank file to square num
+#include "utils.hpp"
 #include "Headers/gui.hpp"
+#include <iostream>
 namespace utils {
   int getNumFromRF(int rank, int file) {
     return rank * 8 + file;
@@ -18,4 +20,10 @@ namespace utils {
   int getXPos(int col) {
     return col * BOX;
   }
+
+  void printVectorGivenIndex(int index) {
+    std::cout << index << std::endl;
+    std::cout << getRank(index) << " " << getFile(index) << std::endl;
+  } 
+
 }

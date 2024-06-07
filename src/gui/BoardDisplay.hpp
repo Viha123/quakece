@@ -21,7 +21,7 @@ class BoardDisplay : public sf::Drawable
     BoardDisplay();
     BoardDisplay(string fen);
 
-    piece_values getPieceClicked(int mouseX, int mouseY);
+    int getPieceClicked(int mouseX, int mouseY);
     // array<sf::Sprite, 13> sprites; //vectors to store all sprites after they are displayed
     
   private:

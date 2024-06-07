@@ -2,6 +2,7 @@
 #include "../Headers/engine.hpp"
 #include <array>
 #include <string>
+#include "move.hpp"
 namespace Engine {
 class Board {
 public:
@@ -23,6 +24,8 @@ public:
   void display(); // display board for testing purposes
   State getState();
   Square getSquare(int num); //get piece at index
+  void makeMove(Move move); //make move and update the board with the result of that move
+  void unmakeMove(Move move); //if move results in a potential check from opp side, you must undo the move.
 private:
   void generateBoardFromFen(
       std::string fen); // updates board array and also initializes all the
