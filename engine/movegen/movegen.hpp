@@ -11,5 +11,7 @@ namespace Engine {
   std::vector<Move> getPsuedoLegalMoves(Board& board);
   std::vector<Move> getSliderMoves(Board& board); //Rook, bishop, queen, king
   std::vector<Move> getJumpMoves(Board& board); //
-  std::vector<Move> getMoveForPiece(Board& board, int num); // this is the one i must work on first
+  std::vector<int> getMoveForPiece(Board& board, int num); // this is only for the gui and easier testing. 
+  //then conver thsi into slider, jump pseudolegal moves etc
+  
 }

@@ -15,6 +15,7 @@ class BoardDisplay : public sf::Drawable
       piece_values piece = nopiece; //5 bit number to represent piece on square
       unique_ptr<sf::Sprite> sprite = nullptr;
       bool clicked = false;
+      bool possibleMove = false;
     };
     
     //constructor is default add different fenString
@@ -22,6 +23,8 @@ class BoardDisplay : public sf::Drawable
     BoardDisplay(string fen);
 
     int getPieceClicked(int mouseX, int mouseY);
+    void highlightPossibleMoves(vector<int> nums);
+    void clearPossibleMoves();
     // array<sf::Sprite, 13> sprites; //vectors to store all sprites after they are displayed
     
   private:

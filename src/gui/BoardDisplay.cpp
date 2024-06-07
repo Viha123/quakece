@@ -4,6 +4,7 @@
 
 #include "BoardDisplay.hpp"
 #include "../../Headers/gui.hpp"
+#include "../../utils.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -11,7 +12,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include "../../utils.hpp"
 using namespace std;
 BoardDisplay::BoardDisplay() {
   // nothing
@@ -37,9 +37,10 @@ void BoardDisplay::parseFenString(string fenString) {
     // cout << r << endl;
     int col = 0;
     for (char c : trow) {
-      int yPos = utils::getYPos(r-1);
+      int yPos = utils::getYPos(r - 1);
       int xPos = utils::getXPos(c);
-      boardOutWardRepresentation[r - 1][col].num = utils::getNumFromRF(r-1, col);
+      boardOutWardRepresentation[r - 1][col].num =
+          utils::getNumFromRF(r - 1, col);
       switch (c) {
       case 'B': {
 
@@ -124,11 +125,31 @@ void BoardDisplay::parseFenString(string fenString) {
     }
   }
 }
+void BoardDisplay::highlightPossibleMoves(vector<int> nums) {
+  for(auto j: nums) {
+    std::cout << j << std::endl;
+  }
+  std::cout << "here" << std::endl;
+  for (auto i : nums) {
+    int rank = utils::getRank(i);
+    int file = utils::getFile(i);
+    std::cout << i << std::endl;
+    boardOutWardRepresentation[rank][file].possibleMove = true;
+  }
+}
+void BoardDisplay::clearPossibleMoves() {
+  for (int r = 0; r < 8; r += 1) {
+    for (int c = 0; c < 8; c += 1) {
+      boardOutWardRepresentation[r][c].possibleMove = false;
+    }
+  }
+}
 void BoardDisplay::draw(sf::RenderTarget &target,
                         sf::RenderStates states) const {
   sf::Color black(0xB7C0D8ff);
   sf::Color white(0xE8EDF9ff);
   sf::Color clicked(0xFAEBD7dd);
+  sf::Color possMove(0xF2CA5Cff);
   for (int rank = 0; rank < 8; rank++) {
     for (int file = 0; file < 8; file++) {
       int xPos = utils::getXPos(file);
@@ -149,6 +170,11 @@ void BoardDisplay::draw(sf::RenderTarget &target,
         rect.setFillColor(clicked);
       }
 
+      if (boardOutWardRepresentation[rank][file].possibleMove == true) {
+        rect.setFillColor(possMove);
+      }
+      rect.setOutlineColor(sf::Color::Black);
+      rect.setOutlineThickness(3);
       target.draw(rect, states);
       if (boardOutWardRepresentation[rank][file].sprite != nullptr) {
         target.draw(*boardOutWardRepresentation[rank][file].sprite, states);
@@ -165,14 +191,15 @@ int BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
 
   boardOutWardRepresentation[row][col].clicked = true;
   if (prevColClicked == col and prevRowClicked == row) {
-    bool toggle = !boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked;
-    cout << boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked << endl;
+    bool toggle =
+        !boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked;
+    cout << boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked
+         << endl;
     boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked = toggle;
-  }
-  else if (prevColClicked != -1) {
+  } else if (prevColClicked != -1) {
     boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked = false;
   }
-  
+
   prevRowClicked = row;
   prevColClicked = col;
   // cout << "curr clicked " << row << col << endl;
