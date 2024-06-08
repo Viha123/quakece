@@ -10,6 +10,7 @@ public:
     Color type; // piece color
     Piece piece;
     char c; // for display purposes
+    int jumpCount; // if this piece is a pawn then we need to count its jump to see if it can enpassant possibility
   };
   struct State {
     int8_t castle_flag = 0b0000; // 1: wk, 2: wq, 4: bk, 8: bq

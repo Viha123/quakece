@@ -126,14 +126,14 @@ void BoardDisplay::parseFenString(string fenString) {
   }
 }
 void BoardDisplay::highlightPossibleMoves(vector<int> nums) {
-  for(auto j: nums) {
-    std::cout << j << std::endl;
-  }
-  std::cout << "here" << std::endl;
+  // for(auto j: nums) {
+  //   std::cout << j << std::endl;
+  // }
+  // std::cout << "here" << std::endl;
   for (auto i : nums) {
     int rank = utils::getRank(i);
     int file = utils::getFile(i);
-    std::cout << i << std::endl;
+    // std::cout << i << std::endl;
     boardOutWardRepresentation[rank][file].possibleMove = true;
   }
 }
@@ -187,7 +187,7 @@ int BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
   int row = mouseY / 100;
   int col = mouseX / 100;
   // cout << row << " " << col << endl;
-  cout << "prev clicked " << prevRowClicked << prevColClicked << endl;
+  // cout << "prev clicked " << prevRowClicked << prevColClicked << endl;
 
   boardOutWardRepresentation[row][col].clicked = true;
   if (prevColClicked == col and prevRowClicked == row) {
@@ -203,7 +203,7 @@ int BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
   prevRowClicked = row;
   prevColClicked = col;
   // cout << "curr clicked " << row << col << endl;
-  cout << boardOutWardRepresentation[row][col].num << endl;
+  // cout << boardOutWardRepresentation[row][col].num << endl;
   return boardOutWardRepresentation[row][col].num; // place holder
 }
 //@TODO: Rewrite this method to simply create the sprite then return a unique
