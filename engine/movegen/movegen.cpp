@@ -80,13 +80,43 @@ std::vector<int> getMoveForPiece(Board &board, int num) {
         std::cout << targetIndex << std::endl;
         moves.push_back(targetIndex);
       }
-      
-    }
 
-    // check enpessant capture possibility:
-      
+      // check enpessant capture possibility:
+
+      else if ((targetIndex == state.enpessant) && (square.jumpCount == 2)) {
+        moves.push_back(targetIndex);
+      }
+    }
   }
   // check castle possibility
+  if (square.type == state.turn and square.piece == k) {
+    if (square.type == black) {
+      // shift right 2 and 3 times
+      if (((state.castle_flag >> 2) & 0b0001) == 1) { // black king castle
+        moves.push_back(num + 2);
+      }
+      if (((state.castle_flag >> 3) & 0b0001) == 1) { // black queen castle
+        moves.push_back(num - 2);
+      }
+    }
+    if (square.type == white) {
+      // shift right 2 and 3 times
+      std::cout <<((state.castle_flag >> 1) & 0b0010)<< std::endl;
+
+      if (((state.castle_flag >> 0) & 0b0001) == 1) { // white king castle
+        moves.push_back(num + 2);
+      }
+      if (((state.castle_flag >> 1) & 0b0001) == 1) { // white queen castle
+
+        moves.push_back(num - 2);
+      }
+    }
+  }
+
+  return moves;
+}
+std::vector<Move> getPsuedoLegalMoves() {
+  std::vector<Move> moves;
 
   return moves;
 }

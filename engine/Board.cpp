@@ -112,6 +112,9 @@ void Board::generateBoardFromFen(std::string fen) {
     }
   }
 }
+// void makeMove(int num) {
+
+// }
 Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {
   std::string turn = remaining.substr(0, remaining.find(" "));

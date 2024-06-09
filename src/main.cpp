@@ -10,7 +10,7 @@
 using namespace std;
 vector<Engine::Move *> Engine::Move::history = {};
 int main() {
-  string fen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
+  string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
   Engine::Board board(fen);
   sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                           "CHESS GUI");
@@ -32,10 +32,10 @@ int main() {
           int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                event.mouseButton.y);
 
-          vector<int> slider_piece_moves =
+          vector<int> moves =
               Engine::getMoveForPiece(board, piece);
 
-          guiBoard.highlightPossibleMoves(slider_piece_moves);
+          guiBoard.highlightPossibleMoves(moves);
 
           window.clear();
           window.draw(guiBoard);
