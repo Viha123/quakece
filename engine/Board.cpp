@@ -175,6 +175,8 @@ void Board::makeMove(Move move) {
 
   // if double jump then mark enpessant
   if (piece == p) {
+    board[move._move_to] = board[move._move_from];
+    board[move._move_from] = emptySquare;
     // if pawn and if pawn did a double jump
     if (move._move_from - move._move_to == -16) { // black double jump
       board[move._move_from].jumpCount = 1;
@@ -182,6 +184,11 @@ void Board::makeMove(Move move) {
     } else if (move._move_from - move._move_to == 16) {
       board[move._move_from].jumpCount = 1;
       state.enpessant = move._move_to + 8;
+    } else if (move._move_from - move._move_to == -8) { // black single jump
+      board[move._move_from].jumpCount += 1;
+    } else if (move._move_from - move._move_to == 8) { //single jump
+      std::cout << "white single jump" << std::endl;
+      board[move._move_from].jumpCount += 1;
     }
   }
 
@@ -191,9 +198,17 @@ void Board::makeMove(Move move) {
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
   }
-
+  //handles promootion. 
   if(move._isPromotion) {
-    
+    //
+    Square newSquare = {
+      .type = board[move._move_from].type,
+      .piece = board[move._move_from].piece,
+      .c = pieceReps[board[move._move_from].type][move._toPromote],
+      .jumpCount = 0
+    };
+    board[move._move_to] = newSquare;
+    board[move._move_from] = emptySquare; 
   }
 
   // if promotion then turn pawn into queen, king, whatevs

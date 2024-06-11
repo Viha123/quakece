@@ -4,8 +4,8 @@
 
 #include "BoardDisplay.hpp"
 #include "../../Headers/gui.hpp"
-#include "../../utils.hpp"
 #include "../../engine/move.hpp"
+#include "../../utils.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -132,7 +132,7 @@ void BoardDisplay::highlightPossibleMoves(vector<Engine::Move> moves) {
   // }
   // std::cout << "here" << std::endl;
   vector<int> nums{};
-  for(auto move: moves) {
+  for (auto move : moves) {
     nums.push_back(move._move_to);
   }
   for (auto i : nums) {
@@ -148,6 +148,33 @@ void BoardDisplay::clearPossibleMoves() {
       boardOutWardRepresentation[r][c].possibleMove = false;
     }
   }
+}
+void BoardDisplay::updateMove(Engine::Move move) {
+  // change movefrom index and move_toindex
+  int move_to_r = utils::getRank(move._move_to);
+  int move_to_c = utils::getFile(move._move_to);
+  int move_from_r = utils::getRank(move._move_from);
+  int move_from_c = utils::getFile(move._move_from);
+
+  // Move the unique_ptr from the source to the destination
+  boardOutWardRepresentation[move_to_r][move_to_c].sprite =
+      std::move(boardOutWardRepresentation[move_from_r][move_from_c].sprite);
+  boardOutWardRepresentation[move_to_r][move_to_c].sprite->setPosition(utils::getXPos(move_to_c), utils::getYPos(move_to_r));
+  // Move the rest of the struct
+  boardOutWardRepresentation[move_to_r][move_to_c].num =
+      utils::getNumFromRF(move_to_r, move_to_c);
+  boardOutWardRepresentation[move_to_r][move_to_c].piece =
+      boardOutWardRepresentation[move_from_r][move_from_c].piece;
+  boardOutWardRepresentation[move_to_r][move_to_c].possibleMove = false;
+  boardOutWardRepresentation[move_to_r][move_to_c].clicked = false;
+
+  // Clear the source struct
+  boardOutWardRepresentation[move_from_r][move_from_c] = {
+      .num = utils::getNumFromRF(move_from_r, move_from_c),
+      .piece = nopiece,
+      .sprite = nullptr,
+      .clicked = false,
+      .possibleMove = false};
 }
 void BoardDisplay::draw(sf::RenderTarget &target,
                         sf::RenderStates states) const {
@@ -198,8 +225,9 @@ int BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
   if (prevColClicked == col and prevRowClicked == row) {
     bool toggle =
         !boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked;
-    cout << boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked
-         << endl;
+    // cout <<
+    // boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked
+    //      << endl;
     boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked = toggle;
   } else if (prevColClicked != -1) {
     boardOutWardRepresentation[prevRowClicked][prevColClicked].clicked = false;

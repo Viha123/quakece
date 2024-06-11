@@ -12,6 +12,7 @@ enum Directions {
   east,
   south,
 };
+constexpr char pieceReps[2][7] = {{'P', 'N', 'B', 'R', 'Q', 'K', '.'}, {'p', 'n', 'b', 'r', 'q', 'k', '.'}};
 constexpr bool isSlide[6] = {false, false, true, true, true, true};
 
 constexpr int directionOffsets[6][8] = {

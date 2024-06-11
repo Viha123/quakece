@@ -28,7 +28,7 @@ class BoardDisplay : public sf::Drawable
     void highlightPossibleMoves(vector<Engine::Move> nums);
     void clearPossibleMoves();
     // array<sf::Sprite, 13> sprites; //vectors to store all sprites after they are displayed
-    
+    void updateMove(Engine::Move move);
   private:
     virtual void draw (sf::RenderTarget& target, sf::RenderStates states) const;
     void parseFenString(string fenString); //parses fenString and fills the board representation accordingly

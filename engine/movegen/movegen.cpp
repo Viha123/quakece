@@ -94,11 +94,11 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     for (int offset = 0; offset < 2; offset += 1) {
       int targetIndex =
           mailbox[mailbox64[num] + pawnCaptureOffset[square.type][offset]];
-      std::cout << targetIndex << std::endl;
+      // std::cout << targetIndex << std::endl;
       if ((targetIndex != -1) &&
           (square.type != board.board[targetIndex].type) &&
           (board.board[targetIndex].type != none)) {
-        std::cout << targetIndex << std::endl;
+        // std::cout << targetIndex << std::endl;
         Move m(num, targetIndex, false, false, true, e);
         moves.push_back(m);
       }
@@ -127,7 +127,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     }
     if (square.type == white) {
       // shift right 2 and 3 times
-      std::cout << ((state.castle_flag >> 1) & 0b0010) << std::endl;
+      // std::cout << ((state.castle_flag >> 1) & 0b0010) << std::endl;
 
       if (((state.castle_flag >> 0) & 0b0001) == 1) { // white king castle
         moves.push_back(m1);

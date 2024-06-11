@@ -22,13 +22,13 @@ namespace utils {
   }
 
   void printVectorGivenIndex(int index) {
-    std::cout << index << std::endl;
+    // std::cout << index << std::endl;
     std::cout << getRank(index) << " " << getFile(index) << std::endl;
   } 
   int getNumFromStr(std::string str) {
     int col = str[0] - 'a';
     int row = 8 - (str[1] - '0');
-    std::cout << "HERE" << std::endl;
+    // std::cout << "HERE" << std::endl;
     return getNumFromRF(row, col);
   }
 
