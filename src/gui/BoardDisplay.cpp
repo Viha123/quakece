@@ -5,6 +5,7 @@
 #include "BoardDisplay.hpp"
 #include "../../Headers/gui.hpp"
 #include "../../utils.hpp"
+#include "../../engine/move.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -125,11 +126,15 @@ void BoardDisplay::parseFenString(string fenString) {
     }
   }
 }
-void BoardDisplay::highlightPossibleMoves(vector<int> nums) {
+void BoardDisplay::highlightPossibleMoves(vector<Engine::Move> moves) {
   // for(auto j: nums) {
   //   std::cout << j << std::endl;
   // }
   // std::cout << "here" << std::endl;
+  vector<int> nums{};
+  for(auto move: moves) {
+    nums.push_back(move._move_to);
+  }
   for (auto i : nums) {
     int rank = utils::getRank(i);
     int file = utils::getFile(i);

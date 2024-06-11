@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 #include "../../Headers/gui.hpp"
+#include "../../engine/move.hpp"
+
 
 using namespace std;
 class BoardDisplay : public sf::Drawable
@@ -23,7 +25,7 @@ class BoardDisplay : public sf::Drawable
     BoardDisplay(string fen);
 
     int getPieceClicked(int mouseX, int mouseY);
-    void highlightPossibleMoves(vector<int> nums);
+    void highlightPossibleMoves(vector<Engine::Move> nums);
     void clearPossibleMoves();
     // array<sf::Sprite, 13> sprites; //vectors to store all sprites after they are displayed
     

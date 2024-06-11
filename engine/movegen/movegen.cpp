@@ -6,9 +6,9 @@
 #include <iostream>
 #include <vector>
 namespace Engine {
-std::vector<int> getMoveForPiece(Board &board, int num) {
+std::vector<Move> getMoveForPiece(Board &board, int num) {
   board.display();
-  std::vector<int> moves = {};
+  std::vector<Move> moves = {};
   Board::Square square = board.getSquare(num);
   Board::State state = board.getState();
   int row = utils::getRank(num);
@@ -37,10 +37,13 @@ std::vector<int> getMoveForPiece(Board &board, int num) {
           if ((board.getSquare(targetIndex).type != state.turn &&
                board.getSquare(targetIndex).type != none)) {
             // std::cout << "opp side" << std::endl;
-            moves.push_back(targetIndex);
+            // capture
+            Move m(num, targetIndex, false, false, true, e);
+            moves.push_back(m);
             break;
           }
-          moves.push_back(targetIndex);
+          Move m(num, targetIndex, false, false, false, e);
+          moves.push_back(m);
 
         } else {
           break;
@@ -48,7 +51,7 @@ std::vector<int> getMoveForPiece(Board &board, int num) {
       }
     }
   }
-
+  // TODO: pawn promotion test
   if ((square.type == state.turn) && square.piece == p) {
     // std::cout << "PAWN!!!" << std::endl;
     // std::vector<int> possibleMoves = {};
@@ -57,14 +60,32 @@ std::vector<int> getMoveForPiece(Board &board, int num) {
         (row == 6 && square.type == white)) {
       // pawn can move 2 steps
       if (board.board[num + pawnOffset[square.type][0]].piece == e) {
-        moves.push_back(num + pawnOffset[square.type][0]);
+        Move m(num, num + pawnOffset[square.type][0], false, false, false, e);
+        moves.push_back(m);
         if (board.board[num + pawnOffset[square.type][1]].piece == e) {
-          moves.push_back(num + pawnOffset[square.type][1]);
+          Move m(num, num + pawnOffset[square.type][1], false, false, false, e);
+          moves.push_back(m);
         }
       }
+
     } else {
-      if (board.board[num + pawnOffset[square.type][0]].piece == e) {
-        moves.push_back(num + pawnOffset[square.type][0]);
+      // generate promotion possibility:
+
+      if (square.type == black && row == 6) {
+        Piece promotions[4] = {q, n, b, r};
+          for(auto pr: promotions) {
+            Move m(num, num + 8, false, true, false, pr);
+          }
+      }
+      else if (square.type == white && row == 1) {
+        Piece promotions[4] = {q, n, b, r};
+          for(auto pr: promotions) {
+            Move m(num, num - 8, false, true, false, pr);
+          }
+      }
+      else if (board.board[num + pawnOffset[square.type][0]].piece == e) {
+        Move m(num, num + pawnOffset[square.type][0], false, false, false, e);
+        moves.push_back(m);
       }
     }
     // check diagonal capture:
@@ -78,37 +99,42 @@ std::vector<int> getMoveForPiece(Board &board, int num) {
           (square.type != board.board[targetIndex].type) &&
           (board.board[targetIndex].type != none)) {
         std::cout << targetIndex << std::endl;
-        moves.push_back(targetIndex);
+        Move m(num, targetIndex, false, false, true, e);
+        moves.push_back(m);
       }
 
       // check enpessant capture possibility:
 
       else if ((targetIndex == state.enpessant) && (square.jumpCount == 2)) {
-        moves.push_back(targetIndex);
+        Move m(num, targetIndex, false, false, true, e);
+        moves.push_back(m);
       }
     }
   }
   // check castle possibility
   if (square.type == state.turn and square.piece == k) {
+    Move m1(num, num + 2, true, false, false, e);
+    Move m2(num, num - 2, true, false, false, e);
     if (square.type == black) {
       // shift right 2 and 3 times
+
       if (((state.castle_flag >> 2) & 0b0001) == 1) { // black king castle
-        moves.push_back(num + 2);
+        moves.push_back(m1);
       }
       if (((state.castle_flag >> 3) & 0b0001) == 1) { // black queen castle
-        moves.push_back(num - 2);
+        moves.push_back(m2);
       }
     }
     if (square.type == white) {
       // shift right 2 and 3 times
-      std::cout <<((state.castle_flag >> 1) & 0b0010)<< std::endl;
+      std::cout << ((state.castle_flag >> 1) & 0b0010) << std::endl;
 
       if (((state.castle_flag >> 0) & 0b0001) == 1) { // white king castle
-        moves.push_back(num + 2);
+        moves.push_back(m1);
       }
       if (((state.castle_flag >> 1) & 0b0001) == 1) { // white queen castle
 
-        moves.push_back(num - 2);
+        moves.push_back(m2);
       }
     }
   }

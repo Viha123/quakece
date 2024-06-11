@@ -1,11 +1,11 @@
 #include "Board.hpp"
 #include "../Headers/engine.hpp"
+#include "../utils.hpp"
 #include <array>
 #include <cctype>
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include "../utils.hpp"
 namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -100,9 +100,7 @@ void Board::generateBoardFromFen(std::string fen) {
         int intv = c - '0';
 
         for (int tc = 0; tc < intv; tc += 1) {
-          board[i + tc].piece = e;
-          board[i + tc].type = none;
-          board[i + tc].c = '.';
+          board[i + tc] = emptySquare;
         }
         i += intv - 1;
         break;
@@ -112,9 +110,94 @@ void Board::generateBoardFromFen(std::string fen) {
     }
   }
 }
-// void makeMove(int num) {
+void Board::makeMove(Move move) {
+  Piece piece = board[move._move_from].piece;
+  if (move._isCapture) { // simply replace the thing that was previously at that
+                         // box
 
-// }
+    board[move._move_to] = board[move._move_from];
+    if (piece == p) {
+      board[move._move_to].jumpCount += 1;
+    }
+    board[move._move_from] = emptySquare;
+  }
+  if (move._isCastle) {
+    int file = utils::getFile(move._move_to);
+    if (file == 6) {
+      // king side castle
+      // turn of the respective castle
+      board[move._move_to] = board[move._move_from];
+      board[move._move_from] = emptySquare;
+      board[move._move_to - 1] = board[move._move_to + 2];
+      board[move._move_to + 2] = emptySquare;
+      if (board[move._move_to].type == white) {
+        // flip bit to not allow white king castle
+        state.castle_flag &= 0b1110;
+      }
+      if (board[move._move_to].type == black) {
+        // flip bit to not allow black king castle
+        state.castle_flag &= 0b1011;
+      }
+    }
+    if (file == 2) { // queen side castle
+      board[move._move_to] = board[move._move_from];
+      board[move._move_from] = emptySquare;
+      board[move._move_to + 1] = board[move._move_to - 2];
+      board[move._move_to - 2] = emptySquare;
+      if (board[move._move_to].type == white) {
+        // flip bit to not allow white queen castle
+        state.castle_flag &= 0b1101;
+      }
+      if (board[move._move_to].type == black) {
+        // flip bit to not allow black queen castle
+        state.castle_flag &= 0b0111;
+      }
+    }
+  }
+  if (piece == r) {
+    if (move._move_from == 63) {
+      // turn off white king side castle
+      state.castle_flag &= 0b1110;
+    }
+    if (move._move_from == 56) {
+      // turn off white queen side castle
+      state.castle_flag &= 0b1101;
+    }
+    if (move._move_from == 21) {
+      // turn off black queen side castle
+      state.castle_flag &= 0b0111;
+    }
+    if (move._move_from == 28) {
+      // turn off black king side castle
+      state.castle_flag &= 0b1011;
+    }
+  }
+
+  // if double jump then mark enpessant
+  if (piece == p) {
+    // if pawn and if pawn did a double jump
+    if (move._move_from - move._move_to == -16) { // black double jump
+      board[move._move_from].jumpCount = 1;
+      state.enpessant = move._move_to - 8;
+    } else if (move._move_from - move._move_to == 16) {
+      board[move._move_from].jumpCount = 1;
+      state.enpessant = move._move_to + 8;
+    }
+  }
+
+  //every other regular movement simply replace the piece
+  if(piece != p) {
+    //move_to becomes move_from and then move-from becomes empty
+    board[move._move_to] = board[move._move_from];
+    board[move._move_from] = emptySquare;
+  }
+
+  if(move._isPromotion) {
+    
+  }
+
+  // if promotion then turn pawn into queen, king, whatevs
+}
 Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {
   std::string turn = remaining.substr(0, remaining.find(" "));

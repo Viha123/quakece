@@ -8,9 +8,10 @@
 #include <iostream>
 #include <vector>
 using namespace std;
+
 vector<Engine::Move *> Engine::Move::history = {};
 int main() {
-  string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
+  string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq -";
   Engine::Board board(fen);
   sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                           "CHESS GUI");
@@ -32,7 +33,7 @@ int main() {
           int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                event.mouseButton.y);
 
-          vector<int> moves =
+          vector<Engine::Move> moves =
               Engine::getMoveForPiece(board, piece);
 
           guiBoard.highlightPossibleMoves(moves);
