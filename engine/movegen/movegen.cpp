@@ -8,6 +8,7 @@
 namespace Engine {
 std::vector<Move> getMoveForPiece(Board &board, int num) {
   board.display();
+  std::cout << "piece getting move for: " << board.getSquare(num).piece << std::endl;
   std::vector<Move> moves = {};
   Board::Square square = board.getSquare(num);
   Board::State state = board.getState();
@@ -44,7 +45,6 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
           }
           Move m(num, targetIndex, false, false, false, e);
           moves.push_back(m);
-
         } else {
           break;
         }
@@ -70,7 +70,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
 
     } else {
       // generate promotion possibility:
-
+      std::cout << "HERE IN THE PAWN paRT" << std::endl;
       if (square.type == black && row == 6) {
         Piece promotions[4] = {q, n, b, r};
           for(auto pr: promotions) {

@@ -60,12 +60,13 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
               if (piece_from == i._move_from && i._move_to == piece) {
                 piece_to = piece;
                 board.display();
-                cout << piece_from << " " << piece_to << endl;
+                // cout << piece_from << " " << piece_to << endl;
                 board.makeMove(i);
                 guiBoard.clearPossibleMoves();
                 guiBoard.updateMove(i);
                 updateWindow(window, guiBoard);
                 board.display();
+                board.toggleTurn();
               }
             }
           }

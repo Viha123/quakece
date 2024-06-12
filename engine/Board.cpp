@@ -114,14 +114,16 @@ void Board::makeMove(Move move) {
   Piece piece = board[move._move_from].piece;
   if (move._isCapture) { // simply replace the thing that was previously at that
                          // box
-
+    std::cout << "Captured" << std::endl;
     board[move._move_to] = board[move._move_from];
     if (piece == p) {
       board[move._move_to].jumpCount += 1;
     }
     board[move._move_from] = emptySquare;
+    // board[move._move_from].piece = emptySquare;
+    std::cout << board[move._move_to].piece << std::endl;
   }
-  if (move._isCastle) {
+  else if (move._isCastle) {
     int file = utils::getFile(move._move_to);
     if (file == 6) {
       // king side castle
@@ -154,7 +156,9 @@ void Board::makeMove(Move move) {
       }
     }
   }
-  if (piece == r) {
+  else if (piece == r) {
+    board[move._move_to] = board[move._move_from];
+    board[move._move_from] = emptySquare;
     if (move._move_from == 63) {
       // turn off white king side castle
       state.castle_flag &= 0b1110;
@@ -174,7 +178,7 @@ void Board::makeMove(Move move) {
   }
 
   // if double jump then mark enpessant
-  if (piece == p) {
+  else if (piece == p) {
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
     // if pawn and if pawn did a double jump
@@ -193,13 +197,13 @@ void Board::makeMove(Move move) {
   }
 
   //every other regular movement simply replace the piece
-  if(piece != p) {
+  else if(piece != p) {
     //move_to becomes move_from and then move-from becomes empty
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
   }
   //handles promootion. 
-  if(move._isPromotion) {
+  else if(move._isPromotion) {
     //
     Square newSquare = {
       .type = board[move._move_from].type,
@@ -212,6 +216,15 @@ void Board::makeMove(Move move) {
   }
 
   // if promotion then turn pawn into queen, king, whatevs
+}
+void Board::toggleTurn() {
+  if(state.turn == black) {
+    state.turn = white;
+  }
+  else if(state.turn == white) {
+    state.turn = black;
+  }
+
 }
 Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {
