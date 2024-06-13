@@ -8,7 +8,8 @@
 namespace Engine {
 std::vector<Move> getMoveForPiece(Board &board, int num) {
   board.display();
-  std::cout << "piece getting move for: " << board.getSquare(num).piece << std::endl;
+  std::cout << "piece getting move for: " << board.getSquare(num).piece
+            << std::endl;
   std::vector<Move> moves = {};
   Board::Square square = board.getSquare(num);
   Board::State state = board.getState();
@@ -32,12 +33,9 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
         int targetIndex = mailbox[(offset)*i + mailBoxIndex]; // test
         if ((targetIndex != -1) && (targetIndex != num) &&
             (board.getSquare(targetIndex).type != state.turn)) {
-          //&& mailbox[offset + mailBoxIndex]
-          // std::cout << targetIndex << " " <<
-          // board.getSquare(targetIndex).type << std::endl;
+
           if ((board.getSquare(targetIndex).type != state.turn &&
                board.getSquare(targetIndex).type != none)) {
-            // std::cout << "opp side" << std::endl;
             // capture
             Move m(num, targetIndex, false, false, true, e);
             moves.push_back(m);
@@ -70,20 +68,23 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
 
     } else {
       // generate promotion possibility:
-      std::cout << "HERE IN THE PAWN paRT" << std::endl;
-      if (square.type == black && row == 6) {
+      if (square.type == black && row == 6 && board.board[num + 8].piece == e) {
+        std::cout << "black promotion possibility" << std::endl;
         Piece promotions[4] = {q, n, b, r};
-          for(auto pr: promotions) {
-            Move m(num, num + 8, false, true, false, pr);
-          }
-      }
-      else if (square.type == white && row == 1) {
+        for (auto pr : promotions) {
+          Move m(num, num + 8, false, true, false, pr);
+          moves.push_back(m);
+        }
+      } else if (square.type == white && row == 1 &&
+                 board.board[num - 8].piece == e) {
+        std::cout << "white promotion possibility" << std::endl;
+
         Piece promotions[4] = {q, n, b, r};
-          for(auto pr: promotions) {
-            Move m(num, num - 8, false, true, false, pr);
-          }
-      }
-      else if (board.board[num + pawnOffset[square.type][0]].piece == e) {
+        for (auto pr : promotions) {
+          Move m(num, num - 8, false, true, false, pr);
+          moves.push_back(m);
+        }
+      } else if (board.board[num + pawnOffset[square.type][0]].piece == e) {
         Move m(num, num + pawnOffset[square.type][0], false, false, false, e);
         moves.push_back(m);
       }
@@ -106,7 +107,9 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
 
       // check enpessant capture possibility:
       if ((targetIndex == +state.enpessant) && (square.jumpCount == 2)) {
-        Move m(num, targetIndex, false, false, true, e); // if target index does not have any piece and capture is true then assume enpessant
+        Move m(num, targetIndex, false, false, true,
+               e); // if target index does not have any piece and capture is
+                   // true then assume enpessant
         moves.push_back(m);
       }
     }
@@ -118,10 +121,12 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     if (square.type == black) {
       // shift right 2 and 3 times
 
-      if (((state.castle_flag >> 2) & 0b0001) == 1) { // black king castle
+      if (board.board[num + 1].piece == e && board.board[num + 2].piece == e &&
+          ((state.castle_flag >> 2) & 0b0001) == 1) { // black king castle
         moves.push_back(m1);
       }
-      if (((state.castle_flag >> 3) & 0b0001) == 1) { // black queen castle
+      if (board.board[num - 1].piece == e && board.board[num - 2].piece == e &&
+          ((state.castle_flag >> 3) & 0b0001) == 1) { // black queen castle
         moves.push_back(m2);
       }
     }
@@ -129,10 +134,12 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
       // shift right 2 and 3 times
       // std::cout << ((state.castle_flag >> 1) & 0b0010) << std::endl;
 
-      if (((state.castle_flag >> 0) & 0b0001) == 1) { // white king castle
+      if (board.board[num + 1].piece == e && board.board[num + 2].piece == e &&
+          ((state.castle_flag >> 0) & 0b0001) == 1) { // white king castle
         moves.push_back(m1);
       }
-      if (((state.castle_flag >> 1) & 0b0001) == 1) { // white queen castle
+      if (board.board[num - 1].piece == e && board.board[num - 2].piece == e &&
+          ((state.castle_flag >> 1) & 0b0001) == 1) { // white queen castle
 
         moves.push_back(m2);
       }

@@ -22,7 +22,7 @@ namespace utils {
   }
 
   void printVectorGivenIndex(int index) {
-    // std::cout << index << std::endl;
+  // std::cout << index << std::endl;
     std::cout << getRank(index) << " " << getFile(index) << std::endl;
   } 
   int getNumFromStr(std::string str) {

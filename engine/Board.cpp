@@ -122,7 +122,7 @@ void Board::makeMove(Move move) {
     } else if (board[move._move_to].piece == e &&
                board[move._move_from].type == white) {
       board[move._move_to + 8] = emptySquare;
-    } 
+    }
     std::cout << "Captured" << std::endl;
     board[move._move_to] = board[move._move_from];
     if (piece == p) {
@@ -132,14 +132,17 @@ void Board::makeMove(Move move) {
     // board[move._move_from].piece = emptySquare;
     std::cout << board[move._move_to].piece << std::endl;
   } else if (move._isCastle) {
+
     int file = utils::getFile(move._move_to);
+    std::cout << "file" << file << std::endl;
+
     if (file == 6) {
       // king side castle
       // turn of the respective castle
       board[move._move_to] = board[move._move_from];
       board[move._move_from] = emptySquare;
-      board[move._move_to - 1] = board[move._move_to + 2];
-      board[move._move_to + 2] = emptySquare;
+      board[move._move_to - 1] = board[move._move_to + 1];
+      board[move._move_to + 1] = emptySquare;
       if (board[move._move_to].type == white) {
         // flip bit to not allow white king castle
         state.castle_flag &= 0b1110;

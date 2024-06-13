@@ -183,16 +183,28 @@ void BoardDisplay::updateMove(Engine::Move move) {
   else if(move._isCastle) {
     std::cout << "CASTLE DETECTED" << std::endl;
   }
+  else if(move._isPromotion) {
+    std::cout << "CHOOSE THY FORCES" << std::endl;
+    
+  }
 
   // Move the unique_ptr from the source to the destination
   boardOutWardRepresentation[move_to_r][move_to_c].sprite =
       std::move(boardOutWardRepresentation[move_from_r][move_from_c].sprite);
+  std::cout << "HERE 1" << std::endl;
+
   boardOutWardRepresentation[move_to_r][move_to_c].sprite->setPosition(utils::getXPos(move_to_c), utils::getYPos(move_to_r));
   // Move the rest of the struct
+  std::cout << "HERE 2" << std::endl;
+
   boardOutWardRepresentation[move_to_r][move_to_c].num =
       utils::getNumFromRF(move_to_r, move_to_c);
+  std::cout << "HERE 3" << std::endl;
+  
   boardOutWardRepresentation[move_to_r][move_to_c].piece =
       boardOutWardRepresentation[move_from_r][move_from_c].piece;
+  std::cout << "HERE 4" << std::endl;
+
   boardOutWardRepresentation[move_to_r][move_to_c].possibleMove = false;
   boardOutWardRepresentation[move_to_r][move_to_c].clicked = false;
 
