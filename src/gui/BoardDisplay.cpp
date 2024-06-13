@@ -155,6 +155,34 @@ void BoardDisplay::updateMove(Engine::Move move) {
   int move_to_c = utils::getFile(move._move_to);
   int move_from_r = utils::getRank(move._move_from);
   int move_from_c = utils::getFile(move._move_from);
+  if(move._isCapture && boardOutWardRepresentation[move_to_r][move_to_c].piece == nopiece) {
+    if(move_to_r > move_from_r) {
+      //black enpessant capture
+      //remove sprite at move_to_r - 1
+      std::cout << "BLACK ep DETECTED" << std::endl;
+
+      boardOutWardRepresentation[move_to_r - 1][move_to_c] = {
+      .num = utils::getNumFromRF(move_to_r-1, move_to_c),
+      .piece = nopiece,
+      .sprite = nullptr,
+      .clicked = false,
+      .possibleMove = false};
+    }
+    else {
+      //white enpessant capture
+      std::cout << "WHITE ENPESSANT DETECTED" << std::endl;
+
+      boardOutWardRepresentation[move_to_r + 1][move_to_c] = {
+      .num = utils::getNumFromRF(move_to_r+1, move_to_c),
+      .piece = nopiece,
+      .sprite = nullptr,
+      .clicked = false,
+      .possibleMove = false};
+    }
+  }
+  else if(move._isCastle) {
+    std::cout << "CASTLE DETECTED" << std::endl;
+  }
 
   // Move the unique_ptr from the source to the destination
   boardOutWardRepresentation[move_to_r][move_to_c].sprite =

@@ -18,6 +18,7 @@ class BoardDisplay : public sf::Drawable
       unique_ptr<sf::Sprite> sprite = nullptr;
       bool clicked = false;
       bool possibleMove = false;
+      
     };
     
     //constructor is default add different fenString
