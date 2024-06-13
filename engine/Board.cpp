@@ -111,9 +111,18 @@ void Board::generateBoardFromFen(std::string fen) {
   }
 }
 void Board::makeMove(Move move) {
+  bool enpessantToggled = false;
   Piece piece = board[move._move_from].piece;
   if (move._isCapture) { // simply replace the thing that was previously at that
                          // box
+    if (board[move._move_to].piece == e &&
+        board[move._move_from].type == black) {
+      // enpessant capture
+      board[move._move_to - 8] = emptySquare;
+    } else if (board[move._move_to].piece == e &&
+               board[move._move_from].type == white) {
+      board[move._move_to + 8] = emptySquare;
+    } 
     std::cout << "Captured" << std::endl;
     board[move._move_to] = board[move._move_from];
     if (piece == p) {
@@ -122,8 +131,7 @@ void Board::makeMove(Move move) {
     board[move._move_from] = emptySquare;
     // board[move._move_from].piece = emptySquare;
     std::cout << board[move._move_to].piece << std::endl;
-  }
-  else if (move._isCastle) {
+  } else if (move._isCastle) {
     int file = utils::getFile(move._move_to);
     if (file == 6) {
       // king side castle
@@ -155,8 +163,7 @@ void Board::makeMove(Move move) {
         state.castle_flag &= 0b0111;
       }
     }
-  }
-  else if (piece == r) {
+  } else if (piece == r) {
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
     if (move._move_from == 63) {
@@ -179,52 +186,56 @@ void Board::makeMove(Move move) {
 
   // if double jump then mark enpessant
   else if (piece == p) {
+
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
     // if pawn and if pawn did a double jump
     if (move._move_from - move._move_to == -16) { // black double jump
-      board[move._move_from].jumpCount = 1;
+      board[move._move_to].jumpCount = 1;
       state.enpessant = move._move_to - 8;
+      enpessantToggled = true;
     } else if (move._move_from - move._move_to == 16) {
-      board[move._move_from].jumpCount = 1;
+      board[move._move_to].jumpCount = 1;
       state.enpessant = move._move_to + 8;
+      enpessantToggled = true;
     } else if (move._move_from - move._move_to == -8) { // black single jump
-      board[move._move_from].jumpCount += 1;
-    } else if (move._move_from - move._move_to == 8) { //single jump
+      board[move._move_to].jumpCount += 1;
+    } else if (move._move_from - move._move_to == 8) { // single jump
       std::cout << "white single jump" << std::endl;
-      board[move._move_from].jumpCount += 1;
+      board[move._move_to].jumpCount += 1;
     }
   }
 
-  //every other regular movement simply replace the piece
-  else if(piece != p) {
-    //move_to becomes move_from and then move-from becomes empty
+  // every other regular movement simply replace the piece
+  else if (piece != p) {
+    // move_to becomes move_from and then move-from becomes empty
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
   }
-  //handles promootion. 
-  else if(move._isPromotion) {
+  // handles promootion.
+  else if (move._isPromotion) {
     //
     Square newSquare = {
-      .type = board[move._move_from].type,
-      .piece = board[move._move_from].piece,
-      .c = pieceReps[board[move._move_from].type][move._toPromote],
-      .jumpCount = 0
-    };
+        .type = board[move._move_from].type,
+        .piece = board[move._move_from].piece,
+        .c = pieceReps[board[move._move_from].type][move._toPromote],
+        .jumpCount = 0};
     board[move._move_to] = newSquare;
-    board[move._move_from] = emptySquare; 
+    board[move._move_from] = emptySquare;
   }
+  if (enpessantToggled == false) {
+    state.enpessant = -1;
+  }
+  std::cout << "enpessant " << +state.enpessant << std::endl;
 
   // if promotion then turn pawn into queen, king, whatevs
 }
 void Board::toggleTurn() {
-  if(state.turn == black) {
+  if (state.turn == black) {
     state.turn = white;
-  }
-  else if(state.turn == white) {
+  } else if (state.turn == white) {
     state.turn = black;
   }
-
 }
 Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {

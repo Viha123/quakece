@@ -9,3 +9,5 @@
   - first generate all psuedo legal moves
   - then check if move is legal
 
+## Use this later: 
+- https://www.chessprogramming.net/category/perft/

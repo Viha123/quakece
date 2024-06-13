@@ -94,19 +94,19 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     for (int offset = 0; offset < 2; offset += 1) {
       int targetIndex =
           mailbox[mailbox64[num] + pawnCaptureOffset[square.type][offset]];
-      // std::cout << targetIndex << std::endl;
+
       if ((targetIndex != -1) &&
           (square.type != board.board[targetIndex].type) &&
           (board.board[targetIndex].type != none)) {
-        // std::cout << targetIndex << std::endl;
+        // std::cout << "this is true" << std::endl;
+
         Move m(num, targetIndex, false, false, true, e);
         moves.push_back(m);
       }
 
       // check enpessant capture possibility:
-
-      else if ((targetIndex == state.enpessant) && (square.jumpCount == 2)) {
-        Move m(num, targetIndex, false, false, true, e);
+      if ((targetIndex == +state.enpessant) && (square.jumpCount == 2)) {
+        Move m(num, targetIndex, false, false, true, e); // if target index does not have any piece and capture is true then assume enpessant
         moves.push_back(m);
       }
     }
