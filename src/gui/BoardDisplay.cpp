@@ -155,66 +155,79 @@ void BoardDisplay::updateMove(Engine::Move move) {
   int move_to_c = utils::getFile(move._move_to);
   int move_from_r = utils::getRank(move._move_from);
   int move_from_c = utils::getFile(move._move_from);
-  if(move._isCapture && boardOutWardRepresentation[move_to_r][move_to_c].piece == nopiece) {
-    if(move_to_r > move_from_r) {
-      //black enpessant capture
-      //remove sprite at move_to_r - 1
+  if (move._isCapture &&
+      boardOutWardRepresentation[move_to_r][move_to_c].piece == nopiece) {
+    if (move_to_r > move_from_r) {
+      // black enpessant capture
+      // remove sprite at move_to_r - 1
       std::cout << "BLACK ep DETECTED" << std::endl;
 
       boardOutWardRepresentation[move_to_r - 1][move_to_c] = {
-      .num = utils::getNumFromRF(move_to_r-1, move_to_c),
-      .piece = nopiece,
-      .sprite = nullptr,
-      .clicked = false,
-      .possibleMove = false};
-    }
-    else {
-      //white enpessant capture
+          .num = utils::getNumFromRF(move_to_r - 1, move_to_c),
+          .piece = nopiece,
+          .sprite = nullptr,
+          .clicked = false,
+          .possibleMove = false};
+    } else {
+      // white enpessant capture
       std::cout << "WHITE ENPESSANT DETECTED" << std::endl;
 
       boardOutWardRepresentation[move_to_r + 1][move_to_c] = {
-      .num = utils::getNumFromRF(move_to_r+1, move_to_c),
-      .piece = nopiece,
-      .sprite = nullptr,
-      .clicked = false,
-      .possibleMove = false};
+          .num = utils::getNumFromRF(move_to_r + 1, move_to_c),
+          .piece = nopiece,
+          .sprite = nullptr,
+          .clicked = false,
+          .possibleMove = false};
     }
-  }
-  else if(move._isCastle) {
+  } else if (move._isCastle) {
     std::cout << "CASTLE DETECTED" << std::endl;
-  }
-  else if(move._isPromotion) {
+    // along with the king moving 2 spaces, need to move rook depending on left
+    // 2 spots or right 2 spots
+    int file = utils::getFile(move._move_to);
+
+    if (file == 6) {
+      make_move(move_to_r, move_to_c + 1, move_to_r, move_to_c - 1);
+      clear_square(move_to_r, move_to_c + 1);
+    }
+    else if(file == 2) {
+      make_move(move_to_r, move_to_c -2 , move_to_r, move_to_c + 1);
+      clear_square(move_to_r, move_to_c -2);
+    }
+  } else if (move._isPromotion) {
     std::cout << "CHOOSE THY FORCES" << std::endl;
-    
   }
 
-  // Move the unique_ptr from the source to the destination
-  boardOutWardRepresentation[move_to_r][move_to_c].sprite =
-      std::move(boardOutWardRepresentation[move_from_r][move_from_c].sprite);
-  std::cout << "HERE 1" << std::endl;
-
-  boardOutWardRepresentation[move_to_r][move_to_c].sprite->setPosition(utils::getXPos(move_to_c), utils::getYPos(move_to_r));
-  // Move the rest of the struct
-  std::cout << "HERE 2" << std::endl;
-
-  boardOutWardRepresentation[move_to_r][move_to_c].num =
-      utils::getNumFromRF(move_to_r, move_to_c);
-  std::cout << "HERE 3" << std::endl;
-  
-  boardOutWardRepresentation[move_to_r][move_to_c].piece =
-      boardOutWardRepresentation[move_from_r][move_from_c].piece;
-  std::cout << "HERE 4" << std::endl;
-
-  boardOutWardRepresentation[move_to_r][move_to_c].possibleMove = false;
-  boardOutWardRepresentation[move_to_r][move_to_c].clicked = false;
-
+  make_move(move_from_r, move_from_c, move_to_r, move_to_c);
+  clear_square(move_from_r, move_from_c);
   // Clear the source struct
+}
+void BoardDisplay::clear_square(int move_from_r, int move_from_c) {
   boardOutWardRepresentation[move_from_r][move_from_c] = {
       .num = utils::getNumFromRF(move_from_r, move_from_c),
       .piece = nopiece,
       .sprite = nullptr,
       .clicked = false,
       .possibleMove = false};
+}
+void BoardDisplay::make_move(int move_from_r, int move_from_c, int move_to_r,
+                             int move_to_c) {
+  // Move the unique_ptr from the source to the destination
+  boardOutWardRepresentation[move_to_r][move_to_c].sprite =
+      std::move(boardOutWardRepresentation[move_from_r][move_from_c].sprite);
+
+  boardOutWardRepresentation[move_to_r][move_to_c].sprite->setPosition(
+      utils::getXPos(move_to_c), utils::getYPos(move_to_r));
+  // Move the rest of the struct
+  std::cout << "possible seg fault here" << std::endl;
+
+  boardOutWardRepresentation[move_to_r][move_to_c].num =
+      utils::getNumFromRF(move_to_r, move_to_c);
+
+  boardOutWardRepresentation[move_to_r][move_to_c].piece =
+      boardOutWardRepresentation[move_from_r][move_from_c].piece;
+
+  boardOutWardRepresentation[move_to_r][move_to_c].possibleMove = false;
+  boardOutWardRepresentation[move_to_r][move_to_c].clicked = false;
 }
 void BoardDisplay::draw(sf::RenderTarget &target,
                         sf::RenderStates states) const {

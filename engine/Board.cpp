@@ -123,7 +123,6 @@ void Board::makeMove(Move move) {
                board[move._move_from].type == white) {
       board[move._move_to + 8] = emptySquare;
     }
-    std::cout << "Captured" << std::endl;
     board[move._move_to] = board[move._move_from];
     if (piece == p) {
       board[move._move_to].jumpCount += 1;
@@ -134,7 +133,6 @@ void Board::makeMove(Move move) {
   } else if (move._isCastle) {
 
     int file = utils::getFile(move._move_to);
-    std::cout << "file" << file << std::endl;
 
     if (file == 6) {
       // king side castle
@@ -204,7 +202,6 @@ void Board::makeMove(Move move) {
     } else if (move._move_from - move._move_to == -8) { // black single jump
       board[move._move_to].jumpCount += 1;
     } else if (move._move_from - move._move_to == 8) { // single jump
-      std::cout << "white single jump" << std::endl;
       board[move._move_to].jumpCount += 1;
     }
   }

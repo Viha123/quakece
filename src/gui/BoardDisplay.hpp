@@ -36,6 +36,8 @@ class BoardDisplay : public sf::Drawable
     void generateSprite(string path, int xPos, int yPos, piece_values value);
     vector<unique_ptr<sf::Texture>> textures; // this stores the pointers to the textures 
     array<array<Square, 8>, 8> boardOutWardRepresentation;
+    void make_move(int move_from_r, int move_from_c, int move_to_r, int move_to_c);
+    void clear_square(int move_from_r, int move_from_c);
     int prevRowClicked = -1;
     int prevColClicked = -1; 
 };
