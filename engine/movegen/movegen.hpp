@@ -9,6 +9,7 @@ namespace Engine {
   //for example if w or black rook is pressed give available list of moves
   std::vector<Move> getLegalMoves(Board& board); //gets all moves given board 
   std::vector<Move> getPsuedoLegalMoves(Board& board);
+  void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo);
   // std::vector<Move> getSliderMoves(Board& board); //Rook, bishop, queen, king
   // std::vector<Move> getJumpMoves(Board& board); //
   std::vector<Move> getMoveForPiece(Board& board, int num); // this is only for the gui and easier testing. 

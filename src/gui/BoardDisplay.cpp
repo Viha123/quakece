@@ -149,14 +149,16 @@ void BoardDisplay::clearPossibleMoves() {
     }
   }
 }
+
 void BoardDisplay::updateMove(Engine::Move move) {
   // change movefrom index and move_toindex
   int move_to_r = utils::getRank(move._move_to);
   int move_to_c = utils::getFile(move._move_to);
   int move_from_r = utils::getRank(move._move_from);
   int move_from_c = utils::getFile(move._move_from);
+  
   if (move._isCapture &&
-      boardOutWardRepresentation[move_to_r][move_to_c].piece == nopiece) {
+      boardOutWardRepresentation[move_to_r][move_to_c].piece == nopiece && !move._isPromotion) {
     if (move_to_r > move_from_r) {
       // black enpessant capture
       // remove sprite at move_to_r - 1
@@ -193,12 +195,18 @@ void BoardDisplay::updateMove(Engine::Move move) {
       make_move(move_to_r, move_to_c -2 , move_to_r, move_to_c + 1);
       clear_square(move_to_r, move_to_c -2);
     }
-  } else if (move._isPromotion) {
-    std::cout << "CHOOSE THY FORCES" << std::endl;
   }
-
   make_move(move_from_r, move_from_c, move_to_r, move_to_c);
   clear_square(move_from_r, move_from_c);
+  if(move._isPromotion){
+    //handle promotion. 
+    //change move_to square to be queen, rook bishop or knight
+    cout << "handling promotion in the board display class";
+    Color color = move_to_r == 0 ? white : black;
+    clear_square(move_to_r, move_to_c); //clear that square first and then handle promotion
+    handlePromotion(move._toPromote, color, move_to_r, move_to_c);
+
+  }
   // Clear the source struct
 }
 void BoardDisplay::clear_square(int move_from_r, int move_from_c) {
@@ -308,4 +316,38 @@ void BoardDisplay::generateSprite(string path, int row, int col,
   // cout << sprite->getGlobalBounds().width << endl;
   textures.push_back(std::move(texture));
   boardOutWardRepresentation[row][col].sprite = std::move(sprite);
+}
+void BoardDisplay::handlePromotion(Piece piece, Color color, int row, int col) {
+  if(piece == q && color == white) {
+    boardOutWardRepresentation[row][col].piece = wqueen;
+    generateSprite("assets/wqueen.png", row, col, wqueen);
+  }
+  if(piece == q && color == black) {
+    boardOutWardRepresentation[row][col].piece = bqueen;
+    generateSprite("assets/bqueen.png", row, col, bqueen);
+  }
+  if(piece == r && color == white) {
+    boardOutWardRepresentation[row][col].piece = wrook;
+    generateSprite("assets/wrook.png", row, col, wrook);
+  }
+  if(piece == r && color == black) {
+    boardOutWardRepresentation[row][col].piece = brook;
+    generateSprite("assets/brook.png", row, col, brook);
+  }
+  if(piece == n && color == white) {
+    boardOutWardRepresentation[row][col].piece = wknight;
+    generateSprite("assets/wknight.png", row, col, wknight);
+  }
+  if(piece == n && color == black) {
+    boardOutWardRepresentation[row][col].piece = bknight;
+    generateSprite("assets/bknight.png", row, col, bknight);
+  }
+  if(piece == b && color == white) {
+    boardOutWardRepresentation[row][col].piece = wbishop;
+    generateSprite("assets/wbishop.png", row, col, wbishop);
+  }
+  if(piece == b && color == black) {
+    boardOutWardRepresentation[row][col].piece = bbishop;
+    generateSprite("assets/bbishop.png", row, col, bbishop);
+  }
 }

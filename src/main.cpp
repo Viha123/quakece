@@ -2,15 +2,21 @@
 #include "../engine/Board.hpp"
 #include "../engine/move.hpp"
 #include "../engine/movegen/movegen.hpp"
+#include "../utils.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "gui/BoardDisplay.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 using namespace std;
 void updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard);
+void initialize_char_to_piece();
 vector<Engine::Move *> Engine::Move::history = {};
+
+std::unordered_map<char, Piece> char_to_piece;
+void handle_gui_promotion(Piece& promoted_piece);
 int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                    // player or computer vs computer
 
@@ -20,6 +26,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                           "CHESS GUI");
   cout << argv[1] << endl;
   BoardDisplay guiBoard(fen);
+  initialize_char_to_piece();
   // BoardDisplay guiBoard;
   window.draw(guiBoard); // only rerender when required
   window.display();
@@ -56,19 +63,36 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
             // check if player is clicking on a valid move:
             int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                  event.mouseButton.y);
+            Piece promoted_piece = e;
+            if (utils::getRank(piece) == 7 and board.state.turn == black and
+                board.board[piece_from].piece == p) {
+              handle_gui_promotion(promoted_piece);
+            }
+            if (utils::getRank(piece) == 0 and board.state.turn == white and
+                board.board[piece_from].piece == p) {
+                cout << "HERE 1" << endl;
+                handle_gui_promotion(promoted_piece);
+                cout << promoted_piece << endl;
+            }
+            
             for (auto i : moves) {
-              if (piece_from == i._move_from && i._move_to == piece) {
+              if (piece_from == i._move_from && i._move_to == piece && promoted_piece == i._toPromote) {
+                // found = true;
                 piece_to = piece;
                 board.display();
+                cout << i._isPromotion << " " << i._toPromote << endl;
+
                 // cout << piece_from << " " << piece_to << endl;
                 board.makeMove(i);
                 guiBoard.clearPossibleMoves();
                 guiBoard.updateMove(i);
+                Engine::Move::history.push_back(&i);
                 updateWindow(window, guiBoard);
                 board.display();
                 board.toggleTurn();
               }
             }
+            
           }
         }
       } else if (*argv[1] == '1') {
@@ -93,4 +117,24 @@ void updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard) {
   window.clear();
   window.draw(guiBoard);
   window.display();
+}
+void initialize_char_to_piece() {
+  char_to_piece['q'] = q;
+  char_to_piece['Q'] = q;
+  char_to_piece['n'] = n;
+  char_to_piece['N'] = n;
+  char_to_piece['b'] = b;
+  char_to_piece['B'] = b;
+  char_to_piece['R'] = r;
+  char_to_piece['r'] = r;
+}
+
+void handle_gui_promotion(Piece& promoted_piece) {
+  char promotion;
+
+  std::cout << "Q for queen, N for knight, B for bishop, R for "
+               "rook promotion"
+            << std::endl;
+  std::cin >> promotion;
+  promoted_piece = char_to_piece[promotion];
 }

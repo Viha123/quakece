@@ -6,7 +6,7 @@
 #include <string>
 #include "../../Headers/gui.hpp"
 #include "../../engine/move.hpp"
-
+#include <unordered_map>
 
 using namespace std;
 class BoardDisplay : public sf::Drawable
@@ -40,4 +40,6 @@ class BoardDisplay : public sf::Drawable
     void clear_square(int move_from_r, int move_from_c);
     int prevRowClicked = -1;
     int prevColClicked = -1; 
+    void handlePromotion(Piece piece, Color color, int row, int col); 
+    
 };

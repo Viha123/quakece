@@ -1,6 +1,7 @@
 #pragma once
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 800 
+
+#define WINDOW_WIDTH 1200
+#define WINDOW_HEIGHT 1200 
 #define BOX 800 / 8
 #include <unordered_map> 
 #include <string>
@@ -20,4 +21,5 @@ enum piece_values {
   bking = 12, 
   nopiece = 0
 };
+
 

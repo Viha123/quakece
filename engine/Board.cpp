@@ -113,7 +113,7 @@ void Board::generateBoardFromFen(std::string fen) {
 void Board::makeMove(Move move) {
   bool enpessantToggled = false;
   Piece piece = board[move._move_from].piece;
-  if (move._isCapture) { // simply replace the thing that was previously at that
+  if (move._isCapture && board[move._move_to].piece != r && !move._isPromotion) { // simply replace the thing that was previously at that
                          // box
     if (board[move._move_to].piece == e &&
         board[move._move_from].type == black) {
@@ -164,29 +164,30 @@ void Board::makeMove(Move move) {
         state.castle_flag &= 0b0111;
       }
     }
-  } else if (piece == r) {
+  } else if (piece == r || (move._isCapture && board[move._move_to].piece == r)) {
+    std::cout << "HERE in rook capture" << std::endl;
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
-    if (move._move_from == 63) {
+    if (move._move_from == 63 || move._move_to == 63) {
       // turn off white king side castle
       state.castle_flag &= 0b1110;
     }
-    if (move._move_from == 56) {
+    if (move._move_from == 56 || move._move_to == 56) {
       // turn off white queen side castle
       state.castle_flag &= 0b1101;
     }
-    if (move._move_from == 21) {
+    if (move._move_from == 0 || move._move_to == 0) {
       // turn off black queen side castle
       state.castle_flag &= 0b0111;
     }
-    if (move._move_from == 28) {
+    if (move._move_from == 7 || move._move_to == 7) {
       // turn off black king side castle
       state.castle_flag &= 0b1011;
     }
   }
 
   // if double jump then mark enpessant
-  else if (piece == p) {
+  else if (piece == p && !move._isPromotion) {
 
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
@@ -207,17 +208,17 @@ void Board::makeMove(Move move) {
   }
 
   // every other regular movement simply replace the piece
-  else if (piece != p) {
+  else if (piece != p && !move._isPromotion) {
     // move_to becomes move_from and then move-from becomes empty
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
   }
   // handles promootion.
   else if (move._isPromotion) {
-    //
+    std::cout << "make move saw promotion" << std::endl;
     Square newSquare = {
         .type = board[move._move_from].type,
-        .piece = board[move._move_from].piece,
+        .piece = move._toPromote,
         .c = pieceReps[board[move._move_from].type][move._toPromote],
         .jumpCount = 0};
     board[move._move_to] = newSquare;

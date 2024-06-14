@@ -70,20 +70,23 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
       // generate promotion possibility:
       if (square.type == black && row == 6 && board.board[num + 8].piece == e) {
         std::cout << "black promotion possibility" << std::endl;
-        Piece promotions[4] = {q, n, b, r};
-        for (auto pr : promotions) {
-          Move m(num, num + 8, false, true, false, pr);
-          moves.push_back(m);
-        }
+        // Piece promotions[4] = {q, n, b, r};
+        // for (auto pr : promotions) {
+        //   Move m(num, num + 8, false, true, false, pr);
+        //   moves.push_back(m);
+        // }
+        handlePromotions(moves, num, num + 8);
+
       } else if (square.type == white && row == 1 &&
                  board.board[num - 8].piece == e) {
         std::cout << "white promotion possibility" << std::endl;
 
-        Piece promotions[4] = {q, n, b, r};
-        for (auto pr : promotions) {
-          Move m(num, num - 8, false, true, false, pr);
-          moves.push_back(m);
-        }
+        // Piece promotions[4] = {q, n, b, r};
+        // for (auto pr : promotions) {
+        //   Move m(num, num - 8, false, true, false, pr);
+        //   moves.push_back(m);
+        // }
+
       } else if (board.board[num + pawnOffset[square.type][0]].piece == e) {
         Move m(num, num + pawnOffset[square.type][0], false, false, false, e);
         moves.push_back(m);
@@ -100,9 +103,17 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
           (square.type != board.board[targetIndex].type) &&
           (board.board[targetIndex].type != none)) {
         // std::cout << "this is true" << std::endl;
+        if (utils::getRank(targetIndex) == 0 && square.type == white) {
+          // Move m(num, targetIndex, false, true, true, e);
+          // moves.push_back(m);
+          handlePromotions(moves, num, targetIndex);
+        } else if (utils::getRank(targetIndex) == 7 && square.type == black) {
+          handlePromotions(moves, num, targetIndex);
 
-        Move m(num, targetIndex, false, false, true, e);
-        moves.push_back(m);
+        } else {
+          Move m(num, targetIndex, false, false, true, e);
+          moves.push_back(m);
+        }
       }
 
       // check enpessant capture possibility:
@@ -147,6 +158,13 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
   }
 
   return moves;
+}
+void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo) {
+  Piece promotions[4] = {q, n, b, r};
+  for (auto pr : promotions) {
+    Move m(numFrom, numTo, false, true, false, pr);
+    moves.push_back(m);
+  }
 }
 std::vector<Move> getPsuedoLegalMoves() {
   std::vector<Move> moves;

@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 enum Piece { p, n, b, r, q, k, e };
 
 enum Color { white, black, none };
