@@ -13,7 +13,7 @@
 using namespace std;
 void updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard);
 void initialize_char_to_piece();
-vector<Engine::Move *> Engine::Move::history = {};
+// vector<Engine::Move *> Engine::Move::history = {};
 
 std::unordered_map<char, Piece> char_to_piece;
 void handle_gui_promotion(Piece& promoted_piece);
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                 board.makeMove(i);
                 guiBoard.clearPossibleMoves();
                 guiBoard.updateMove(i);
-                Engine::Move::history.push_back(&i);
+                // Engine::Move::history.push_back(&i);
                 updateWindow(window, guiBoard);
                 board.display();
                 board.toggleTurn();

@@ -1,5 +1,6 @@
 #include "Board.hpp"
 #include "../Headers/engine.hpp"
+// #include "move.hpp"
 #include "../utils.hpp"
 #include <array>
 #include <cctype>
@@ -10,9 +11,16 @@ namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   generateBoardFromFen(fen);
+  history = {};
+  gameStateHistory = {}; 
 }
 
-Board::Board(std::string fen) { generateBoardFromFen(fen); }
+Board::Board(std::string fen) { 
+  generateBoardFromFen(fen);
+  history = {};
+  gameStateHistory = {}; 
+
+ }
 void Board::generateBoardFromFen(std::string fen) {
   std::string token = fen.substr(0, fen.find(" ")); // part 1 of string
   std::string remaining = fen.substr(fen.find(" ") + 1);
@@ -110,26 +118,27 @@ void Board::generateBoardFromFen(std::string fen) {
     }
   }
 }
-void Board::makeMove(Move move) {
+void Board::makeMove(Move move) { //updates the board representation given the move 
   bool enpessantToggled = false;
-  Piece piece = board[move._move_from].piece;
-  if (move._isCapture && board[move._move_to].piece != r && !move._isPromotion) { // simply replace the thing that was previously at that
+  Piece pieceFrom = board[move._move_from].piece;
+  Piece pieceTo = board[move._move_to].piece;
+  if (move._isCapture && pieceTo != r && !move._isPromotion && pieceFrom != k) { // simply replace the thing that was previously at that
                          // box
-    if (board[move._move_to].piece == e &&
+    if (pieceTo == e &&
         board[move._move_from].type == black) {
       // enpessant capture
       board[move._move_to - 8] = emptySquare;
-    } else if (board[move._move_to].piece == e &&
+    } else if (pieceTo == e &&
                board[move._move_from].type == white) {
       board[move._move_to + 8] = emptySquare;
     }
     board[move._move_to] = board[move._move_from];
-    if (piece == p) {
+    if (pieceFrom == p) {
       board[move._move_to].jumpCount += 1;
     }
     board[move._move_from] = emptySquare;
     // board[move._move_from].piece = emptySquare;
-    std::cout << board[move._move_to].piece << std::endl;
+    std::cout << pieceTo << std::endl;
   } else if (move._isCastle) {
 
     int file = utils::getFile(move._move_to);
@@ -164,7 +173,17 @@ void Board::makeMove(Move move) {
         state.castle_flag &= 0b0111;
       }
     }
-  } else if (piece == r || (move._isCapture && board[move._move_to].piece == r)) {
+  } else if(pieceFrom == k) {
+    board[move._move_to] = board[move._move_from];
+    board[move._move_from] = emptySquare;
+    if(board[move._move_to].type == black) {
+      state.castle_flag &= 0b0011;
+    }
+    if(board[move._move_to].type == white) {
+      state.castle_flag &= 0b1100;
+    }
+  } 
+  else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
     std::cout << "HERE in rook capture" << std::endl;
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
@@ -187,7 +206,7 @@ void Board::makeMove(Move move) {
   }
 
   // if double jump then mark enpessant
-  else if (piece == p && !move._isPromotion) {
+  else if (pieceFrom == p && !move._isPromotion) {
 
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
@@ -208,7 +227,7 @@ void Board::makeMove(Move move) {
   }
 
   // every other regular movement simply replace the piece
-  else if (piece != p && !move._isPromotion) {
+  else if (pieceFrom != p && !move._isPromotion) {
     // move_to becomes move_from and then move-from becomes empty
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
@@ -228,8 +247,17 @@ void Board::makeMove(Move move) {
     state.enpessant = -1;
   }
   std::cout << "enpessant " << +state.enpessant << std::endl;
-
+  history.push_back(&move);
+  gameStateHistory.push_back(&state); 
   // if promotion then turn pawn into queen, king, whatevs
+}
+
+void Board::unmakeMove(Move move, State state) {
+  // if(move._isCapture) { //enpessant unmake would be wrong
+  //   board[move._move_from] = board[move._move_to];
+  //   board[move._move_to].c = pieceReps[board[move._move_from].type][move._capturedPiece];
+  //   board[move._move_to].jumpCount = 
+  // }
 }
 void Board::toggleTurn() {
   if (state.turn == black) {

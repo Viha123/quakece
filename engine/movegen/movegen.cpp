@@ -37,11 +37,12 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
           if ((board.getSquare(targetIndex).type != state.turn &&
                board.getSquare(targetIndex).type != none)) {
             // capture
-            Move m(num, targetIndex, false, false, true, e);
+            Move m(num, targetIndex, false, false, true, e,
+                   board.getSquare(targetIndex).piece);
             moves.push_back(m);
             break;
           }
-          Move m(num, targetIndex, false, false, false, e);
+          Move m(num, targetIndex, false, false, false, e, e);
           moves.push_back(m);
         } else {
           break;
@@ -58,10 +59,12 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
         (row == 6 && square.type == white)) {
       // pawn can move 2 steps
       if (board.board[num + pawnOffset[square.type][0]].piece == e) {
-        Move m(num, num + pawnOffset[square.type][0], false, false, false, e);
+        Move m(num, num + pawnOffset[square.type][0], false, false, false, e,
+               e);
         moves.push_back(m);
         if (board.board[num + pawnOffset[square.type][1]].piece == e) {
-          Move m(num, num + pawnOffset[square.type][1], false, false, false, e);
+          Move m(num, num + pawnOffset[square.type][1], false, false, false, e,
+                 e);
           moves.push_back(m);
         }
       }
@@ -69,26 +72,22 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     } else {
       // generate promotion possibility:
       if (square.type == black && row == 6 && board.board[num + 8].piece == e) {
-        std::cout << "black promotion possibility" << std::endl;
+        // std::cout << "black promotion possibility" << std::endl;
         // Piece promotions[4] = {q, n, b, r};
         // for (auto pr : promotions) {
         //   Move m(num, num + 8, false, true, false, pr);
         //   moves.push_back(m);
         // }
-        handlePromotions(moves, num, num + 8);
+        handlePromotions(moves, num, num + 8, e);
 
       } else if (square.type == white && row == 1 &&
                  board.board[num - 8].piece == e) {
-        std::cout << "white promotion possibility" << std::endl;
-
-        // Piece promotions[4] = {q, n, b, r};
-        // for (auto pr : promotions) {
-        //   Move m(num, num - 8, false, true, false, pr);
-        //   moves.push_back(m);
-        // }
+        // std::cout << "white promotion possibility" << std::endl;
+        handlePromotions(moves, num, num - 8,e);
 
       } else if (board.board[num + pawnOffset[square.type][0]].piece == e) {
-        Move m(num, num + pawnOffset[square.type][0], false, false, false, e);
+        Move m(num, num + pawnOffset[square.type][0], false, false, false, e,
+               e);
         moves.push_back(m);
       }
     }
@@ -106,20 +105,23 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
         if (utils::getRank(targetIndex) == 0 && square.type == white) {
           // Move m(num, targetIndex, false, true, true, e);
           // moves.push_back(m);
-          handlePromotions(moves, num, targetIndex);
+          handlePromotions(moves, num, targetIndex,
+                           board.board[targetIndex].piece);
         } else if (utils::getRank(targetIndex) == 7 && square.type == black) {
-          handlePromotions(moves, num, targetIndex);
+          handlePromotions(moves, num, targetIndex,
+                           board.board[targetIndex].piece);
 
         } else {
-          Move m(num, targetIndex, false, false, true, e);
+          Move m(num, targetIndex, false, false, true, e,
+                 board.board[targetIndex].piece);
           moves.push_back(m);
         }
       }
 
       // check enpessant capture possibility:
       if ((targetIndex == +state.enpessant) && (square.jumpCount == 2)) {
-        Move m(num, targetIndex, false, false, true,
-               e); // if target index does not have any piece and capture is
+        Move m(num, targetIndex, false, false, true, e,
+               p); // if target index does not have any piece and capture is
                    // true then assume enpessant
         moves.push_back(m);
       }
@@ -127,8 +129,8 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
   }
   // check castle possibility
   if (square.type == state.turn and square.piece == k) {
-    Move m1(num, num + 2, true, false, false, e);
-    Move m2(num, num - 2, true, false, false, e);
+    Move m1(num, num + 2, true, false, false, e, e);
+    Move m2(num, num - 2, true, false, false, e, e);
     if (square.type == black) {
       // shift right 2 and 3 times
 
@@ -137,6 +139,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
         moves.push_back(m1);
       }
       if (board.board[num - 1].piece == e && board.board[num - 2].piece == e &&
+          board.board[num - 3].piece == e &&
           ((state.castle_flag >> 3) & 0b0001) == 1) { // black queen castle
         moves.push_back(m2);
       }
@@ -150,6 +153,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
         moves.push_back(m1);
       }
       if (board.board[num - 1].piece == e && board.board[num - 2].piece == e &&
+          board.board[num - 3].piece == e && // 3 things between rook and king
           ((state.castle_flag >> 1) & 0b0001) == 1) { // white queen castle
 
         moves.push_back(m2);
@@ -159,16 +163,19 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
 
   return moves;
 }
-void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo) {
+void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
+                      Piece capturedPiece) {
   Piece promotions[4] = {q, n, b, r};
+  bool isCapture = capturedPiece == e ? false : true;
+
   for (auto pr : promotions) {
-    Move m(numFrom, numTo, false, true, false, pr);
+    Move m(numFrom, numTo, false, true, isCapture, pr, capturedPiece);
     moves.push_back(m);
   }
 }
 std::vector<Move> getPsuedoLegalMoves() {
   std::vector<Move> moves;
-
+  
   return moves;
 }
 } // namespace Engine
