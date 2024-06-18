@@ -21,7 +21,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
   int mailBoxIndex = mailbox64[num];
   Board::State *currentState = board.gameStateHistory.back();
   // board.displayState(currentState);
-  if ((square.type == board.turn) &&
+  if ((square.type == currentState->turn) &&
       (isSlide[square.piece] || square.piece == n)) {
     // go until all directions until end of board (mailbox returns -1)
 
@@ -32,9 +32,9 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
         }
         int targetIndex = mailbox[(offset)*i + mailBoxIndex]; // test
         if ((targetIndex != -1) && (targetIndex != num) &&
-            (board.getSquare(targetIndex).type != board.turn)) {
+            (board.getSquare(targetIndex).type != currentState->turn)) {
 
-          if ((board.getSquare(targetIndex).type != board.turn &&
+          if ((board.getSquare(targetIndex).type != currentState->turn &&
                board.getSquare(targetIndex).type != none)) {
             // capture
             Move m(num, targetIndex, false, false, true, e,
@@ -51,7 +51,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     }
   }
   // TODO: pawn promotion test
-  if ((square.type == board.turn) && square.piece == p) {
+  if ((square.type == currentState->turn) && square.piece == p) {
     // std::cout << "PAWN!!!" << std::endl;
     // std::vector<int> possibleMoves = {};
     int pawnOffset[2][2] = {{-8, -16}, {8, 16}}; // 0: white, or 1: black
@@ -132,7 +132,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     }
   }
   // check castle possibility
-  if (square.type == board.turn and square.piece == k) {
+  if (square.type == currentState->turn and square.piece == k) {
     Move m1(num, num + 2, true, false, false, e, e);
     Move m2(num, num - 2, true, false, false, e, e);
     if (square.type == black) {

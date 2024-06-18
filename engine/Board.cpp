@@ -278,14 +278,14 @@ void Board::unmakeMove(Move move, State state) {
   // }
 }
 void Board::toggleTurn() {
-  // State* s = gameStateHistory.back();
-  // std::cout << s->turn << std::endl;
-  // if (s->turn == black) {
-  //   s->turn = white;
-  // } else if (s->turn == white) {
-  //   s->turn = black;
-  // }
-  turn = !turn;
+  State* s = gameStateHistory.back();
+  std::cout << s->turn << std::endl;
+  if (s->turn == black) {
+    s->turn = white;
+  } else if (s->turn == white) {
+    s->turn = black;
+  }
+  // turn = !turn;
 
   std::cout << turn << std::endl;
 }
