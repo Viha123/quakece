@@ -226,7 +226,7 @@ void BoardDisplay::make_move(int move_from_r, int move_from_c, int move_to_r,
   boardOutWardRepresentation[move_to_r][move_to_c].sprite->setPosition(
       utils::getXPos(move_to_c), utils::getYPos(move_to_r));
   // Move the rest of the struct
-  std::cout << "possible seg fault here" << std::endl;
+  // std::cout << "possible seg fault here" << std::endl;
 
   boardOutWardRepresentation[move_to_r][move_to_c].num =
       utils::getNumFromRF(move_to_r, move_to_c);

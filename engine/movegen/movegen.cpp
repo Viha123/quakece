@@ -12,7 +12,6 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
             << std::endl;
   std::vector<Move> moves = {};
   Board::Square square = board.getSquare(num);
-  Board::State state = board.getState();
   int row = utils::getRank(num);
   int col = utils::getFile(num);
   Piece piece = square.piece;
@@ -20,8 +19,9 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
   // if this is a sliding piece then here are the available moves for that
   // piece.
   int mailBoxIndex = mailbox64[num];
-
-  if ((square.type == state.turn) &&
+  Board::State *currentState = board.gameStateHistory.back();
+  // board.displayState(currentState);
+  if ((square.type == board.turn) &&
       (isSlide[square.piece] || square.piece == n)) {
     // go until all directions until end of board (mailbox returns -1)
 
@@ -32,9 +32,9 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
         }
         int targetIndex = mailbox[(offset)*i + mailBoxIndex]; // test
         if ((targetIndex != -1) && (targetIndex != num) &&
-            (board.getSquare(targetIndex).type != state.turn)) {
+            (board.getSquare(targetIndex).type != board.turn)) {
 
-          if ((board.getSquare(targetIndex).type != state.turn &&
+          if ((board.getSquare(targetIndex).type != board.turn &&
                board.getSquare(targetIndex).type != none)) {
             // capture
             Move m(num, targetIndex, false, false, true, e,
@@ -51,7 +51,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     }
   }
   // TODO: pawn promotion test
-  if ((square.type == state.turn) && square.piece == p) {
+  if ((square.type == board.turn) && square.piece == p) {
     // std::cout << "PAWN!!!" << std::endl;
     // std::vector<int> possibleMoves = {};
     int pawnOffset[2][2] = {{-8, -16}, {8, 16}}; // 0: white, or 1: black
@@ -83,7 +83,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
       } else if (square.type == white && row == 1 &&
                  board.board[num - 8].piece == e) {
         // std::cout << "white promotion possibility" << std::endl;
-        handlePromotions(moves, num, num - 8,e);
+        handlePromotions(moves, num, num - 8, e);
 
       } else if (board.board[num + pawnOffset[square.type][0]].piece == e) {
         Move m(num, num + pawnOffset[square.type][0], false, false, false, e,
@@ -119,7 +119,11 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
       }
 
       // check enpessant capture possibility:
-      if ((targetIndex == +state.enpessant) && (square.jumpCount == 2)) {
+      std::cout << "currentstate enpessant" << +currentState->enpessant
+                << " target index" << targetIndex << " jumpcounts"
+                << currentState->jumpCounts[num] << std::endl;
+      if ((targetIndex == +currentState->enpessant) &&
+          (currentState->jumpCounts[num] == 2)) {
         Move m(num, targetIndex, false, false, true, e,
                p); // if target index does not have any piece and capture is
                    // true then assume enpessant
@@ -128,33 +132,37 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     }
   }
   // check castle possibility
-  if (square.type == state.turn and square.piece == k) {
+  if (square.type == board.turn and square.piece == k) {
     Move m1(num, num + 2, true, false, false, e, e);
     Move m2(num, num - 2, true, false, false, e, e);
     if (square.type == black) {
       // shift right 2 and 3 times
 
       if (board.board[num + 1].piece == e && board.board[num + 2].piece == e &&
-          ((state.castle_flag >> 2) & 0b0001) == 1) { // black king castle
+          ((currentState->castle_flag >> 2) & 0b0001) ==
+              1) { // black king castle
         moves.push_back(m1);
       }
       if (board.board[num - 1].piece == e && board.board[num - 2].piece == e &&
           board.board[num - 3].piece == e &&
-          ((state.castle_flag >> 3) & 0b0001) == 1) { // black queen castle
+          ((currentState->castle_flag >> 3) & 0b0001) ==
+              1) { // black queen castle
         moves.push_back(m2);
       }
     }
     if (square.type == white) {
       // shift right 2 and 3 times
-      // std::cout << ((state.castle_flag >> 1) & 0b0010) << std::endl;
+      // std::cout << ((currentState->castle_flag >> 1) & 0b0010) << std::endl;
 
       if (board.board[num + 1].piece == e && board.board[num + 2].piece == e &&
-          ((state.castle_flag >> 0) & 0b0001) == 1) { // white king castle
+          ((currentState->castle_flag >> 0) & 0b0001) ==
+              1) { // white king castle
         moves.push_back(m1);
       }
       if (board.board[num - 1].piece == e && board.board[num - 2].piece == e &&
           board.board[num - 3].piece == e && // 3 things between rook and king
-          ((state.castle_flag >> 1) & 0b0001) == 1) { // white queen castle
+          ((currentState->castle_flag >> 1) & 0b0001) ==
+              1) { // white queen castle
 
         moves.push_back(m2);
       }
@@ -175,7 +183,7 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
 }
 std::vector<Move> getPsuedoLegalMoves() {
   std::vector<Move> moves;
-  
+
   return moves;
 }
 } // namespace Engine

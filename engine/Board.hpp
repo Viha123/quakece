@@ -1,42 +1,46 @@
 #pragma once
 #include "../Headers/engine.hpp"
-#include <array>
-#include <string>
 #include "move.hpp"
+#include <array>
+#include <map>
+#include <string>
+#include <utility>
+#include <iostream>
 namespace Engine {
 class Board {
 public:
   struct Square {
     Color type; // piece color
     Piece piece;
-    char c; // for display purposes
-    int jumpCount; // if this piece is a pawn then we need to count its jump to see if it can enpassant possibility
+    char c;        // for display purposes
+    int jumpCount; // if this piece is a pawn then we need to count its jump to
+                   // see if it can enpassant possibility
   };
   struct State {
     int8_t castle_flag = 0b0000; // 1: wk, 2: wq, 4: bk, 8: bq
     int8_t enpessant = -1;
-    Color turn = white; // white to move
-    std::array<int, 16> jumpCounts{0}; 
+    Color turn = white;              // white to move
+    std::map<int, int> jumpCounts{}; // row col -> count
   };
-  State state; 
-  std::array<Square, 64>
-      board{};
+  bool turn = false; // white for true black for false
+  State *state;
+  std::array<Square, 64> board{};
   Board();
   Board(std::string fen);
   void display(); // display board for testing purposes
-  State getState();
-  Square getSquare(int num); //get piece at index
-  Square emptySquare = {
-    .type = none,
-    .piece = e,
-    .c = '.',
-    .jumpCount = 0
-  };
-  std::vector<Move*> history;
-  std::vector<State*> gameStateHistory; //keeps track of game state because we might have to undo that too
-  void makeMove(Move move); //make move and update the board with the result of that move
-  void unmakeMove(Move move, State state); //if move results in a potential check from opp side, you must undo the move.
+  // State getState();
+  Square getSquare(int num); // get piece at index
+  Square emptySquare = {.type = none, .piece = e, .c = '.', .jumpCount = 0};
+  std::vector<Move *> history;
+  std::vector<State *> gameStateHistory; // keeps track of game state because we
+                                         // might have to undo that too
+  void makeMove(
+      Move move); // make move and update the board with the result of that move
+  void unmakeMove(Move move,
+                  State state); // if move results in a potential check from opp
+                                // side, you must undo the move.
   void toggleTurn();
+  void displayState(State* state);
 private:
   void generateBoardFromFen(
       std::string fen); // updates board array and also initializes all the

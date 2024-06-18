@@ -64,11 +64,12 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
             int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                  event.mouseButton.y);
             Piece promoted_piece = e;
-            if (utils::getRank(piece) == 7 and board.state.turn == black and
+            // Engine::Board::State* currentState = board.gameStateHistory.back();
+            if (utils::getRank(piece) == 7 and board.turn == black and
                 board.board[piece_from].piece == p) {
               handle_gui_promotion(promoted_piece);
             }
-            if (utils::getRank(piece) == 0 and board.state.turn == white and
+            if (utils::getRank(piece) == 0 and board.turn == white and
                 board.board[piece_from].piece == p) {
                 cout << "HERE 1" << endl;
                 handle_gui_promotion(promoted_piece);

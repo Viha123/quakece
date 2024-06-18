@@ -7,18 +7,25 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <iostream>
 namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  generateBoardFromFen(fen);
   history = {};
   gameStateHistory = {}; 
+  state = new State();
+  gameStateHistory.push_back(state);
+  generateBoardFromFen(fen);
+  
 }
 
 Board::Board(std::string fen) { 
-  generateBoardFromFen(fen);
   history = {};
   gameStateHistory = {}; 
+  state = new State();
+  gameStateHistory.push_back(state);
+  generateBoardFromFen(fen);
+  
 
  }
 void Board::generateBoardFromFen(std::string fen) {
@@ -118,8 +125,13 @@ void Board::generateBoardFromFen(std::string fen) {
     }
   }
 }
+
 void Board::makeMove(Move move) { //updates the board representation given the move 
   bool enpessantToggled = false;
+  state = gameStateHistory.back();
+  auto* newState = new State(*state);
+  std::cout << "new state created ";
+  displayState(newState);
   Piece pieceFrom = board[move._move_from].piece;
   Piece pieceTo = board[move._move_to].piece;
   if (move._isCapture && pieceTo != r && !move._isPromotion && pieceFrom != k) { // simply replace the thing that was previously at that
@@ -135,6 +147,8 @@ void Board::makeMove(Move move) { //updates the board representation given the m
     board[move._move_to] = board[move._move_from];
     if (pieceFrom == p) {
       board[move._move_to].jumpCount += 1;
+      newState->jumpCounts[move._move_to] = board[move._move_to].jumpCount;
+      displayState(newState);
     }
     board[move._move_from] = emptySquare;
     // board[move._move_from].piece = emptySquare;
@@ -152,11 +166,11 @@ void Board::makeMove(Move move) { //updates the board representation given the m
       board[move._move_to + 1] = emptySquare;
       if (board[move._move_to].type == white) {
         // flip bit to not allow white king castle
-        state.castle_flag &= 0b1110;
+        newState->castle_flag &= 0b1110;
       }
       if (board[move._move_to].type == black) {
         // flip bit to not allow black king castle
-        state.castle_flag &= 0b1011;
+        newState->castle_flag &= 0b1011;
       }
     }
     if (file == 2) { // queen side castle
@@ -166,21 +180,21 @@ void Board::makeMove(Move move) { //updates the board representation given the m
       board[move._move_to - 2] = emptySquare;
       if (board[move._move_to].type == white) {
         // flip bit to not allow white queen castle
-        state.castle_flag &= 0b1101;
+        newState->castle_flag &= 0b1101;
       }
       if (board[move._move_to].type == black) {
         // flip bit to not allow black queen castle
-        state.castle_flag &= 0b0111;
+        newState->castle_flag &= 0b0111;
       }
     }
   } else if(pieceFrom == k) {
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
     if(board[move._move_to].type == black) {
-      state.castle_flag &= 0b0011;
+      newState->castle_flag &= 0b0011;
     }
     if(board[move._move_to].type == white) {
-      state.castle_flag &= 0b1100;
+      newState->castle_flag &= 0b1100;
     }
   } 
   else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
@@ -189,19 +203,19 @@ void Board::makeMove(Move move) { //updates the board representation given the m
     board[move._move_from] = emptySquare;
     if (move._move_from == 63 || move._move_to == 63) {
       // turn off white king side castle
-      state.castle_flag &= 0b1110;
+      newState->castle_flag &= 0b1110;
     }
     if (move._move_from == 56 || move._move_to == 56) {
       // turn off white queen side castle
-      state.castle_flag &= 0b1101;
+      newState->castle_flag &= 0b1101;
     }
     if (move._move_from == 0 || move._move_to == 0) {
       // turn off black queen side castle
-      state.castle_flag &= 0b0111;
+      newState->castle_flag &= 0b0111;
     }
     if (move._move_from == 7 || move._move_to == 7) {
       // turn off black king side castle
-      state.castle_flag &= 0b1011;
+      newState->castle_flag &= 0b1011;
     }
   }
 
@@ -213,17 +227,20 @@ void Board::makeMove(Move move) { //updates the board representation given the m
     // if pawn and if pawn did a double jump
     if (move._move_from - move._move_to == -16) { // black double jump
       board[move._move_to].jumpCount = 1;
-      state.enpessant = move._move_to - 8;
+      newState->enpessant = move._move_to - 8;
       enpessantToggled = true;
     } else if (move._move_from - move._move_to == 16) {
       board[move._move_to].jumpCount = 1;
-      state.enpessant = move._move_to + 8;
+      newState->enpessant = move._move_to + 8;
       enpessantToggled = true;
     } else if (move._move_from - move._move_to == -8) { // black single jump
       board[move._move_to].jumpCount += 1;
     } else if (move._move_from - move._move_to == 8) { // single jump
       board[move._move_to].jumpCount += 1;
     }
+    newState->jumpCounts[move._move_to] = board[move._move_to].jumpCount;
+    std::cout << "jumpcount updated for: "  << move._move_to << " to " << newState->jumpCounts[move._move_to] << std::endl;
+    
   }
 
   // every other regular movement simply replace the piece
@@ -244,11 +261,12 @@ void Board::makeMove(Move move) { //updates the board representation given the m
     board[move._move_from] = emptySquare;
   }
   if (enpessantToggled == false) {
-    state.enpessant = -1;
+    newState->enpessant = -1;
   }
-  std::cout << "enpessant " << +state.enpessant << std::endl;
   history.push_back(&move);
-  gameStateHistory.push_back(&state); 
+  std::cout << "appending new state to history: " << std::endl;
+  displayState(newState);
+  gameStateHistory.push_back(newState); 
   // if promotion then turn pawn into queen, king, whatevs
 }
 
@@ -260,54 +278,59 @@ void Board::unmakeMove(Move move, State state) {
   // }
 }
 void Board::toggleTurn() {
-  if (state.turn == black) {
-    state.turn = white;
-  } else if (state.turn == white) {
-    state.turn = black;
-  }
+  // State* s = gameStateHistory.back();
+  // std::cout << s->turn << std::endl;
+  // if (s->turn == black) {
+  //   s->turn = white;
+  // } else if (s->turn == white) {
+  //   s->turn = black;
+  // }
+  turn = !turn;
+
+  std::cout << turn << std::endl;
 }
-Board::State Board::getState() { return state; }
+// Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {
   std::string turn = remaining.substr(0, remaining.find(" "));
   remaining = remaining.substr(remaining.find(" ") + 1);
   std::string castling = remaining.substr(0, remaining.find(" ") + 1);
   remaining = remaining.substr(remaining.find(" ") + 1);
   if (turn[0] == 'w') {
-    state.turn = white;
+    state->turn = white;
   } else {
-    state.turn = black;
+    state->turn = black;
   }
   // std::cout << castling.find("-1") << std::endl;
   if (castling.find("k") >= 0 and castling.find("k") < 4) { // black king side
     // std::cout << "black king side!!!" << std::endl;
 
-    state.castle_flag |= 0b0100;
+    state->castle_flag |= 0b0100;
   }
   if (castling.find("K") >= 0 and castling.find("K") < 4) { // white king side
     // std::cout << "white king side!!!" << std::endl;
 
-    state.castle_flag |= 0b0001;
+    state->castle_flag |= 0b0001;
   }
   if (castling.find("q") >= 0 and castling.find("q") < 4) { // black queen side
     // std::cout << "black queen side!!!" << std::endl;
 
-    state.castle_flag |= 0b1000;
+    state->castle_flag |= 0b1000;
   }
   if (castling.find("Q") >= 0 and castling.find("Q") < 4) { // white queen side
     // std::cout << "white queen side!!!" << std::endl;
 
-    state.castle_flag |= 0b0010;
+    state->castle_flag |= 0b0010;
   }
   // en pessant
   std::string en_string = remaining.substr(0, remaining.find(" "));
   std::cout << en_string << std::endl;
   if (en_string.find("-") == 0) {
-    state.enpessant = -1;
+    state->enpessant = -1;
   } else {
     // need to make a utils.cpp to convert chess notation to numbers
     // TODO
-    state.enpessant = utils::getNumFromStr(en_string);
-    std::cout << +state.enpessant << std::endl;
+    state->enpessant = utils::getNumFromStr(en_string);
+    std::cout << +state->enpessant << std::endl;
   }
 }
 Board::Square Board::getSquare(int num) {
@@ -326,4 +349,16 @@ void Board::display() {
   }
   std::cout << std::endl;
 }
+void Board::displayState(State* state) {
+  std::cout << "Castle Flag: " << static_cast<int>(state->castle_flag) << '\n';
+    std::cout << "Enpessant: " << static_cast<int>(state->enpessant) << '\n';
+    std::cout << "Turn: " << (state->turn == white ? "white" : "black") << '\n';
+    std::cout << "Jump Counts: ";
+    for (const auto& pair : state->jumpCounts) {
+        std::cout << "[" << pair.first << " -> " << pair.second << "] ";
+    }
+    std::cout << '\n';
+    
+}
 } // namespace Engine
+
