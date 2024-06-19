@@ -7,27 +7,23 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <iostream>
 namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   history = {};
-  gameStateHistory = {}; 
+  gameStateHistory = {};
   state = new State();
   gameStateHistory.push_back(state);
   generateBoardFromFen(fen);
-  
 }
 
-Board::Board(std::string fen) { 
+Board::Board(std::string fen) {
   history = {};
-  gameStateHistory = {}; 
+  gameStateHistory = {};
   state = new State();
   gameStateHistory.push_back(state);
   generateBoardFromFen(fen);
-  
-
- }
+}
 void Board::generateBoardFromFen(std::string fen) {
   std::string token = fen.substr(0, fen.find(" ")); // part 1 of string
   std::string remaining = fen.substr(fen.find(" ") + 1);
@@ -126,33 +122,33 @@ void Board::generateBoardFromFen(std::string fen) {
   }
 }
 
-void Board::makeMove(Move move) { //updates the board representation given the move 
+void Board::makeMove(
+    Move &move) { // updates the board representation given the move
   bool enpessantToggled = false;
   state = gameStateHistory.back();
-  auto* newState = new State(*state);
-  std::cout << "new state created ";
-  displayState(newState);
+  auto *newState = new State(*state);
+  // std::cout << "new state created ";
+  // displayState(newState);
   Piece pieceFrom = board[move._move_from].piece;
   Piece pieceTo = board[move._move_to].piece;
-  if (move._isCapture && pieceTo != r && !move._isPromotion && pieceFrom != k) { // simply replace the thing that was previously at that
-                         // box
-    if (pieceTo == e &&
-        board[move._move_from].type == black) {
+  if (move._isCapture && pieceTo != r && !move._isPromotion &&
+      pieceFrom != k) { // simply replace the thing that was previously at that
+                        // box
+    if (pieceTo == e && board[move._move_from].type == black) {
       // enpessant capture
       board[move._move_to - 8] = emptySquare;
-    } else if (pieceTo == e &&
-               board[move._move_from].type == white) {
+    } else if (pieceTo == e && board[move._move_from].type == white) {
       board[move._move_to + 8] = emptySquare;
     }
     board[move._move_to] = board[move._move_from];
     if (pieceFrom == p) {
       board[move._move_to].jumpCount += 1;
       newState->jumpCounts[move._move_to] = board[move._move_to].jumpCount;
-      displayState(newState);
+      // displayState(newState);
     }
     board[move._move_from] = emptySquare;
     // board[move._move_from].piece = emptySquare;
-    std::cout << pieceTo << std::endl;
+    // std::cout << pieceTo << std::endl;
   } else if (move._isCastle) {
 
     int file = utils::getFile(move._move_to);
@@ -187,17 +183,16 @@ void Board::makeMove(Move move) { //updates the board representation given the m
         newState->castle_flag &= 0b0111;
       }
     }
-  } else if(pieceFrom == k) {
+  } else if (pieceFrom == k) {
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
-    if(board[move._move_to].type == black) {
+    if (board[move._move_to].type == black) {
       newState->castle_flag &= 0b0011;
     }
-    if(board[move._move_to].type == white) {
+    if (board[move._move_to].type == white) {
       newState->castle_flag &= 0b1100;
     }
-  } 
-  else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
+  } else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
     std::cout << "HERE in rook capture" << std::endl;
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
@@ -239,8 +234,9 @@ void Board::makeMove(Move move) { //updates the board representation given the m
       board[move._move_to].jumpCount += 1;
     }
     newState->jumpCounts[move._move_to] = board[move._move_to].jumpCount;
-    std::cout << "jumpcount updated for: "  << move._move_to << " to " << newState->jumpCounts[move._move_to] << std::endl;
-    
+    // std::cout << "jumpcount updated for: "  << move._move_to << " to " <<
+    // newState->jumpCounts[move._move_to] << std::endl;
+
   }
 
   // every other regular movement simply replace the piece
@@ -251,7 +247,7 @@ void Board::makeMove(Move move) { //updates the board representation given the m
   }
   // handles promootion.
   else if (move._isPromotion) {
-    std::cout << "make move saw promotion" << std::endl;
+    // std::cout << "make move saw promotion" << std::endl;
     Square newSquare = {
         .type = board[move._move_from].type,
         .piece = move._toPromote,
@@ -264,21 +260,84 @@ void Board::makeMove(Move move) { //updates the board representation given the m
     newState->enpessant = -1;
   }
   history.push_back(&move);
-  std::cout << "appending new state to history: " << std::endl;
-  displayState(newState);
-  gameStateHistory.push_back(newState); 
+  // std::cout << "appending new state to history: " << std::endl;
+  // displayState(newState);
+  gameStateHistory.push_back(newState);
+  std::cout << "printing updated move" << std::endl;
+  history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
 }
 
-void Board::unmakeMove(Move move, State state) {
-  // if(move._isCapture) { //enpessant unmake would be wrong
-  //   board[move._move_from] = board[move._move_to];
-  //   board[move._move_to].c = pieceReps[board[move._move_from].type][move._capturedPiece];
-  //   board[move._move_to].jumpCount = 
-  // }
+void Board::unmakeMove(Move move) {
+  std::cout << "Move to unmake: " << std::endl;
+  Color oppType = board[move._move_to].type == white ? black : white;
+  Color currType = board[move._move_to].type;
+  move.printMove();
+  std::cout << "state to undo" << std::endl;
+
+  displayState(state);
+  State* state = gameStateHistory.back(); //state before the move that was deleted
+  if (move._isCapture &&
+      move._move_to != state->enpessant) { // enpessant unmake would be wrong
+    if (!move._isPromotion) {
+      board[move._move_from] = board[move._move_to];
+    } else {
+      // is promotion and is capture
+      board[move._move_from].c = pieceReps[currType][p];
+      board[move._move_from].jumpCount =
+          state->jumpCounts[move._move_from]; // whatever the count was before.
+                                              // this is a previous state.
+      board[move._move_from].piece = p;
+      board[move._move_from].type = board[move._move_to].type;
+    }
+    board[move._move_to].c = pieceReps[oppType][move._capturedPiece];
+
+    board[move._move_to].jumpCount = state->jumpCounts[move._move_to]; //not sure if the usage of state here is correct
+    board[move._move_to].piece = move._capturedPiece;
+    board[move._move_to].type = oppType;
+
+  } else if (move._isCapture && move._move_to == state->enpessant) {
+    // slightly different unmake
+    // restore state
+    board[move._move_from] = board[move._move_to]; //moving pawn back to where it was
+    board[move._move_to] = emptySquare; //move to becomes an empty square
+    int offset = currType == white? 8 : -8;
+    board[move._move_to + offset].c = pieceReps[oppType][p]; //the square below or above gets the pawn/captured piece back.
+    board[move._move_to + offset].jumpCount = state->jumpCounts[move._move_to + offset];
+    board[move._move_to + offset].piece = p;
+    board[move._move_to + offset].type = oppType;
+    std::cout << "unmaking enpessant" << std::endl;
+    displayState(state);
+  } else if (move._isCastle) {
+    // castle is not possible go back to king and rook being wehre they were and
+    // restoring state
+    std::cout << "unmaking castle" << std::endl;
+    
+    if(move._move_to == 62 || move._move_to == 6) {
+      //unmake the king by offset -2 and rook by + 2
+      board[move._move_from] = board[move._move_to];
+      board[move._move_to] = emptySquare; 
+      //rook by + 2;
+      board[move._move_to + 1] = board[move._move_to - 1];
+      board[move._move_to - 1] = emptySquare;
+    } else if(move._move_to == 58 || move._move_to == 2) {
+       //unmake the king by offset -2 and rook by + 2
+      board[move._move_from] = board[move._move_to];
+      board[move._move_to] = emptySquare; 
+      //rook goes back 2 spots
+      board[move._move_to - 2] = board[move._move_to + 1];
+      board[move._move_to + 1] = emptySquare;
+    }
+  } else {
+    // quiet move.
+    board[move._move_from] = board[move._move_to];
+
+    board[move._move_to] = emptySquare;
+    std::cout << "unmaking quiet move" << std::endl;
+  }
 }
 void Board::toggleTurn() {
-  State* s = gameStateHistory.back();
+  State *s = gameStateHistory.back();
   std::cout << s->turn << std::endl;
   if (s->turn == black) {
     s->turn = white;
@@ -349,16 +408,14 @@ void Board::display() {
   }
   std::cout << std::endl;
 }
-void Board::displayState(State* state) {
+void Board::displayState(State *state) {
   std::cout << "Castle Flag: " << static_cast<int>(state->castle_flag) << '\n';
-    std::cout << "Enpessant: " << static_cast<int>(state->enpessant) << '\n';
-    std::cout << "Turn: " << (state->turn == white ? "white" : "black") << '\n';
-    std::cout << "Jump Counts: ";
-    for (const auto& pair : state->jumpCounts) {
-        std::cout << "[" << pair.first << " -> " << pair.second << "] ";
-    }
-    std::cout << '\n';
-    
+  std::cout << "Enpessant: " << static_cast<int>(state->enpessant) << '\n';
+  std::cout << "Turn: " << (state->turn == white ? "white" : "black") << '\n';
+  std::cout << "Jump Counts: ";
+  for (const auto &pair : state->jumpCounts) {
+    std::cout << "[" << pair.first << " -> " << pair.second << "] ";
+  }
+  std::cout << '\n';
 }
 } // namespace Engine
-

@@ -1,5 +1,6 @@
 #include "../Headers/engine.hpp"
 #include "move.hpp"
+#include <iostream>
 #include <vector>
 
 namespace Engine {
@@ -16,5 +17,14 @@ namespace Engine {
   // std::vector<Move*> Move::getMoveHistory() {
   //   return history;
   // }
+  void Move::printMove() {
+    std::cout << "From: " << _move_from <<
+    " To: " <<_move_to <<
+    " Is Capture? " << _isCapture << 
+    " Captured Piece " << _capturedPiece <<
+    " Castle? " << _isCastle <<
+    " Promotion? " << _isPromotion <<
+    " Promoted Piece " << _toPromote << std::endl;
+  }
 
 }

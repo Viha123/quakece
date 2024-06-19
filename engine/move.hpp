@@ -13,6 +13,8 @@ public:
   bool _isCapture;
   Piece _toPromote;
   Piece _capturedPiece;
+
+  void printMove();
   // static std::vector<Move*> history;
   // static std::vector<Move*> getMoveHistory(); 
 };

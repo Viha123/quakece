@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <iostream>
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 using namespace std;
@@ -16,7 +17,7 @@ void initialize_char_to_piece();
 // vector<Engine::Move *> Engine::Move::history = {};
 
 std::unordered_map<char, Piece> char_to_piece;
-void handle_gui_promotion(Piece& promoted_piece);
+void handle_gui_promotion(Piece &promoted_piece);
 int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                    // player or computer vs computer
 
@@ -64,21 +65,22 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
             int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                  event.mouseButton.y);
             Piece promoted_piece = e;
-            Engine::Board::State* currentState = board.gameStateHistory.back();
+            Engine::Board::State *currentState = board.gameStateHistory.back();
             board.displayState(currentState);
-            if (utils::getRank(piece) == 7 and  currentState->turn == black and
+            if (utils::getRank(piece) == 7 and currentState->turn == black and
                 board.board[piece_from].piece == p) {
               handle_gui_promotion(promoted_piece);
             }
             if (utils::getRank(piece) == 0 and currentState->turn == white and
                 board.board[piece_from].piece == p) {
-                cout << "HERE 1" << endl;
-                handle_gui_promotion(promoted_piece);
-                cout << promoted_piece << endl;
+              cout << "HERE 1" << endl;
+              handle_gui_promotion(promoted_piece);
+              cout << promoted_piece << endl;
             }
-            
+
             for (auto i : moves) {
-              if (piece_from == i._move_from && i._move_to == piece && promoted_piece == i._toPromote) {
+              if (piece_from == i._move_from && i._move_to == piece &&
+                  promoted_piece == i._toPromote) {
                 // found = true;
                 piece_to = piece;
                 board.display();
@@ -87,18 +89,40 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                 // cout << piece_from << " " << piece_to << endl;
                 board.makeMove(i);
                 guiBoard.clearPossibleMoves();
+                // i.printMove();
                 guiBoard.updateMove(i);
                 // Engine::Move::history.push_back(&i);
                 updateWindow(window, guiBoard);
                 board.display();
                 board.toggleTurn();
-                board.displayState(currentState);
 
+                Engine::Board::State *latestState =
+                    board.gameStateHistory.back();
+                board.displayState(latestState);
               }
             }
-            
+
+          } else if (event.mouseButton.button == sf::Mouse::Right) {
+            if (board.history.size() == 0 or
+                board.gameStateHistory.size() == 0) {
+              throw std::out_of_range("cannot unmake a move that is not made");
+            }
+            Engine::Move moveToUnmake = *board.history.back();
+            board.history.pop_back();
+
+            // Engine::Board::State* stateToUnmake = board.gameStateHistory.back();
+            // board.displayState(stateToUnmake);
+            board.gameStateHistory.pop_back();
+            cout << "Move to unmake: " << endl;
+            moveToUnmake.printMove();
+            board.unmakeMove(moveToUnmake);
+            updateWindow(window, guiBoard);
+            board.display();
+            // board.toggleTurn();
+            // board.displayState(st);
           }
         }
+
       } else if (*argv[1] == '1') {
         if (event.type == sf::Event::MouseButtonPressed) {
           if (event.mouseButton.button == sf::Mouse::Left) {
@@ -133,7 +157,7 @@ void initialize_char_to_piece() {
   char_to_piece['r'] = r;
 }
 
-void handle_gui_promotion(Piece& promoted_piece) {
+void handle_gui_promotion(Piece &promoted_piece) {
   char promotion;
 
   std::cout << "Q for queen, N for knight, B for bishop, R for "

@@ -35,9 +35,8 @@ public:
   std::vector<State *> gameStateHistory; // keeps track of game state because we
                                          // might have to undo that too
   void makeMove(
-      Move move); // make move and update the board with the result of that move
-  void unmakeMove(Move move,
-                  State state); // if move results in a potential check from opp
+      Move& move); // make move and update the board with the result of that move
+  void unmakeMove(Move move); // if move results in a potential check from opp
                                 // side, you must undo the move.
   void toggleTurn();
   void displayState(State* state);
