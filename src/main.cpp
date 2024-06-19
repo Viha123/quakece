@@ -93,6 +93,10 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                 guiBoard.updateMove(i);
                 // Engine::Move::history.push_back(&i);
                 updateWindow(window, guiBoard);
+                cout << "Turn: " << currentState->turn << endl;
+
+                bool kingCheck = Engine::kingInCheck(board, currentState->turn);
+                cout << "king check: " << kingCheck << endl;
                 board.display();
                 board.toggleTurn();
 
@@ -107,14 +111,15 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                 board.gameStateHistory.size() == 0) {
               throw std::out_of_range("cannot unmake a move that is not made");
             }
+            
             Engine::Move moveToUnmake = *board.history.back();
             board.history.pop_back();
-
+            // cout << "Move to unmake: " << endl;
+            // moveToUnmake.printMove();
             // Engine::Board::State* stateToUnmake = board.gameStateHistory.back();
             // board.displayState(stateToUnmake);
             board.gameStateHistory.pop_back();
-            cout << "Move to unmake: " << endl;
-            moveToUnmake.printMove();
+            
             board.unmakeMove(moveToUnmake);
             updateWindow(window, guiBoard);
             board.display();

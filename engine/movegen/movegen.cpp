@@ -181,6 +181,60 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
     moves.push_back(m);
   }
 }
+// std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
+//   std::vector<Move> pseudolegal = getMoveForPiece(board, num);
+//   std::vector<Move> legal;
+//   for (auto move : pseudolegal) {
+//     board.makeMove(move);
+//     // if(kingInCheck)
+//     // if king in check:
+//     // unmake move.
+//     // else add move to legal move vector
+//   }
+// }
+bool kingInCheck(Board &board, Color color) {
+  int kingIndex = findKingIndex(board, color);
+  // check diagonal moves
+  std::cout << "color to check " << color << std::endl;
+  std::cout << kingIndex << std::endl;
+  int mailBoxIndex = mailbox64[kingIndex];
+  Color oppType = color == white ? black : white;
+
+  std::array<Piece, 5> checkPieces = {n, b, r, q, k};
+  for (auto piece : checkPieces) {
+    for (int offset : directionOffsets[piece]) {
+      for (int i = 1; i <= 8; i++) {
+        if ((piece == k or piece == n) and i > 1) {
+          break;
+        }
+        if (mailbox[mailBoxIndex + (offset*i)] != -1 &&
+            board.board[mailbox[mailBoxIndex + (offset*i)]].type != color) {
+          if (board.board[mailbox[mailBoxIndex + (offset*i)]].piece == piece) {
+            std::cout << piece << std::endl;
+            return true; // king is exposed 
+          }
+        } else {
+          // std::cout << "index" << mailbox[mailBoxIndex + (offset*i)] << std::endl;
+          break;
+        }
+      }
+    }
+  }
+
+  return false; // not in check
+}
+int findKingIndex(Board &board, Color color) {
+  // use a localkingindex variable to cache this value
+  int i = 0;
+  for (auto square : board.board) {
+    if (square.piece == k and square.type == color) {
+      return i;
+    }
+    i += 1;
+  }
+  return -1; // no king. should never happen
+}
+// later
 std::vector<Move> getPsuedoLegalMoves() {
   std::vector<Move> moves;
 

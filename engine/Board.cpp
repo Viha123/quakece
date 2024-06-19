@@ -269,13 +269,10 @@ void Board::makeMove(
 }
 
 void Board::unmakeMove(Move move) {
-  std::cout << "Move to unmake: " << std::endl;
+  // std::cout << "Move to unmake: " << std::endl;
   Color oppType = board[move._move_to].type == white ? black : white;
   Color currType = board[move._move_to].type;
-  move.printMove();
-  std::cout << "state to undo" << std::endl;
-
-  displayState(state);
+  // move.printMove();
   State* state = gameStateHistory.back(); //state before the move that was deleted
   if (move._isCapture &&
       move._move_to != state->enpessant) { // enpessant unmake would be wrong
@@ -334,7 +331,10 @@ void Board::unmakeMove(Move move) {
 
     board[move._move_to] = emptySquare;
     std::cout << "unmaking quiet move" << std::endl;
-  }
+  } 
+  std::cout << "unmade state" << std::endl;
+
+  displayState(state);
 }
 void Board::toggleTurn() {
   State *s = gameStateHistory.back();
