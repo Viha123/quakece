@@ -21,7 +21,7 @@ void handle_gui_promotion(Piece &promoted_piece);
 int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                    // player or computer vs computer
 
-  string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  string fen = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -";
   Engine::Board board(fen);
   sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                           "CHESS GUI");
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
 
                 Engine::Board::State *latestState =
                     board.gameStateHistory.back();
-                // board.displayState(latestState);
+                board.displayState(latestState);
               }
             }
 

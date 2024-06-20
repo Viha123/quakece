@@ -122,8 +122,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
       // std::cout << "currentstate enpessant" << +currentState->enpessant
       //           << " target index" << targetIndex << " jumpcounts"
       //           << currentState->jumpCounts[num] << std::endl;
-      if ((targetIndex == +currentState->enpessant) &&
-          (currentState->jumpCounts[num] == 2)) {
+      if (targetIndex == +currentState->enpessant) {
         Move m(num, targetIndex, false, false, true, e,
                p); // if target index does not have any piece and capture is
                    // true then assume enpessant
@@ -188,16 +187,23 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
   Color color = board.board[num].type;
   for (auto move : pseudolegal) {
     board.makeMove(move);
-    // std::cout << "board display after hypothetical move made" << std::endl;
-    board.display();
+    std::cout << "board display after hypothetical move made" << std::endl;
+    // board.display();
     // std::cout << "board num type: " << board.board[num].type << std::endl;
     if (!kingInCheck(board, color)) {
 
       legal.push_back(move);
     }
+    // Move moveToUnmake = *board.history.back();
+    board.history.pop_back();
+    // cout << "Move to unmake: " << endl;
+    // moveToUnmake.printMove();
+    // Engine::Board::State* stateToUnmake = board.gameStateHistory.back();
+    // board.displayState(stateToUnmake);
+    board.gameStateHistory.pop_back();
     board.unmakeMove(move);
-    // std::cout << "board display after move unmade" << std::endl;
-    board.display();
+    std::cout << "board display after move unmade" << std::endl;
+    // board.display();
   }
   // std::cout << "legal size: " << legal.size() << std::endl;
   // board.displayState(board.gameStateHistory.back());
@@ -213,8 +219,15 @@ bool kingInCheck(Board &board, Color color) {
 
   std::array<Piece, 5> checkPieces = {n, b, r, q, k};
   for (auto piece : checkPieces) {
+    // std::cout << "piece calculating atm: " << piece << std::endl;
+
     for (int offset : directionOffsets[piece]) {
+      // std::cout << piece << std::endl;
+
       for (int i = 1; i <= 8; i++) {
+        // std::cout << "Possible piece that attacks king: "
+        //           << mailbox[mailBoxIndex + (offset * i)]
+        //           << "piece we are getting offset off: " << piece << std::endl;
         if ((piece == k or piece == n) and i > 1) {
           break;
         }
@@ -222,29 +235,28 @@ bool kingInCheck(Board &board, Color color) {
             board.board[mailbox[mailBoxIndex + (offset * i)]].type != color) {
           if (board.board[mailbox[mailBoxIndex + (offset * i)]].piece ==
               piece) {
-            // std::cout << piece << std::endl;
+            // std::cout << "checking piece num" << mailbox[mailBoxIndex + (offset * i)] << std::endl;
             return true; // king is exposed
+          } else if(board.board[mailbox[mailBoxIndex + (offset * i)]].type == oppType){
+            break;
           }
         } else {
-          // std::cout << "index" << mailbox[mailBoxIndex + (offset*i)] <<
-          // std::endl;
+
           break;
         }
       }
     }
-    int pawnOfssets[2] = {9, 11};
-    int multiplier = color == white ? -1 : 1;
-    for (int os : pawnOfssets) {
-      if (mailbox[mailBoxIndex + os * multiplier] != -1 &&
-          board.board[mailbox[mailBoxIndex + os * multiplier]].type ==
-              oppType &&
-          board.board[mailbox[mailBoxIndex + os * multiplier]].piece == p) {
-        return true;
-      }
-    }
-    return false;
   }
-
+  int pawnOfssets[2] = {9, 11};
+  int multiplier = color == white ? -1 : 1;
+  for (int os : pawnOfssets) {
+    if (mailbox[mailBoxIndex + os * multiplier] != -1 &&
+        board.board[mailbox[mailBoxIndex + os * multiplier]].type == oppType &&
+        board.board[mailbox[mailBoxIndex + os * multiplier]].piece == p) {
+      return true;
+    }
+  }
+  // return false;
   return false; // not in check
 }
 int findKingIndex(Board &board, Color color) {

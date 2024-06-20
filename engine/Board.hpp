@@ -13,14 +13,12 @@ public:
     Color type; // piece color
     Piece piece;
     char c;        // for display purposes
-    int jumpCount; // if this piece is a pawn then we need to count its jump to
                    // see if it can enpassant possibility
   };
   struct State {
     int8_t castle_flag = 0b0000; // 1: wk, 2: wq, 4: bk, 8: bq
     int8_t enpessant = -1;
     Color turn = white;              // white to move
-    std::map<int, int> jumpCounts{}; // row col -> count
   };
   bool turn = false; // white for true black for false
   State *state;
@@ -30,7 +28,7 @@ public:
   void display(); // display board for testing purposes
   // State getState();
   Square getSquare(int num); // get piece at index
-  Square emptySquare = {.type = none, .piece = e, .c = '.', .jumpCount = 0};
+  Square emptySquare = {.type = none, .piece = e, .c = '.'};
   std::vector<Move *> history;
   std::vector<State *> gameStateHistory; // keeps track of game state because we
                                          // might have to undo that too

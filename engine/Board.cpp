@@ -141,11 +141,6 @@ void Board::makeMove(
       board[move._move_to + 8] = emptySquare;
     }
     board[move._move_to] = board[move._move_from];
-    if (pieceFrom == p) {
-      board[move._move_to].jumpCount += 1;
-      newState->jumpCounts[move._move_to] = board[move._move_to].jumpCount;
-      // displayState(newState);
-    }
     board[move._move_from] = emptySquare;
     // board[move._move_from].piece = emptySquare;
     // std::cout << pieceTo << std::endl;
@@ -221,21 +216,14 @@ void Board::makeMove(
     board[move._move_from] = emptySquare;
     // if pawn and if pawn did a double jump
     if (move._move_from - move._move_to == -16) { // black double jump
-      board[move._move_to].jumpCount = 1;
+      // board[move._move_to].jumpCount = 1;
       newState->enpessant = move._move_to - 8;
       enpessantToggled = true;
     } else if (move._move_from - move._move_to == 16) {
-      board[move._move_to].jumpCount = 1;
+      // board[move._move_to].jumpCount = 1;
       newState->enpessant = move._move_to + 8;
       enpessantToggled = true;
-    } else if (move._move_from - move._move_to == -8) { // black single jump
-      board[move._move_to].jumpCount += 1;
-    } else if (move._move_from - move._move_to == 8) { // single jump
-      board[move._move_to].jumpCount += 1;
     }
-    newState->jumpCounts[move._move_to] = board[move._move_to].jumpCount;
-    // std::cout << "jumpcount updated for: "  << move._move_to << " to " <<
-    // newState->jumpCounts[move._move_to] << std::endl;
 
   }
 
@@ -251,8 +239,7 @@ void Board::makeMove(
     Square newSquare = {
         .type = board[move._move_from].type,
         .piece = move._toPromote,
-        .c = pieceReps[board[move._move_from].type][move._toPromote],
-        .jumpCount = 0};
+        .c = pieceReps[board[move._move_from].type][move._toPromote]};
     board[move._move_to] = newSquare;
     board[move._move_from] = emptySquare;
   }
@@ -273,7 +260,8 @@ void Board::unmakeMove(Move move) {
   Color oppType = board[move._move_to].type == white ? black : white;
   Color currType = board[move._move_to].type;
   // move.printMove();
-  State* state = gameStateHistory.back(); //state before the move that was deleted
+  State *state =
+      gameStateHistory.back(); // state before the move that was deleted
   if (move._isCapture &&
       move._move_to != state->enpessant) { // enpessant unmake would be wrong
     if (!move._isPromotion) {
@@ -281,26 +269,27 @@ void Board::unmakeMove(Move move) {
     } else {
       // is promotion and is capture
       board[move._move_from].c = pieceReps[currType][p];
-      board[move._move_from].jumpCount =
-          state->jumpCounts[move._move_from]; // whatever the count was before.
-                                              // this is a previous state.
+
       board[move._move_from].piece = p;
       board[move._move_from].type = board[move._move_to].type;
     }
     board[move._move_to].c = pieceReps[oppType][move._capturedPiece];
 
-    board[move._move_to].jumpCount = state->jumpCounts[move._move_to]; //not sure if the usage of state here is correct
+    // board[move._move_to].jumpCount = state->jumpCounts[move._move_to]; //not
+    // sure if the usage of state here is correct
     board[move._move_to].piece = move._capturedPiece;
     board[move._move_to].type = oppType;
 
   } else if (move._isCapture && move._move_to == state->enpessant) {
     // slightly different unmake
     // restore state
-    board[move._move_from] = board[move._move_to]; //moving pawn back to where it was
-    board[move._move_to] = emptySquare; //move to becomes an empty square
-    int offset = currType == white? 8 : -8;
-    board[move._move_to + offset].c = pieceReps[oppType][p]; //the square below or above gets the pawn/captured piece back.
-    board[move._move_to + offset].jumpCount = state->jumpCounts[move._move_to + offset];
+    board[move._move_from] =
+        board[move._move_to];           // moving pawn back to where it was
+    board[move._move_to] = emptySquare; // move to becomes an empty square
+    int offset = currType == white ? 8 : -8;
+    board[move._move_to + offset].c =
+        pieceReps[oppType][p]; // the square below or above gets the
+                               // pawn/captured piece back.
     board[move._move_to + offset].piece = p;
     board[move._move_to + offset].type = oppType;
     std::cout << "unmaking enpessant" << std::endl;
@@ -309,44 +298,35 @@ void Board::unmakeMove(Move move) {
     // castle is not possible go back to king and rook being wehre they were and
     // restoring state
     std::cout << "unmaking castle" << std::endl;
-    
-    if(move._move_to == 62 || move._move_to == 6) {
-      //unmake the king by offset -2 and rook by + 2
+
+    if (move._move_to == 62 || move._move_to == 6) {
+      // unmake the king by offset -2 and rook by + 2
       board[move._move_from] = board[move._move_to];
-      board[move._move_to] = emptySquare; 
-      //rook by + 2;
+      board[move._move_to] = emptySquare;
+      // rook by + 2;
       board[move._move_to + 1] = board[move._move_to - 1];
       board[move._move_to - 1] = emptySquare;
-    } else if(move._move_to == 58 || move._move_to == 2) {
-       //unmake the king by offset -2 and rook by + 2
+    } else if (move._move_to == 58 || move._move_to == 2) {
+      // unmake the king by offset -2 and rook by + 2
       board[move._move_from] = board[move._move_to];
-      board[move._move_to] = emptySquare; 
-      //rook goes back 2 spots
+      board[move._move_to] = emptySquare;
+      // rook goes back 2 spots
       board[move._move_to - 2] = board[move._move_to + 1];
       board[move._move_to + 1] = emptySquare;
     }
   } else {
     // quiet move.
     board[move._move_from] = board[move._move_to];
-
     board[move._move_to] = emptySquare;
-    // std::cout << "unmaking quiet move" << std::endl;
-  } 
-  // std::cout << "unmade state" << std::endl;
-
-  // displayState(state);
+  }
 }
 void Board::toggleTurn() {
   State *s = gameStateHistory.back();
-  // std::cout << s->turn << std::endl;
   if (s->turn == black) {
     s->turn = white;
   } else if (s->turn == white) {
     s->turn = black;
   }
-  // turn = !turn;
-
-  // std::cout << turn << std::endl;
 }
 // Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {
@@ -361,23 +341,15 @@ void Board::initialize_remainding_parameters(std::string remaining) {
   }
   // std::cout << castling.find("-1") << std::endl;
   if (castling.find("k") >= 0 and castling.find("k") < 4) { // black king side
-    // std::cout << "black king side!!!" << std::endl;
-
     state->castle_flag |= 0b0100;
   }
   if (castling.find("K") >= 0 and castling.find("K") < 4) { // white king side
-    // std::cout << "white king side!!!" << std::endl;
-
     state->castle_flag |= 0b0001;
   }
   if (castling.find("q") >= 0 and castling.find("q") < 4) { // black queen side
-    // std::cout << "black queen side!!!" << std::endl;
-
     state->castle_flag |= 0b1000;
   }
   if (castling.find("Q") >= 0 and castling.find("Q") < 4) { // white queen side
-    // std::cout << "white queen side!!!" << std::endl;
-
     state->castle_flag |= 0b0010;
   }
   // en pessant
@@ -386,9 +358,8 @@ void Board::initialize_remainding_parameters(std::string remaining) {
   if (en_string.find("-") == 0) {
     state->enpessant = -1;
   } else {
-    
+
     state->enpessant = utils::getNumFromStr(en_string);
-    // std::cout << +state->enpessant << std::endl;
   }
 }
 Board::Square Board::getSquare(int num) {
@@ -411,10 +382,7 @@ void Board::displayState(State *state) {
   std::cout << "Castle Flag: " << static_cast<int>(state->castle_flag) << '\n';
   std::cout << "Enpessant: " << static_cast<int>(state->enpessant) << '\n';
   std::cout << "Turn: " << (state->turn == white ? "white" : "black") << '\n';
-  std::cout << "Jump Counts: ";
-  for (const auto &pair : state->jumpCounts) {
-    std::cout << "[" << pair.first << " -> " << pair.second << "] ";
-  }
+
   std::cout << '\n';
 }
 } // namespace Engine
