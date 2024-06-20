@@ -8,8 +8,8 @@
 namespace Engine {
 std::vector<Move> getMoveForPiece(Board &board, int num) {
   board.display();
-  std::cout << "piece getting move for: " << board.getSquare(num).piece
-            << std::endl;
+  // std::cout << "piece getting move for: " << board.getSquare(num).piece
+  //           << std::endl;
   std::vector<Move> moves = {};
   Board::Square square = board.getSquare(num);
   int row = utils::getRank(num);
@@ -119,9 +119,9 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
       }
 
       // check enpessant capture possibility:
-      std::cout << "currentstate enpessant" << +currentState->enpessant
-                << " target index" << targetIndex << " jumpcounts"
-                << currentState->jumpCounts[num] << std::endl;
+      // std::cout << "currentstate enpessant" << +currentState->enpessant
+      //           << " target index" << targetIndex << " jumpcounts"
+      //           << currentState->jumpCounts[num] << std::endl;
       if ((targetIndex == +currentState->enpessant) &&
           (currentState->jumpCounts[num] == 2)) {
         Move m(num, targetIndex, false, false, true, e,
@@ -181,22 +181,33 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
     moves.push_back(m);
   }
 }
-// std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
-//   std::vector<Move> pseudolegal = getMoveForPiece(board, num);
-//   std::vector<Move> legal;
-//   for (auto move : pseudolegal) {
-//     board.makeMove(move);
-//     // if(kingInCheck)
-//     // if king in check:
-//     // unmake move.
-//     // else add move to legal move vector
-//   }
-// }
+std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
+  std::vector<Move> pseudolegal = getMoveForPiece(board, num);
+  // std::cout << "pseudo legal size: " << pseudolegal.size() << std::endl;
+  std::vector<Move> legal;
+  Color color = board.board[num].type;
+  for (auto move : pseudolegal) {
+    board.makeMove(move);
+    // std::cout << "board display after hypothetical move made" << std::endl;
+    board.display();
+    // std::cout << "board num type: " << board.board[num].type << std::endl;
+    if (!kingInCheck(board, color)) {
+
+      legal.push_back(move);
+    }
+    board.unmakeMove(move);
+    // std::cout << "board display after move unmade" << std::endl;
+    board.display();
+  }
+  // std::cout << "legal size: " << legal.size() << std::endl;
+  // board.displayState(board.gameStateHistory.back());
+  return legal;
+}
 bool kingInCheck(Board &board, Color color) {
   int kingIndex = findKingIndex(board, color);
   // check diagonal moves
-  std::cout << "color to check " << color << std::endl;
-  std::cout << kingIndex << std::endl;
+  // std::cout << "color to check " << color << std::endl;
+  // std::cout << kingIndex << std::endl;
   int mailBoxIndex = mailbox64[kingIndex];
   Color oppType = color == white ? black : white;
 
@@ -207,18 +218,31 @@ bool kingInCheck(Board &board, Color color) {
         if ((piece == k or piece == n) and i > 1) {
           break;
         }
-        if (mailbox[mailBoxIndex + (offset*i)] != -1 &&
-            board.board[mailbox[mailBoxIndex + (offset*i)]].type != color) {
-          if (board.board[mailbox[mailBoxIndex + (offset*i)]].piece == piece) {
-            std::cout << piece << std::endl;
-            return true; // king is exposed 
+        if (mailbox[mailBoxIndex + (offset * i)] != -1 &&
+            board.board[mailbox[mailBoxIndex + (offset * i)]].type != color) {
+          if (board.board[mailbox[mailBoxIndex + (offset * i)]].piece ==
+              piece) {
+            // std::cout << piece << std::endl;
+            return true; // king is exposed
           }
         } else {
-          // std::cout << "index" << mailbox[mailBoxIndex + (offset*i)] << std::endl;
+          // std::cout << "index" << mailbox[mailBoxIndex + (offset*i)] <<
+          // std::endl;
           break;
         }
       }
     }
+    int pawnOfssets[2] = {9, 11};
+    int multiplier = color == white ? -1 : 1;
+    for (int os : pawnOfssets) {
+      if (mailbox[mailBoxIndex + os * multiplier] != -1 &&
+          board.board[mailbox[mailBoxIndex + os * multiplier]].type ==
+              oppType &&
+          board.board[mailbox[mailBoxIndex + os * multiplier]].piece == p) {
+        return true;
+      }
+    }
+    return false;
   }
 
   return false; // not in check

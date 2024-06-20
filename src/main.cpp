@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
   Engine::Board board(fen);
   sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                           "CHESS GUI");
-  cout << argv[1] << endl;
+  // cout << argv[1] << endl;
   BoardDisplay guiBoard(fen);
   initialize_char_to_piece();
   // BoardDisplay guiBoard;
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
             piece_from = guiBoard.getPieceClicked(event.mouseButton.x,
                                                   event.mouseButton.y);
 
-            moves = Engine::getMoveForPiece(board, piece_from);
+            moves = Engine::getLegalMovesForPiece(board, piece_from);
             guiBoard.highlightPossibleMoves(moves);
 
             options = true;
@@ -66,16 +66,16 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                                  event.mouseButton.y);
             Piece promoted_piece = e;
             Engine::Board::State *currentState = board.gameStateHistory.back();
-            board.displayState(currentState);
+            // board.displayState(currentState);
             if (utils::getRank(piece) == 7 and currentState->turn == black and
                 board.board[piece_from].piece == p) {
               handle_gui_promotion(promoted_piece);
             }
             if (utils::getRank(piece) == 0 and currentState->turn == white and
                 board.board[piece_from].piece == p) {
-              cout << "HERE 1" << endl;
+              // cout << "HERE 1" << endl;
               handle_gui_promotion(promoted_piece);
-              cout << promoted_piece << endl;
+              // cout << promoted_piece << endl;
             }
 
             for (auto i : moves) {
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                 // found = true;
                 piece_to = piece;
                 board.display();
-                cout << i._isPromotion << " " << i._toPromote << endl;
+                // cout << i._isPromotion << " " << i._toPromote << endl;
 
                 // cout << piece_from << " " << piece_to << endl;
                 board.makeMove(i);
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
 
                 Engine::Board::State *latestState =
                     board.gameStateHistory.back();
-                board.displayState(latestState);
+                // board.displayState(latestState);
               }
             }
 

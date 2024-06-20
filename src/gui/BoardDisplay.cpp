@@ -133,6 +133,7 @@ void BoardDisplay::highlightPossibleMoves(vector<Engine::Move> moves) {
   // std::cout << "here" << std::endl;
   vector<int> nums{};
   for (auto move : moves) {
+    // std::cout << move._move_to << std::endl;
     nums.push_back(move._move_to);
   }
   for (auto i : nums) {

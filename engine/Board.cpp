@@ -193,7 +193,7 @@ void Board::makeMove(
       newState->castle_flag &= 0b1100;
     }
   } else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
-    std::cout << "HERE in rook capture" << std::endl;
+    // std::cout << "HERE in rook capture" << std::endl;
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
     if (move._move_from == 63 || move._move_to == 63) {
@@ -304,7 +304,7 @@ void Board::unmakeMove(Move move) {
     board[move._move_to + offset].piece = p;
     board[move._move_to + offset].type = oppType;
     std::cout << "unmaking enpessant" << std::endl;
-    displayState(state);
+    // displayState(state);
   } else if (move._isCastle) {
     // castle is not possible go back to king and rook being wehre they were and
     // restoring state
@@ -330,15 +330,15 @@ void Board::unmakeMove(Move move) {
     board[move._move_from] = board[move._move_to];
 
     board[move._move_to] = emptySquare;
-    std::cout << "unmaking quiet move" << std::endl;
+    // std::cout << "unmaking quiet move" << std::endl;
   } 
-  std::cout << "unmade state" << std::endl;
+  // std::cout << "unmade state" << std::endl;
 
-  displayState(state);
+  // displayState(state);
 }
 void Board::toggleTurn() {
   State *s = gameStateHistory.back();
-  std::cout << s->turn << std::endl;
+  // std::cout << s->turn << std::endl;
   if (s->turn == black) {
     s->turn = white;
   } else if (s->turn == white) {
@@ -346,7 +346,7 @@ void Board::toggleTurn() {
   }
   // turn = !turn;
 
-  std::cout << turn << std::endl;
+  // std::cout << turn << std::endl;
 }
 // Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {
@@ -382,14 +382,13 @@ void Board::initialize_remainding_parameters(std::string remaining) {
   }
   // en pessant
   std::string en_string = remaining.substr(0, remaining.find(" "));
-  std::cout << en_string << std::endl;
+  // std::cout << en_string << std::endl;
   if (en_string.find("-") == 0) {
     state->enpessant = -1;
   } else {
-    // need to make a utils.cpp to convert chess notation to numbers
-    // TODO
+    
     state->enpessant = utils::getNumFromStr(en_string);
-    std::cout << +state->enpessant << std::endl;
+    // std::cout << +state->enpessant << std::endl;
   }
 }
 Board::Square Board::getSquare(int num) {
