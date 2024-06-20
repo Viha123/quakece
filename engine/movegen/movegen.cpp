@@ -174,7 +174,7 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
                       Piece capturedPiece) {
   Piece promotions[4] = {q, n, b, r};
   bool isCapture = capturedPiece == e ? false : true;
-
+  std::cout << "in handle promotions movegen " << numTo <<  std::endl; 
   for (auto pr : promotions) {
     Move m(numFrom, numTo, false, true, isCapture, pr, capturedPiece);
     moves.push_back(m);
@@ -188,7 +188,7 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
   for (auto move : pseudolegal) {
     board.makeMove(move);
     std::cout << "board display after hypothetical move made" << std::endl;
-    // board.display();
+    board.display();
     // std::cout << "board num type: " << board.board[num].type << std::endl;
     if (!kingInCheck(board, color)) {
 
@@ -196,14 +196,10 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
     }
     // Move moveToUnmake = *board.history.back();
     board.history.pop_back();
-    // cout << "Move to unmake: " << endl;
-    // moveToUnmake.printMove();
-    // Engine::Board::State* stateToUnmake = board.gameStateHistory.back();
-    // board.displayState(stateToUnmake);
     board.gameStateHistory.pop_back();
     board.unmakeMove(move);
     std::cout << "board display after move unmade" << std::endl;
-    // board.display();
+    board.display();
   }
   // std::cout << "legal size: " << legal.size() << std::endl;
   // board.displayState(board.gameStateHistory.back());

@@ -44,5 +44,6 @@ private:
                         // other variables such as enpessant, castle rights etc.
   void initialize_remainding_parameters(
       std::string remaining); // this initializes castle enassatns and turns.
+  void handleCastleToggle(Move move, State* newState);
 };
 } // namespace Engine

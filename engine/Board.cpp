@@ -187,26 +187,22 @@ void Board::makeMove(
     if (board[move._move_to].type == white) {
       newState->castle_flag &= 0b1100;
     }
+  } else if (move._isPromotion) {
+    std::cout << "make move saw promotion" << std::endl;
+    Square newSquare = {
+        .type = board[move._move_from].type,
+        .piece = move._toPromote,
+        .c = pieceReps[board[move._move_from].type][move._toPromote]};
+    board[move._move_to] = newSquare;
+    board[move._move_from] = emptySquare;
+    if (move._capturedPiece == r) {
+      handleCastleToggle(move, newState);
+    }
   } else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
     // std::cout << "HERE in rook capture" << std::endl;
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
-    if (move._move_from == 63 || move._move_to == 63) {
-      // turn off white king side castle
-      newState->castle_flag &= 0b1110;
-    }
-    if (move._move_from == 56 || move._move_to == 56) {
-      // turn off white queen side castle
-      newState->castle_flag &= 0b1101;
-    }
-    if (move._move_from == 0 || move._move_to == 0) {
-      // turn off black queen side castle
-      newState->castle_flag &= 0b0111;
-    }
-    if (move._move_from == 7 || move._move_to == 7) {
-      // turn off black king side castle
-      newState->castle_flag &= 0b1011;
-    }
+    handleCastleToggle(move, newState);
   }
 
   // if double jump then mark enpessant
@@ -234,15 +230,7 @@ void Board::makeMove(
     board[move._move_from] = emptySquare;
   }
   // handles promootion.
-  else if (move._isPromotion) {
-    // std::cout << "make move saw promotion" << std::endl;
-    Square newSquare = {
-        .type = board[move._move_from].type,
-        .piece = move._toPromote,
-        .c = pieceReps[board[move._move_from].type][move._toPromote]};
-    board[move._move_to] = newSquare;
-    board[move._move_from] = emptySquare;
-  }
+
   if (enpessantToggled == false) {
     newState->enpessant = -1;
   }
@@ -254,7 +242,24 @@ void Board::makeMove(
   history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
 }
-
+void Board::handleCastleToggle(Move move, State *newState) {
+  if (move._move_from == 63 || move._move_to == 63) {
+    // turn off white king side castle
+    newState->castle_flag &= 0b1110;
+  }
+  if (move._move_from == 56 || move._move_to == 56) {
+    // turn off white queen side castle
+    newState->castle_flag &= 0b1101;
+  }
+  if (move._move_from == 0 || move._move_to == 0) {
+    // turn off black queen side castle
+    newState->castle_flag &= 0b0111;
+  }
+  if (move._move_from == 7 || move._move_to == 7) {
+    // turn off black king side castle
+    newState->castle_flag &= 0b1011;
+  }
+}
 void Board::unmakeMove(Move move) {
   // std::cout << "Move to unmake: " << std::endl;
   Color oppType = board[move._move_to].type == white ? black : white;
