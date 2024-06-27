@@ -188,11 +188,12 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
   std::vector<Move> legal;
   Color color = board.board[num].type;
   for (auto move : pseudolegal) {
-    board.makeMove(move);
-    std::cout << "board display after hypothetical move made" << std::endl;
-    board.display();
+
     // std::cout << "board num type: " << board.board[num].type << std::endl;
     if (!move._isCastle) {
+      board.makeMove(move);
+      std::cout << "board display after hypothetical move made" << std::endl;
+      board.display();
       if (!kingInCheck(board, color)) {
 
         legal.push_back(move);
@@ -210,30 +211,34 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
 
           board.history.pop_back();
           board.gameStateHistory.pop_back();
-          std::cout << "game state history afte rking moves immediately right " << std::endl;
+          std::cout << "game state history afte rking moves immediately right "
+                    << std::endl;
           board.displayState(board.gameStateHistory.back());
           board.unmakeMove(checkImmediateRight);
           board.makeMove(move);
-          if(!kingInCheck(board,color)) {
+          if (!kingInCheck(board, color)) {
             legal.push_back(move);
           }
         }
       }
-      if(move._move_from - move._move_to == 2) {
-        std::cout << "trying to make move immediately right" << std::endl;
+      if (move._move_from - move._move_to == 2) {
+        std::cout << "trying to make move immediately left" << std::endl;
         Move checkImmediateLeft(move._move_from, move._move_to - 1, false,
-                                 false, false, e, e);
+                                false, false, e, e);
         board.makeMove(checkImmediateLeft);
         if (!kingInCheck(board, color)) {
           // check actual move
           std::cout << "king not immediately left in check" << std::endl;
           board.history.pop_back();
           board.gameStateHistory.pop_back();
-          std::cout << "game state history afte rking moves immediately right " << std::endl;
-          board.displayState(board.gameStateHistory.back()); //check if game state is updated to back to what it was before
+          std::cout << "game state history afte rking moves immediately left "
+                    << std::endl;
+          board.displayState(
+              board.gameStateHistory.back()); // check if game state is updated
+                                              // to back to what it was before
           board.unmakeMove(checkImmediateLeft);
           board.makeMove(move);
-          if(!kingInCheck(board,color)) {
+          if (!kingInCheck(board, color)) {
             legal.push_back(move);
           }
         }
