@@ -140,12 +140,14 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
       if (board.board[num + 1].piece == e && board.board[num + 2].piece == e &&
           ((currentState->castle_flag >> 2) & 0b0001) ==
               1) { // black king castle
+        // moves.push_back(Move(num, num +1, false, false, false, e, e));
         moves.push_back(m1);
       }
       if (board.board[num - 1].piece == e && board.board[num - 2].piece == e &&
           board.board[num - 3].piece == e &&
           ((currentState->castle_flag >> 3) & 0b0001) ==
               1) { // black queen castle
+        // moves.push_back(Move(num, num -1, false, false, false, e, e));
         moves.push_back(m2);
       }
     }
@@ -174,7 +176,7 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
                       Piece capturedPiece) {
   Piece promotions[4] = {q, n, b, r};
   bool isCapture = capturedPiece == e ? false : true;
-  std::cout << "in handle promotions movegen " << numTo <<  std::endl; 
+  std::cout << "in handle promotions movegen " << numTo << std::endl;
   for (auto pr : promotions) {
     Move m(numFrom, numTo, false, true, isCapture, pr, capturedPiece);
     moves.push_back(m);
@@ -190,10 +192,54 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
     std::cout << "board display after hypothetical move made" << std::endl;
     board.display();
     // std::cout << "board num type: " << board.board[num].type << std::endl;
-    if (!kingInCheck(board, color)) {
+    if (!move._isCastle) {
+      if (!kingInCheck(board, color)) {
 
-      legal.push_back(move);
+        legal.push_back(move);
+      }
+    } else {
+      // move king by one spot depending on color and queen side
+      // pop 2 moves in this case
+      if (move._move_from - move._move_to == -2) {
+        Move checkImmediateRight(move._move_from, move._move_to + 1, false,
+                                 false, false, e, e);
+        board.makeMove(checkImmediateRight);
+        if (!kingInCheck(board, color)) {
+          // check actual move
+          std::cout << "king not immediately right in check" << std::endl;
+
+          board.history.pop_back();
+          board.gameStateHistory.pop_back();
+          std::cout << "game state history afte rking moves immediately right " << std::endl;
+          board.displayState(board.gameStateHistory.back());
+          board.unmakeMove(checkImmediateRight);
+          board.makeMove(move);
+          if(!kingInCheck(board,color)) {
+            legal.push_back(move);
+          }
+        }
+      }
+      if(move._move_from - move._move_to == 2) {
+        std::cout << "trying to make move immediately right" << std::endl;
+        Move checkImmediateLeft(move._move_from, move._move_to - 1, false,
+                                 false, false, e, e);
+        board.makeMove(checkImmediateLeft);
+        if (!kingInCheck(board, color)) {
+          // check actual move
+          std::cout << "king not immediately left in check" << std::endl;
+          board.history.pop_back();
+          board.gameStateHistory.pop_back();
+          std::cout << "game state history afte rking moves immediately right " << std::endl;
+          board.displayState(board.gameStateHistory.back()); //check if game state is updated to back to what it was before
+          board.unmakeMove(checkImmediateLeft);
+          board.makeMove(move);
+          if(!kingInCheck(board,color)) {
+            legal.push_back(move);
+          }
+        }
+      }
     }
+
     // Move moveToUnmake = *board.history.back();
     board.history.pop_back();
     board.gameStateHistory.pop_back();
@@ -207,23 +253,16 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
 }
 bool kingInCheck(Board &board, Color color) {
   int kingIndex = findKingIndex(board, color);
-  // check diagonal moves
-  // std::cout << "color to check " << color << std::endl;
-  // std::cout << kingIndex << std::endl;
   int mailBoxIndex = mailbox64[kingIndex];
   Color oppType = color == white ? black : white;
 
   std::array<Piece, 5> checkPieces = {n, b, r, q, k};
   for (auto piece : checkPieces) {
-    // std::cout << "piece calculating atm: " << piece << std::endl;
 
     for (int offset : directionOffsets[piece]) {
-      // std::cout << piece << std::endl;
 
       for (int i = 1; i <= 8; i++) {
-        // std::cout << "Possible piece that attacks king: "
-        //           << mailbox[mailBoxIndex + (offset * i)]
-        //           << "piece we are getting offset off: " << piece << std::endl;
+
         if ((piece == k or piece == n) and i > 1) {
           break;
         }
@@ -231,9 +270,11 @@ bool kingInCheck(Board &board, Color color) {
             board.board[mailbox[mailBoxIndex + (offset * i)]].type != color) {
           if (board.board[mailbox[mailBoxIndex + (offset * i)]].piece ==
               piece) {
-            // std::cout << "checking piece num" << mailbox[mailBoxIndex + (offset * i)] << std::endl;
+            // std::cout << "checking piece num" << mailbox[mailBoxIndex +
+            // (offset * i)] << std::endl;
             return true; // king is exposed
-          } else if(board.board[mailbox[mailBoxIndex + (offset * i)]].type == oppType){
+          } else if (board.board[mailbox[mailBoxIndex + (offset * i)]].type ==
+                     oppType) {
             break;
           }
         } else {

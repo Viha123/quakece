@@ -239,7 +239,7 @@ void Board::makeMove(
   // displayState(newState);
   gameStateHistory.push_back(newState);
   std::cout << "printing updated move" << std::endl;
-  history.back()->printMove();
+  // history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
 }
 void Board::handleCastleToggle(Move move, State *newState) {

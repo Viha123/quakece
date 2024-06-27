@@ -3,3 +3,8 @@ build
 bin
 cmake-build-debug
 .idea
+*.cmake
+CMakeFiles/
+_deps/
+CMakeCache.txt
+Makefile

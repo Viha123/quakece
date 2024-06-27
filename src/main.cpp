@@ -69,41 +69,27 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
             // board.displayState(currentState);
             if (utils::getRank(piece) == 7 and currentState->turn == black and
                 board.board[piece_from].piece == p) {
-              cout << "HERE 2" << endl;
-              // check if promotion is allowed
               handle_gui_promotion(promoted_piece);
             }
             if (utils::getRank(piece) == 0 and currentState->turn == white and
                 board.board[piece_from].piece == p) {
-              cout << "HERE 1" << endl;
-              // check if promotion is allowed
               handle_gui_promotion(promoted_piece);
-              // cout << promoted_piece << endl;
             }
             for (auto i : moves) {
               if (piece_from == i._move_from && i._move_to == piece) {
-                // found = true;
-
                 if (promoted_piece == i._toPromote) {
                   piece_to = piece;
-                  board.display();
-                  // cout << i._isPromotion << " " << i._toPromote << endl;
-
-                  // cout << piece_from << " " << piece_to << endl;
+                  // board.display();
                   board.makeMove(i);
                   guiBoard.clearPossibleMoves();
                   // i.printMove();
                   guiBoard.updateMove(i);
                   // Engine::Move::history.push_back(&i);
                   updateWindow(window, guiBoard);
-                  cout << "Turn: " << currentState->turn << endl;
 
-                  bool kingCheck =
-                      Engine::kingInCheck(board, currentState->turn);
-                  cout << "king check: " << kingCheck << endl;
-                  board.display();
+                  // board.display();
                   board.toggleTurn();
-
+                
                   Engine::Board::State *latestState =
                       board.gameStateHistory.back();
                   board.displayState(latestState);
@@ -116,20 +102,13 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                 board.gameStateHistory.size() == 0) {
               throw std::out_of_range("cannot unmake a move that is not made");
             }
-
             Engine::Move moveToUnmake = *board.history.back();
             board.history.pop_back();
-            // cout << "Move to unmake: " << endl;
-            // moveToUnmake.printMove();
-            // Engine::Board::State* stateToUnmake =
-            // board.gameStateHistory.back(); board.displayState(stateToUnmake);
             board.gameStateHistory.pop_back();
-
             board.unmakeMove(moveToUnmake);
             updateWindow(window, guiBoard);
             board.display();
-            // board.toggleTurn();
-            // board.displayState(st);
+            
           }
         }
 
