@@ -103,8 +103,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
               throw std::out_of_range("cannot unmake a move that is not made");
             }
             Engine::Move moveToUnmake = *board.history.back();
-            board.history.pop_back();
-            board.gameStateHistory.pop_back();
+            
             board.unmakeMove(moveToUnmake);
             updateWindow(window, guiBoard);
             board.display();

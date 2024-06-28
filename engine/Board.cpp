@@ -157,11 +157,11 @@ void Board::makeMove(
       board[move._move_to + 1] = emptySquare;
       if (board[move._move_to].type == white) {
         // flip bit to not allow white king castle
-        newState->castle_flag &= 0b1110;
+        newState->castle_flag &= 0b1100;
       }
       if (board[move._move_to].type == black) {
         // flip bit to not allow black king castle
-        newState->castle_flag &= 0b1011;
+        newState->castle_flag &= 0b0011;
       }
     }
     if (file == 2) { // queen side castle
@@ -171,11 +171,13 @@ void Board::makeMove(
       board[move._move_to - 2] = emptySquare;
       if (board[move._move_to].type == white) {
         // flip bit to not allow white queen castle
-        newState->castle_flag &= 0b1101;
+        newState->castle_flag &=
+            0b1100; // turn off all castles for that color because once you
+                    // castle once you cannot castle again.
       }
       if (board[move._move_to].type == black) {
         // flip bit to not allow black queen castle
-        newState->castle_flag &= 0b0111;
+        newState->castle_flag &= 0b0011;
       }
     }
   } else if (pieceFrom == k) {
@@ -262,6 +264,8 @@ void Board::handleCastleToggle(Move move, State *newState) {
 }
 void Board::unmakeMove(Move move) {
   // std::cout << "Move to unmake: " << std::endl;
+  history.pop_back();
+  gameStateHistory.pop_back();
   Color oppType = board[move._move_to].type == white ? black : white;
   Color currType = board[move._move_to].type;
   // move.printMove();

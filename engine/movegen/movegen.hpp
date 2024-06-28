@@ -17,4 +17,5 @@ namespace Engine {
   std::vector<Move> getLegalMovesForPiece(Board& board, int num);
   int findKingIndex(Board& board, Color color);
   bool kingInCheck(Board& board, Color color);
+  void handleKingCheck(Board &board, int offset, Move& move, Color color, std::vector<Move>& legal);
 }

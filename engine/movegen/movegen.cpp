@@ -198,63 +198,55 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
 
         legal.push_back(move);
       }
+
+      board.unmakeMove(move);
+      std::cout << "board display after move unmade" << std::endl;
+      board.display();
     } else {
       // move king by one spot depending on color and queen side
       // pop 2 moves in this case
-      if (move._move_from - move._move_to == -2) {
-        Move checkImmediateRight(move._move_from, move._move_to + 1, false,
-                                 false, false, e, e);
-        board.makeMove(checkImmediateRight);
-        if (!kingInCheck(board, color)) {
-          // check actual move
-          std::cout << "king not immediately right in check" << std::endl;
-
-          board.history.pop_back();
-          board.gameStateHistory.pop_back();
-          std::cout << "game state history afte rking moves immediately right "
-                    << std::endl;
-          board.displayState(board.gameStateHistory.back());
-          board.unmakeMove(checkImmediateRight);
-          board.makeMove(move);
-          if (!kingInCheck(board, color)) {
-            legal.push_back(move);
-          }
+      if (!kingInCheck(board, color)) {
+        if (move._move_from - move._move_to == -2) {
+          handleKingCheck(board, +1, move, color, legal);
         }
-      }
-      if (move._move_from - move._move_to == 2) {
-        std::cout << "trying to make move immediately left" << std::endl;
-        Move checkImmediateLeft(move._move_from, move._move_to - 1, false,
-                                false, false, e, e);
-        board.makeMove(checkImmediateLeft);
-        if (!kingInCheck(board, color)) {
-          // check actual move
-          std::cout << "king not immediately left in check" << std::endl;
-          board.history.pop_back();
-          board.gameStateHistory.pop_back();
-          std::cout << "game state history afte rking moves immediately left "
-                    << std::endl;
-          board.displayState(
-              board.gameStateHistory.back()); // check if game state is updated
-                                              // to back to what it was before
-          board.unmakeMove(checkImmediateLeft);
-          board.makeMove(move);
-          if (!kingInCheck(board, color)) {
-            legal.push_back(move);
-          }
+        if (move._move_from - move._move_to == 2) {
+          handleKingCheck(board, -1, move, color, legal);
         }
       }
     }
 
     // Move moveToUnmake = *board.history.back();
-    board.history.pop_back();
-    board.gameStateHistory.pop_back();
-    board.unmakeMove(move);
-    std::cout << "board display after move unmade" << std::endl;
-    board.display();
   }
   // std::cout << "legal size: " << legal.size() << std::endl;
   // board.displayState(board.gameStateHistory.back());
   return legal;
+}
+void handleKingCheck(Board &board, int offset, Move &move, Color color,
+                     std::vector<Move> &legal) {
+  Move checkImmediateRight(move._move_from, move._move_from + offset, false,
+                           false, false, e, e);
+  board.makeMove(checkImmediateRight);
+  if (!kingInCheck(board, color)) {
+    // check actual move
+    // std::cout << "KING NOT IMMEDIATELY RIGHT IN CHECK" << std::endl;
+    // board.display();
+
+    board.unmakeMove(checkImmediateRight);
+    std::cout << "KING immediately right unmade display:: " << std::endl;
+
+    // board.display();
+    std::cout << "KING make true castle:::: " << std::endl;
+
+    board.makeMove(move);
+    // board.display();
+    if (!kingInCheck(board, color)) {
+      legal.push_back(move);
+    }
+    board.unmakeMove(move);
+  } else {
+    
+    board.unmakeMove(checkImmediateRight);
+  }
 }
 bool kingInCheck(Board &board, Color color) {
   int kingIndex = findKingIndex(board, color);
