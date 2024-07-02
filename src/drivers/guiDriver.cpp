@@ -17,7 +17,17 @@
 guiDriver::guiDriver()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
       fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-      guiBoard(fen) {
+      guiBoard(fen) , 
+      board(fen) {
+  initialize_char_to_piece();
+  window.draw(guiBoard); // only rerender when required
+  window.display();
+}
+guiDriver::guiDriver(std::string fen)
+    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
+      fen(fen),
+      guiBoard(fen) , 
+      board(fen) {
   initialize_char_to_piece();
   window.draw(guiBoard); // only rerender when required
   window.display();
@@ -74,6 +84,8 @@ void guiDriver::play() {
                                                 event.mouseButton.y);
 
           moves = Engine::getLegalMovesForPiece(board, piece_from);
+          
+
           guiBoard.highlightPossibleMoves(moves);
 
           options = true;
@@ -84,6 +96,7 @@ void guiDriver::play() {
 
           options = false;
           // check if player is clicking on a valid move:
+
           int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                event.mouseButton.y);
           Piece promoted_piece = e;
@@ -116,6 +129,12 @@ void guiDriver::play() {
                 Engine::Board::State *latestState =
                     board.gameStateHistory.back();
                 board.displayState(latestState);
+                allMoves = Engine::getLegalMoves(board);
+                if(allMoves.size() == 0) {
+                  std::cout << "CHECKMATE" << std::endl;
+                  std::cout << latestState->turn << " " << "LOSES" << std::endl;
+                  window.close();
+                }
               }
             }
           }

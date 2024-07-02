@@ -11,6 +11,7 @@
 class guiDriver {
 public:
   guiDriver();
+  guiDriver(std::string fen);
   // void handleRightClickUnmake();
   void updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard);
   void initialize_char_to_piece();
@@ -29,4 +30,5 @@ public:
   BoardDisplay guiBoard;
   Engine::Board board;
   vector<Engine::Move> moves;
+  vector<Engine::Move> allMoves;
 };

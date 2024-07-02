@@ -5,9 +5,11 @@
 #include "../move.hpp"
 #include <iostream>
 #include <vector>
+#include <cassert>
+
 namespace Engine {
 std::vector<Move> getMoveForPiece(Board &board, int num) {
-  board.display();
+  // board.display();
   // std::cout << "piece getting move for: " << board.getSquare(num).piece
   //           << std::endl;
   std::vector<Move> moves = {};
@@ -15,7 +17,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
   int row = utils::getRank(num);
   int col = utils::getFile(num);
   Piece piece = square.piece;
-  std::cout << "Beginning of move availability!!!" << std::endl;
+  // std::cout << "Beginning of move availability!!!" << std::endl;
   // if this is a sliding piece then here are the available moves for that
   // piece.
   int mailBoxIndex = mailbox64[num];
@@ -122,7 +124,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
       // std::cout << "currentstate enpessant" << +currentState->enpessant
       //           << " target index" << targetIndex << " jumpcounts"
       //           << currentState->jumpCounts[num] << std::endl;
-      if (targetIndex == +currentState->enpessant) {
+      if (targetIndex == +currentState->enpessant && targetIndex != -1) {
         Move m(num, targetIndex, false, false, true, e,
                p); // if target index does not have any piece and capture is
                    // true then assume enpessant
@@ -182,13 +184,24 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
     moves.push_back(m);
   }
 }
-// std::vector<Move> getLegalMoves(Board &board) {
-//   Color turn = board.gameStateHistory.back()->turn;
-//   board.populatePieceList(turn);
-//   for(int i = 0; i < 16; i ++) {
-    
-//   }
-// }
+std::vector<Move> getLegalMoves(Board &board) {
+  std::vector<Move> allMoves = {};
+  Color turn = board.gameStateHistory.back()->turn;
+  board.populatePieceList(turn);
+  for (int i = 0; i < 16; i++) {
+    if (board.pieceList[turn][i] == -1) {
+      break;
+    }
+    std::vector<Move> pieceMove =
+        getLegalMovesForPiece(board, board.pieceList[turn][i]);
+    allMoves.insert(allMoves.end(), pieceMove.begin(), pieceMove.end());
+    std::cout << pieceMove.size() << " Piece Number "
+              << board.pieceList[turn][i] << std::endl;
+  }
+  assert(allMoves.size() <= 218);
+  std::cout << allMoves.size() << std::endl;
+  return allMoves;
+}
 std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
   std::vector<Move> pseudolegal = getMoveForPiece(board, num);
   // std::cout << "pseudo legal size: " << pseudolegal.size() << std::endl;
@@ -199,16 +212,16 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
     // std::cout << "board num type: " << board.board[num].type << std::endl;
     if (!move._isCastle) {
       board.makeMove(move);
-      std::cout << "board display after hypothetical move made" << std::endl;
-      board.display();
+      // std::cout << "board display after hypothetical move made" << std::endl;
+      // board.display();
       if (!kingInCheck(board, color)) {
 
         legal.push_back(move);
       }
 
       board.unmakeMove(move);
-      std::cout << "board display after move unmade" << std::endl;
-      board.display();
+      // std::cout << "board display after move unmade" << std::endl;
+      // board.display();
     } else {
       // move king by one spot depending on color and queen side
       // pop 2 moves in this case
@@ -222,10 +235,8 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
       }
     }
 
-    // Move moveToUnmake = *board.history.back();
   }
-  // std::cout << "legal size: " << legal.size() << std::endl;
-  // board.displayState(board.gameStateHistory.back());
+
   return legal;
 }
 void handleKingCheck(Board &board, int offset, Move &move, Color color,
@@ -239,10 +250,10 @@ void handleKingCheck(Board &board, int offset, Move &move, Color color,
     // board.display();
 
     board.unmakeMove(checkImmediateRight);
-    std::cout << "KING immediately right unmade display:: " << std::endl;
+    // std::cout << "KING immediately right unmade display:: " << std::endl;
 
-    // board.display();
-    std::cout << "KING make true castle:::: " << std::endl;
+    // // board.display();
+    // std::cout << "KING make true castle:::: " << std::endl;
 
     board.makeMove(move);
     // board.display();
@@ -251,7 +262,7 @@ void handleKingCheck(Board &board, int offset, Move &move, Color color,
     }
     board.unmakeMove(move);
   } else {
-    
+
     board.unmakeMove(checkImmediateRight);
   }
 }

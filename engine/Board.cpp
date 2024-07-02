@@ -130,13 +130,15 @@ void Board::populatePieceList(Color color) {
   for(int i = 0; i < 64; i ++) {
     if (board[i].type == color) {
       pieceList[color][count] = i;
+      // std::cout << color << " " << count << " " << pieceList[color][count] << std::endl;
       count += 1;
     }
   }
-  assert(count <= 15); 
-  if (count < 15) {
-    pieceList[color][count + 1] = -1; //signal end of piece count
+  assert(count <= 16); 
+  if (count < 16) {
+    pieceList[color][count] = -1; //signal end of piece count
   }
+
   
 }
 void Board::makeMove(
@@ -257,7 +259,7 @@ void Board::makeMove(
   // std::cout << "appending new state to history: " << std::endl;
   // displayState(newState);
   gameStateHistory.push_back(newState);
-  std::cout << "printing updated move" << std::endl;
+  // std::cout << "printing updated move" << std::endl;
   // history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
 }
@@ -306,7 +308,7 @@ void Board::unmakeMove(Move move) {
     board[move._move_to].piece = move._capturedPiece;
     board[move._move_to].type = oppType;
 
-  } else if (move._isCapture && move._move_to == state->enpessant) {
+  } else if (move._isCapture && move._move_to == state->enpessant && state->enpessant != -1) {
     // slightly different unmake
     // restore state
     board[move._move_from] =
