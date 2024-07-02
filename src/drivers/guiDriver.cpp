@@ -16,8 +16,8 @@
 
 guiDriver::guiDriver()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
-      guiBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-      fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+      fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+      guiBoard(fen) {
   initialize_char_to_piece();
   window.draw(guiBoard); // only rerender when required
   window.display();
@@ -38,14 +38,25 @@ void guiDriver::initialize_char_to_piece() {
   char_to_piece['r'] = r;
 }
 
-void guiDriver::handle_gui_promotion(Piece &promoted_piece) {
-  char promotion;
+void guiDriver::handle_gui_promotion(Piece &promoted_piece,
+                                     std::vector<Engine::Move> moves,
+                                     int piece_from, int piece_to) {
+  bool foundPiece = false;
+  for (auto move : moves) {
+    if (piece_from == move._move_from && piece_to == move._move_to) {
+      char promotion;
 
-  std::cout << "Q for queen, N for knight, B for bishop, R for "
-               "rook promotion"
-            << std::endl;
-  std::cin >> promotion;
-  promoted_piece = char_to_piece[promotion];
+      std::cout << "Q for queen, N for knight, B for bishop, R for "
+                   "rook promotion"
+                << std::endl;
+      std::cin >> promotion;
+
+      promoted_piece = char_to_piece[promotion];
+      foundPiece = true;
+      break;
+    }
+  }
+  promoted_piece = foundPiece ? promoted_piece : e;
 }
 void guiDriver::play() {
 
@@ -80,13 +91,13 @@ void guiDriver::play() {
           // board.displayState(currentState);
           if (utils::getRank(piece) == 7 and currentState->turn == black and
               board.board[piece_from].piece == p) {
-            handle_gui_promotion(promoted_piece);
+            handle_gui_promotion(promoted_piece, moves, piece_from, piece);
           }
           if (utils::getRank(piece) == 0 and currentState->turn == white and
               board.board[piece_from].piece == p) {
-            handle_gui_promotion(promoted_piece);
+            handle_gui_promotion(promoted_piece, moves, piece_from, piece);
           }
-          
+
           for (auto i : moves) {
             if (piece_from == i._move_from && i._move_to == piece) {
               if (promoted_piece == i._toPromote) {

@@ -9,12 +9,13 @@
 #include <unordered_map>
 #include <vector>
 class guiDriver {
-  public:
+public:
   guiDriver();
   // void handleRightClickUnmake();
   void updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard);
   void initialize_char_to_piece();
-  void handle_gui_promotion(Piece &promoted_piece);
+  void handle_gui_promotion(Piece &promoted_piece, vector<Engine::Move> moves,
+                            int piece_from, int piece_to);
   void play(); // handle the main state machine of a 2 player gui driver
   void initialize_variables(); // sort of like a constructor but this is not a
                                // class yet
@@ -23,8 +24,9 @@ class guiDriver {
   int piece_from = -1;
   int piece_to = -1;
   sf::RenderWindow window;
+  const string fen;
+
   BoardDisplay guiBoard;
   Engine::Board board;
   vector<Engine::Move> moves;
-  string fen;
 };

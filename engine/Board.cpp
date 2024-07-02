@@ -7,6 +7,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <cassert>
+
 namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -23,6 +25,7 @@ Board::Board(std::string fen) {
   state = new State();
   gameStateHistory.push_back(state);
   generateBoardFromFen(fen);
+  // initializePieceArrays();
 }
 void Board::generateBoardFromFen(std::string fen) {
   std::string token = fen.substr(0, fen.find(" ")); // part 1 of string
@@ -121,7 +124,21 @@ void Board::generateBoardFromFen(std::string fen) {
     }
   }
 }
-
+void Board::populatePieceList(Color color) {
+  //white pieces
+  int count = 0;
+  for(int i = 0; i < 64; i ++) {
+    if (board[i].type == color) {
+      pieceList[color][count] = i;
+      count += 1;
+    }
+  }
+  assert(count <= 15); 
+  if (count < 15) {
+    pieceList[color][count + 1] = -1; //signal end of piece count
+  }
+  
+}
 void Board::makeMove(
     Move &move) { // updates the board representation given the move
   bool enpessantToggled = false;

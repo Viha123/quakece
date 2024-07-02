@@ -182,6 +182,13 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
     moves.push_back(m);
   }
 }
+// std::vector<Move> getLegalMoves(Board &board) {
+//   Color turn = board.gameStateHistory.back()->turn;
+//   board.populatePieceList(turn);
+//   for(int i = 0; i < 16; i ++) {
+    
+//   }
+// }
 std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
   std::vector<Move> pseudolegal = getMoveForPiece(board, num);
   // std::cout << "pseudo legal size: " << pseudolegal.size() << std::endl;

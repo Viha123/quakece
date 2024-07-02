@@ -25,8 +25,7 @@ public:
   Board(std::string fen);
   std::vector<Move *> history;
   std::vector<State *> gameStateHistory; // keeps track of game state
-  std::vector<Piece> whitePieces; //keep track of all white and black pieces.
-  std::vector<Piece> blackPieces;
+  std::array<std::array<int, 16>, 2> pieceList;
 public:
   void makeMove(Move &move);  // make move and update the board with the result
   void unmakeMove(Move move); // undo the move.
@@ -34,6 +33,7 @@ public:
   void displayState(State *state);
   void display();            // display board for testing purposes
   Square getSquare(int num); // get piece at index
+  void populatePieceList(Color color);
 private:
   State *state;
   Square emptySquare = {.type = none, .piece = e, .c = '.'};
