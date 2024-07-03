@@ -31,5 +31,13 @@ namespace utils {
     // std::cout << "HERE" << std::endl;
     return getNumFromRF(row, col);
   }
+  std::string convertToChessNotation(int num) {
+  if (num < 0 || num > 63) {
+    return "Invalid number";
+  }
+  int rank = 8 - (num / 8);
+  char file = 'a' + (num % 8);
+  return std::string(1, file) + std::to_string(rank);
+}
 
 }

@@ -341,11 +341,15 @@ void Board::unmakeMove(Move move) {
       board[move._move_to - 1] = emptySquare;
     } else if (move._move_to == 58 || move._move_to == 2) {
       // unmake the king by offset -2 and rook by + 2
+      std::cout << "HERE at some point" << std::endl;
+      display();
       board[move._move_from] = board[move._move_to];
       board[move._move_to] = emptySquare;
       // rook goes back 2 spots
+      std::cout << move._move_to - 2 << " " << move._move_to + 1 << " " << move._move_to + 1 << std::endl;
       board[move._move_to - 2] = board[move._move_to + 1];
       board[move._move_to + 1] = emptySquare;
+      display();
     }
   } else {
     // quiet move.

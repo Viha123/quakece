@@ -34,6 +34,8 @@ public:
   void display();            // display board for testing purposes
   Square getSquare(int num); // get piece at index
   void populatePieceList(Color color);
+  std::string toFenString();
+  std::string squareToNotation(int square);
 private:
   State *state;
   Square emptySquare = {.type = none, .piece = e, .c = '.'};

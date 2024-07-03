@@ -11,4 +11,5 @@ namespace utils {
   int getXPos(int col);
   void printVectorGivenIndex(int num);
   int getNumFromStr(std::string str);
+  std::string convertToChessNotation(int num);
 }
