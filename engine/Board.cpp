@@ -211,7 +211,7 @@ void Board::makeMove(
       newState->castle_flag &= 0b1100;
     }
   } else if (move._isPromotion) {
-    std::cout << "make move saw promotion" << std::endl;
+    // std::cout << "make move saw promotion" << std::endl;
     Square newSquare = {
         .type = board[move._move_from].type,
         .piece = move._toPromote,
@@ -330,7 +330,7 @@ void Board::unmakeMove(Move move) {
   } else if (move._isCastle) {
     // castle is not possible go back to king and rook being wehre they were and
     // restoring state
-    std::cout << "unmaking castle" << std::endl;
+    // std::cout << "unmaking castle" << std::endl;
 
     if (move._move_to == 62 || move._move_to == 6) {
       // unmake the king by offset -2 and rook by + 2

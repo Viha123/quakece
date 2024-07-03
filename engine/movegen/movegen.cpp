@@ -178,7 +178,7 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
                       Piece capturedPiece) {
   Piece promotions[4] = {q, n, b, r};
   bool isCapture = capturedPiece == e ? false : true;
-  std::cout << "in handle promotions movegen " << numTo << std::endl;
+  // std::cout << "in handle promotions movegen " << numTo << std::endl;
   for (auto pr : promotions) {
     Move m(numFrom, numTo, false, true, isCapture, pr, capturedPiece);
     moves.push_back(m);

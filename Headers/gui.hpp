@@ -3,8 +3,12 @@
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 1200 
 #define BOX 800 / 8
-#include <unordered_map> 
-#include <string>
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+
 using namespace std;
 enum piece_values {
   wpawn = 1,
@@ -21,5 +25,6 @@ enum piece_values {
   bking = 12, 
   nopiece = 0
 };
+
 
 

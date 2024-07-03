@@ -19,9 +19,10 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
   }
   else if(*argv[1] == 'p') {
     //do perft testing
-    Engine::Board perftBoard(fen);// initial start position
-    int nodes = Tests::perft(perftBoard, 6);
-    std::cout << nodes << std::endl;
+    // Engine::Board perftBoard(fen);// initial start position
+    // int nodes = Tests::perft(perftBoard, 3);
+    // std::cout << YELLOW << nodes <<  RESET << std::endl;
+    Tests::testCases();
   }
   else  {
     cout << "Mode not accepted" << endl;

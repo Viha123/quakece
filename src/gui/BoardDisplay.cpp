@@ -163,7 +163,7 @@ void BoardDisplay::updateMove(Engine::Move move) {
     if (move_to_r > move_from_r) {
       // black enpessant capture
       // remove sprite at move_to_r - 1
-      std::cout << "BLACK ep DETECTED" << std::endl;
+      // std::cout << "BLACK ep DETECTED" << std::endl;
 
       boardOutWardRepresentation[move_to_r - 1][move_to_c] = {
           .num = utils::getNumFromRF(move_to_r - 1, move_to_c),
@@ -173,7 +173,7 @@ void BoardDisplay::updateMove(Engine::Move move) {
           .possibleMove = false};
     } else {
       // white enpessant capture
-      std::cout << "WHITE ENPESSANT DETECTED" << std::endl;
+      // std::cout << "WHITE ENPESSANT DETECTED" << std::endl;
 
       boardOutWardRepresentation[move_to_r + 1][move_to_c] = {
           .num = utils::getNumFromRF(move_to_r + 1, move_to_c),
