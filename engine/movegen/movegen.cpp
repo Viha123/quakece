@@ -187,6 +187,7 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
 std::vector<Move> getLegalMoves(Board &board) {
   std::vector<Move> allMoves = {};
   Color turn = board.gameStateHistory.back()->turn;
+  // std::cout << turn << std::endl;
   board.populatePieceList(turn);
   for (int i = 0; i < 16; i++) {
     if (board.pieceList[turn][i] == -1) {
@@ -195,11 +196,11 @@ std::vector<Move> getLegalMoves(Board &board) {
     std::vector<Move> pieceMove =
         getLegalMovesForPiece(board, board.pieceList[turn][i]);
     allMoves.insert(allMoves.end(), pieceMove.begin(), pieceMove.end());
-    std::cout << pieceMove.size() << " Piece Number "
-              << board.pieceList[turn][i] << std::endl;
+    // std::cout << pieceMove.size() << " Piece Number "
+    //           << board.pieceList[turn][i] << std::endl;
   }
   assert(allMoves.size() <= 218);
-  std::cout << allMoves.size() << std::endl;
+  // std::cout << allMoves.size() << std::endl;
   return allMoves;
 }
 std::vector<Move> getLegalMovesForPiece(Board &board, int num) {

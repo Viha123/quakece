@@ -3,11 +3,11 @@
 // #include "move.hpp"
 #include "../utils.hpp"
 #include <array>
+#include <cassert>
 #include <cctype>
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <cassert>
 
 namespace Engine {
 Board::Board() {
@@ -125,21 +125,20 @@ void Board::generateBoardFromFen(std::string fen) {
   }
 }
 void Board::populatePieceList(Color color) {
-  //white pieces
+  // white pieces
   int count = 0;
-  for(int i = 0; i < 64; i ++) {
+  for (int i = 0; i < 64; i++) {
     if (board[i].type == color) {
       pieceList[color][count] = i;
-      // std::cout << color << " " << count << " " << pieceList[color][count] << std::endl;
+      // std::cout << color << " " << count << " " << pieceList[color][count] <<
+      // std::endl;
       count += 1;
     }
   }
-  assert(count <= 16); 
+  assert(count <= 16);
   if (count < 16) {
-    pieceList[color][count] = -1; //signal end of piece count
+    pieceList[color][count] = -1; // signal end of piece count
   }
-
-  
 }
 void Board::makeMove(
     Move &move) { // updates the board representation given the move
@@ -155,8 +154,11 @@ void Board::makeMove(
                         // box
     if (pieceTo == e && board[move._move_from].type == black) {
       // enpessant capture
+      // std::cout << "Making enpessant" << std::endl;
       board[move._move_to - 8] = emptySquare;
     } else if (pieceTo == e && board[move._move_from].type == white) {
+      // std::cout << "Making enpessant" << std::endl;
+
       board[move._move_to + 8] = emptySquare;
     }
     board[move._move_to] = board[move._move_from];
@@ -259,6 +261,8 @@ void Board::makeMove(
   // std::cout << "appending new state to history: " << std::endl;
   // displayState(newState);
   gameStateHistory.push_back(newState);
+  toggleTurn();
+
   // std::cout << "printing updated move" << std::endl;
   // history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
@@ -308,7 +312,8 @@ void Board::unmakeMove(Move move) {
     board[move._move_to].piece = move._capturedPiece;
     board[move._move_to].type = oppType;
 
-  } else if (move._isCapture && move._move_to == state->enpessant && state->enpessant != -1) {
+  } else if (move._isCapture && move._move_to == state->enpessant &&
+             state->enpessant != -1) {
     // slightly different unmake
     // restore state
     board[move._move_from] =
@@ -320,7 +325,7 @@ void Board::unmakeMove(Move move) {
                                // pawn/captured piece back.
     board[move._move_to + offset].piece = p;
     board[move._move_to + offset].type = oppType;
-    std::cout << "unmaking enpessant" << std::endl;
+    // std::cout << "unmaking enpessant" << std::endl;
     // displayState(state);
   } else if (move._isCastle) {
     // castle is not possible go back to king and rook being wehre they were and

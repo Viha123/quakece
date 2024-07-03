@@ -124,7 +124,7 @@ void guiDriver::play() {
                 updateWindow(window, guiBoard);
 
                 board.display();
-                board.toggleTurn();
+                // board.toggleTurn();
 
                 Engine::Board::State *latestState =
                     board.gameStateHistory.back();
@@ -133,7 +133,7 @@ void guiDriver::play() {
                 if(allMoves.size() == 0) {
                   std::cout << "CHECKMATE" << std::endl;
                   std::cout << latestState->turn << " " << "LOSES" << std::endl;
-                  window.close();
+                  // window.close();
                 }
               }
             }
