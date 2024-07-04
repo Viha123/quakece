@@ -4,10 +4,13 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - [x] Make a basic gui that represents all the pieces in SFML
 - [x] basic class structure for internal and external representation of board
 - [x] make sure all moves are implemented correctly
-- [ ] Test if all moves are implemented correctly using the test cases given in the wiki. 
+- [x] Test if all moves are implemented correctly using the test cases given in the wiki. 
 ## Task List for V1:
-- [ ] Make a test folder 
-- [ ] Test multiple fen strings
+- [x] Make a test folder 
+- [x] Test multiple fen strings
+## Task List for V1.5:
+- [] Randomly choose moves allow a vs computer mode
+- [] Perform time tests for depth results and go over code to reduce speed because there are a lot of low hanging performance improvements that can be made to this. 
 ## Goals for Version 2:
 - [ ] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
 

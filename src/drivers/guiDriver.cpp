@@ -117,6 +117,7 @@ void guiDriver::play() {
                 piece_to = piece;
                 // board.display();
                 board.makeMove(i);
+                std::cout << "_________________________________" << std::endl;
                 guiBoard.clearPossibleMoves();
                 // i.printMove();
                 guiBoard.updateMove(i);
@@ -124,7 +125,7 @@ void guiDriver::play() {
                 updateWindow(window, guiBoard);
 
                 board.display();
-                // board.toggleTurn();
+
 
                 Engine::Board::State *latestState =
                     board.gameStateHistory.back();

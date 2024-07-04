@@ -150,8 +150,12 @@ void Board::makeMove(
   Piece pieceFrom = board[move._move_from].piece;
   Piece pieceTo = board[move._move_to].piece;
   if (move._isCapture && pieceTo != r && !move._isPromotion &&
-      pieceFrom != k) { // simply replace the thing that was previously at that
+      pieceFrom != k && pieceFrom != r) { // simply replace the thing that was previously at that
                         // box
+    // if(pieceFrom == r) {
+    //   board[move._move_to - 8] = emptySquare;
+    //   handleCastleToggle(move, newState);
+    // }
     if (pieceTo == e && board[move._move_from].type == black) {
       // enpessant capture
       // std::cout << "Making enpessant" << std::endl;
@@ -230,7 +234,9 @@ void Board::makeMove(
     // std::cout << "HERE in rook capture" << std::endl;
     board[move._move_to] = board[move._move_from];
     board[move._move_from] = emptySquare;
+    // std::cout << "HERE in rook capture" << std::endl;
     handleCastleToggle(move, newState);
+    // displayState(newState);
   }
 
   // if double jump then mark enpessant
@@ -265,7 +271,10 @@ void Board::makeMove(
   history.push_back(&move);
   // std::cout << "appending new state to history: " << std::endl;
   // displayState(newState);
+  // std::cout << "length of gamestate before make" <<  gameStateHistory.size() << std::endl;
   gameStateHistory.push_back(newState);
+  // std::cout << "length of gamestate after make" <<  gameStateHistory.size() << std::endl;
+
   toggleTurn();
 
   // std::cout << "printing updated move" << std::endl;
@@ -287,6 +296,7 @@ void Board::handleCastleToggle(Move move, State *newState) {
   }
   if (move._move_from == 7 || move._move_to == 7) {
     // turn off black king side castle
+    // std::cout << "here??" << std::endl;
     newState->castle_flag &= 0b1011;
   }
 }
@@ -371,6 +381,7 @@ void Board::unmakeMove(Move move) {
 }
 void Board::toggleTurn() {
   State *s = gameStateHistory.back();
+  
   if (s->turn == black) {
     s->turn = white;
   } else if (s->turn == white) {
