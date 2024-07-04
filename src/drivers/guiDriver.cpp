@@ -129,7 +129,13 @@ void guiDriver::play() {
                 Engine::Board::State *latestState =
                     board.gameStateHistory.back();
                 board.displayState(latestState);
+                // std::cout << "before legal moves" << std::endl;
+                // board.display();
                 allMoves = Engine::getLegalMoves(board);
+                // std::cout << "after legal moves" << std::endl;
+
+                // board.display();
+
                 if(allMoves.size() == 0) {
                   std::cout << "CHECKMATE" << std::endl;
                   std::cout << latestState->turn << " " << "LOSES" << std::endl;
@@ -144,10 +150,12 @@ void guiDriver::play() {
             throw std::out_of_range("cannot unmake a move that is not made");
           }
           Engine::Move moveToUnmake = *board.history.back();
-
+          moveToUnmake.printMove();
+          
+          // board.display();
           board.unmakeMove(moveToUnmake);
           updateWindow(window, guiBoard);
-          board.display();
+          // board.display();
         }
       }
     }

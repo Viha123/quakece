@@ -189,12 +189,19 @@ std::vector<Move> getLegalMoves(Board &board) {
   Color turn = board.gameStateHistory.back()->turn;
   // std::cout << turn << std::endl;
   board.populatePieceList(turn);
+  // for(auto i : board.pieceList[turn]) {
+  //   std::cout << i << " " << board.board[i].c;
+  // }
+  // std::cout << std::endl;
   for (int i = 0; i < 16; i++) {
     if (board.pieceList[turn][i] == -1) {
       break;
     }
+    // std::cout << board.pieceList[turn][i] << std::endl;
+    // board.display();
     std::vector<Move> pieceMove =
         getLegalMovesForPiece(board, board.pieceList[turn][i]);
+    // board.display();
     allMoves.insert(allMoves.end(), pieceMove.begin(), pieceMove.end());
     // std::cout << pieceMove.size() << " Piece Number "
     //           << board.pieceList[turn][i] << std::endl;

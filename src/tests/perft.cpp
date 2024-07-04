@@ -16,6 +16,7 @@ int perft(Engine::Board &board, int depth) {
     return 1;
   }
   std::vector<Engine::Move> moves = Engine::getLegalMoves(board);
+
   // Engine::Move lastMove = *board.history.back();
   // lastMove.printMove();
   // std::cout << moves.size() << std::endl;

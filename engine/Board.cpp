@@ -186,6 +186,8 @@ void Board::makeMove(
       }
     }
     if (file == 2) { // queen side castle
+      // std::cout << "MAKE CASTLE" << std::endl;
+      // display();
       board[move._move_to] = board[move._move_from];
       board[move._move_from] = emptySquare;
       board[move._move_to + 1] = board[move._move_to - 2];
@@ -200,6 +202,8 @@ void Board::makeMove(
         // flip bit to not allow black queen castle
         newState->castle_flag &= 0b0011;
       }
+      // display();
+
     }
   } else if (pieceFrom == k) {
     board[move._move_to] = board[move._move_from];
@@ -221,6 +225,7 @@ void Board::makeMove(
     if (move._capturedPiece == r) {
       handleCastleToggle(move, newState);
     }
+    // display();
   } else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
     // std::cout << "HERE in rook capture" << std::endl;
     board[move._move_to] = board[move._move_from];
@@ -287,6 +292,7 @@ void Board::handleCastleToggle(Move move, State *newState) {
 }
 void Board::unmakeMove(Move move) {
   // std::cout << "Move to unmake: " << std::endl;
+  // display();
   history.pop_back();
   gameStateHistory.pop_back();
   Color oppType = board[move._move_to].type == white ? black : white;
@@ -341,17 +347,23 @@ void Board::unmakeMove(Move move) {
       board[move._move_to - 1] = emptySquare;
     } else if (move._move_to == 58 || move._move_to == 2) {
       // unmake the king by offset -2 and rook by + 2
-      std::cout << "HERE at some point" << std::endl;
-      display();
+      // std::cout << "unmaking castle" << std::endl;
+      // display();
       board[move._move_from] = board[move._move_to];
       board[move._move_to] = emptySquare;
       // rook goes back 2 spots
-      std::cout << move._move_to - 2 << " " << move._move_to + 1 << " " << move._move_to + 1 << std::endl;
+      // std::cout << move._move_to - 2 << " " << move._move_to + 1 << " " << move._move_to + 1 << std::endl;
       board[move._move_to - 2] = board[move._move_to + 1];
       board[move._move_to + 1] = emptySquare;
-      display();
+      // display();
     }
-  } else {
+  } else if(move._isPromotion && !move._isCapture) {
+    // std::cout << "not covered yet" << std::endl;
+    Square pawnSquare = {.type = state->turn, .piece = p, .c = state->turn == white ? 'P' : 'p'};
+    board[move._move_from] = pawnSquare;
+    board[move._move_to] = emptySquare;
+  }  
+  else {
     // quiet move.
     board[move._move_from] = board[move._move_to];
     board[move._move_to] = emptySquare;
