@@ -9,8 +9,8 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - [x] Make a test folder 
 - [x] Test multiple fen strings
 ## Task List for V1.5:
-- [] Randomly choose moves allow a vs computer mode
-- [] Perform time tests for depth results and go over code to reduce speed because there are a lot of low hanging performance improvements that can be made to this. 
+- [ ] Randomly choose moves allow a vs computer mode
+- [ ] Perform time tests for depth results and go over code to reduce speed because there are a lot of low hanging performance improvements that can be made to this. 
 ## Goals for Version 2:
 - [ ] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
 
