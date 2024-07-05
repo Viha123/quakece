@@ -33,14 +33,15 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
           break;
         }
         int targetIndex = mailbox[(offset)*i + mailBoxIndex]; // test
+        
         if ((targetIndex != -1) && (targetIndex != num) &&
             (board.getSquare(targetIndex).type != currentState->turn)) {
-
-          if ((board.getSquare(targetIndex).type != currentState->turn &&
-               board.getSquare(targetIndex).type != none)) {
+            Board::Square targetSquare = board.getSquare(targetIndex);
+          if ((targetSquare.type != currentState->turn &&
+               targetSquare.type != none)) {
             // capture
             Move m(num, targetIndex, false, false, true, e,
-                   board.getSquare(targetIndex).piece);
+                   targetSquare.piece);
             moves.push_back(m);
             break;
           }
@@ -184,8 +185,7 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
     moves.push_back(m);
   }
 }
-std::vector<Move> getLegalMoves(Board &board) {
-  std::vector<Move> allMoves = {};
+void getLegalMoves(Board &board, std::vector<Move>& allMoves) {
   Color turn = board.gameStateHistory.back()->turn;
   // std::cout << turn << std::endl;
   board.populatePieceList(turn);
@@ -199,21 +199,21 @@ std::vector<Move> getLegalMoves(Board &board) {
     }
     // std::cout << board.pieceList[turn][i] << std::endl;
     // board.display();
-    std::vector<Move> pieceMove =
-        getLegalMovesForPiece(board, board.pieceList[turn][i]);
+    // std::vector<Move> pieceMove =
+    getLegalMovesForPiece(board, board.pieceList[turn][i], allMoves);
     // board.display();
-    allMoves.insert(allMoves.end(), pieceMove.begin(), pieceMove.end());
+    // allMoves.insert(allMoves.end(), pieceMove.begin(), pieceMove.end());
     // std::cout << pieceMove.size() << " Piece Number "
     //           << board.pieceList[turn][i] << std::endl;
   }
   assert(allMoves.size() <= 218);
   // std::cout << allMoves.size() << std::endl;
-  return allMoves;
+  // return allMoves;
 }
-std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
+void getLegalMovesForPiece(Board &board, int num, std::vector<Move>& legal) {
   std::vector<Move> pseudolegal = getMoveForPiece(board, num);
   // std::cout << "pseudo legal size: " << pseudolegal.size() << std::endl;
-  std::vector<Move> legal;
+  // std::vector<Move> legal;
   Color color = board.board[num].type;
   for (auto move : pseudolegal) {
 
@@ -245,7 +245,7 @@ std::vector<Move> getLegalMovesForPiece(Board &board, int num) {
 
   }
 
-  return legal;
+  // return legal;
 }
 void handleKingCheck(Board &board, int offset, Move &move, Color color,
                      std::vector<Move> &legal) {

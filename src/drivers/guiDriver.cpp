@@ -83,7 +83,8 @@ void guiDriver::play() {
           piece_from = guiBoard.getPieceClicked(event.mouseButton.x,
                                                 event.mouseButton.y);
 
-          moves = Engine::getLegalMovesForPiece(board, piece_from);
+          moves.clear();
+          Engine::getLegalMovesForPiece(board, piece_from, moves);
           
 
           guiBoard.highlightPossibleMoves(moves);
@@ -133,7 +134,8 @@ void guiDriver::play() {
 
                 board.displayState(latestState);
                 // board.display();
-                allMoves = Engine::getLegalMoves(board);
+                allMoves.clear();
+                Engine::getLegalMoves(board, allMoves);
                 // std::cout << "after legal moves" << std::endl;
 
                 // board.display();

@@ -305,9 +305,12 @@ void Board::unmakeMove(Move& move) {
   // display();
   history.pop_back();
   gameStateHistory.pop_back();
-  Color oppType = board[move._move_to].type == white ? black : white;
-  Color currType = board[move._move_to].type;
-  // move.printMove();
+  Square *move_to_square = &board[move._move_to];
+  Square *move_from_square = &board[move._move_from];
+  Color oppType = move_to_square->type == white ? black : white;
+  Color currType = move_to_square->type;
+  // move.printMove();\
+
   auto state =
       gameStateHistory.back(); // state before the move that was deleted
   if (move._isCapture &&
@@ -379,16 +382,9 @@ void Board::unmakeMove(Move& move) {
     board[move._move_to] = emptySquare;
   }
 }
-void Board::toggleTurn() {
+inline void Board::toggleTurn() {
   auto s = gameStateHistory.back();
-  
-  if (s->turn == black) {
-    s->turn = white;
-  } else if (s->turn == white) {
-    s->turn = black;
-  }
-  // s->turn =  s->turn == white ? black : white;
-
+  s->turn =  s->turn == white ? black : white;
 }
 // Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {

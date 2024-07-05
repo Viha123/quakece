@@ -11,20 +11,15 @@
 namespace Tests {
 int perft(Engine::Board &board, int depth) {
 
-  std::vector<Engine::Move> moves = Engine::getLegalMoves(board);
+  std::vector<Engine::Move> moves = {};
+  Engine::getLegalMoves(board, moves);
   if (depth == 1) {
-    // std::cout << board.gameStateHistory.back()->turn << std::endl;
-    // assert(board.gameStateHistory.back()->turn == 0);
     return moves.size();
   }
-  // Engine::Move lastMove = *board.history.back();
-  // lastMove.printMove();
-  // std::cout << moves.size() << std::endl;
+
   int nodes = 0;
   for (auto move : moves) {
     board.makeMove(move);
-    // std::cout << utils::convertToChessNotation(move._move_from) << " " <<
-    // utils::convertToChessNotation(move._move_to) << " " << std::endl;
     int node = perft(board, depth - 1);
     nodes += node;
     board.unmakeMove(move);
@@ -35,7 +30,8 @@ int perft(Engine::Board &board, int depth) {
 void divide(int depth, std::string fen) {
   // starter
   Engine::Board perftBoard(fen);
-  std::vector<Engine::Move> moves = Engine::getLegalMoves(perftBoard);
+  std::vector<Engine::Move> moves = {};
+  Engine::getLegalMoves(perftBoard, moves);
   // std::cout << "board created" << std::endl;
   for (auto move : moves) {
     // if (move._move_from == 6 && move._move_to == 21) {

@@ -23,6 +23,8 @@
 ![alt text](image.png)
 - Bulk counting enabled (when depth is 1 return number of moves): 
 ![alt text](image-1.png)
+- when I removed the multiple vector copies it greatly decreased the speed of the first 5 depths but not of the 6th depth so not sure what is going on there:
+- ![alt text](image-2.png)
 ### Notes from a reditter (@javasucks55):
 - Well i made mine in c++ so it might not be the same for you, depending on your language. Here are some of the optimizations that helped the most. My current engine runs at 240 million nodes a second with correct score (tested up to depth 8).
 
