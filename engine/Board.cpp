@@ -387,6 +387,8 @@ void Board::toggleTurn() {
   } else if (s->turn == white) {
     s->turn = black;
   }
+  // s->turn =  s->turn == white ? black : white;
+
 }
 // Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {

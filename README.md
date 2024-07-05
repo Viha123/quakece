@@ -25,6 +25,16 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 ### To run in debug mode: (in dir outside of build)
 - ```gdb --args build/bin/main 2```
 
+### To run valgrind: 
+- first compile then run with:
+- ```valgrind --leak-check=full -v build/bin/main p```
+### To profile: 
+- cd build
+- ```cmake -DENABLE_PROFILING=ON ..```
+- run the profiler command:
+```gprof build/bin/main gmon.out```
+- turn the text output into graph form (assume gprof2dot and graphviz are installed):
+```gprof build/bin/main gmon.out | gprof2dot -s -w | dot -Tpng -o output.png```
 ### To add more executables:
 - still trying to figure out
 

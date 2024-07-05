@@ -21,7 +21,8 @@
 - Only passing in Const references for Move and references for board. 
 - With shared pointers instead of raw pointers: 
 ![alt text](image.png)
-
+- Bulk counting enabled (when depth is 1 return number of moves): 
+![alt text](image-1.png)
 ### Notes from a reditter (@javasucks55):
 - Well i made mine in c++ so it might not be the same for you, depending on your language. Here are some of the optimizations that helped the most. My current engine runs at 240 million nodes a second with correct score (tested up to depth 8).
 

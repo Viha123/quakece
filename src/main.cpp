@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     // do perft testing
     Engine::Board perftBoard(fen); // initial start position
     // int depth = *argv[2] - '0';
-    for (int d = 1; d <= 5; d++) {
+    for (int d = 1; d <= 4; d++) {
       clock_t start, end;
       start = clock();
 

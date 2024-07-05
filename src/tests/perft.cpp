@@ -10,13 +10,13 @@
 #include <utility>
 namespace Tests {
 int perft(Engine::Board &board, int depth) {
-  if (depth == 0) {
+
+  std::vector<Engine::Move> moves = Engine::getLegalMoves(board);
+  if (depth == 1) {
     // std::cout << board.gameStateHistory.back()->turn << std::endl;
     // assert(board.gameStateHistory.back()->turn == 0);
-    return 1;
+    return moves.size();
   }
-  std::vector<Engine::Move> moves = Engine::getLegalMoves(board);
-
   // Engine::Move lastMove = *board.history.back();
   // lastMove.printMove();
   // std::cout << moves.size() << std::endl;
@@ -58,24 +58,25 @@ void divide(int depth, std::string fen) {
     //   // perftBoard.display();
     //   int nodes = perft(perftBoard, depth - 1);
     //   std::cout << utils::convertToChessNotation(move._move_from)
-    //             << utils::convertToChessNotation(move._move_to) << " " << nodes
+    //             << utils::convertToChessNotation(move._move_to) << " " <<
+    //             nodes
     //             << std::endl;
     //   perftBoard.unmakeMove(move);
     // } else {
-      perftBoard.makeMove(move);
-      // std::cout << utils::convertToChessNotation(move._move_from)
-      //           << utils::convertToChessNotation(move._move_to) << " " <<
-      //           std::endl;
-      // perftBoard.display();
-      std::string fen = perftBoard.toFenString();
-      std::cout << fen << std::endl;
-      // perftBoard.display();
-      int nodes = perft(perftBoard, depth - 1);
-      std::cout << utils::convertToChessNotation(move._move_from)
-                << utils::convertToChessNotation(move._move_to) << " " << nodes
-                << std::endl;
-      perftBoard.unmakeMove(move);
-      // perftBoard.display();
+    perftBoard.makeMove(move);
+    // std::cout << utils::convertToChessNotation(move._move_from)
+    //           << utils::convertToChessNotation(move._move_to) << " " <<
+    //           std::endl;
+    // perftBoard.display();
+    std::string fen = perftBoard.toFenString();
+    std::cout << fen << std::endl;
+    // perftBoard.display();
+    int nodes = perft(perftBoard, depth - 1);
+    std::cout << utils::convertToChessNotation(move._move_from)
+              << utils::convertToChessNotation(move._move_to) << " " << nodes
+              << std::endl;
+    perftBoard.unmakeMove(move);
+    // perftBoard.display();
     // }
   }
 }
