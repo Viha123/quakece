@@ -8,3 +8,4 @@ CMakeFiles/
 _deps/
 CMakeCache.txt
 Makefile
+valgrind/

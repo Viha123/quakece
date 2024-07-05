@@ -8,13 +8,13 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-
+#include <memory>
 namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   history = {};
   gameStateHistory = {};
-  state = new State();
+  state = std::make_shared<State>();
   gameStateHistory.push_back(state);
   generateBoardFromFen(fen);
 }
@@ -22,7 +22,7 @@ Board::Board() {
 Board::Board(std::string fen) {
   history = {};
   gameStateHistory = {};
-  state = new State();
+  state = std::make_shared<State>();
   gameStateHistory.push_back(state);
   generateBoardFromFen(fen);
   // initializePieceArrays();
@@ -144,7 +144,7 @@ void Board::makeMove(
     Move &move) { // updates the board representation given the move
   bool enpessantToggled = false;
   state = gameStateHistory.back();
-  auto *newState = new State(*state);
+  std::shared_ptr<State> newState = std::make_shared<State>(*state);
   // std::cout << "new state created ";
   // displayState(newState);
   Piece pieceFrom = board[move._move_from].piece;
@@ -281,7 +281,7 @@ void Board::makeMove(
   // history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
 }
-void Board::handleCastleToggle(Move move, State *newState) {
+void Board::handleCastleToggle(Move& move, std::shared_ptr<State>& newState) {
   if (move._move_from == 63 || move._move_to == 63) {
     // turn off white king side castle
     newState->castle_flag &= 0b1110;
@@ -300,7 +300,7 @@ void Board::handleCastleToggle(Move move, State *newState) {
     newState->castle_flag &= 0b1011;
   }
 }
-void Board::unmakeMove(Move move) {
+void Board::unmakeMove(Move& move) {
   // std::cout << "Move to unmake: " << std::endl;
   // display();
   history.pop_back();
@@ -308,7 +308,7 @@ void Board::unmakeMove(Move move) {
   Color oppType = board[move._move_to].type == white ? black : white;
   Color currType = board[move._move_to].type;
   // move.printMove();
-  State *state =
+  auto state =
       gameStateHistory.back(); // state before the move that was deleted
   if (move._isCapture &&
       move._move_to != state->enpessant) { // enpessant unmake would be wrong
@@ -380,7 +380,7 @@ void Board::unmakeMove(Move move) {
   }
 }
 void Board::toggleTurn() {
-  State *s = gameStateHistory.back();
+  auto s = gameStateHistory.back();
   
   if (s->turn == black) {
     s->turn = white;
@@ -438,7 +438,7 @@ void Board::display() {
   }
   std::cout << std::endl;
 }
-void Board::displayState(State *state) {
+void Board::displayState(std::shared_ptr<State> state) {
   std::cout << "Castle Flag: " << static_cast<int>(state->castle_flag) << '\n';
   std::cout << "Enpessant: " << static_cast<int>(state->enpessant) << '\n';
   std::cout << "Turn: " << (state->turn == white ? "white" : "black") << '\n';

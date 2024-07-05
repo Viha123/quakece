@@ -100,7 +100,7 @@ void guiDriver::play() {
           int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                event.mouseButton.y);
           Piece promoted_piece = e;
-          Engine::Board::State *currentState = board.gameStateHistory.back();
+          auto currentState = board.gameStateHistory.back();
           // board.displayState(currentState);
           if (utils::getRank(piece) == 7 and currentState->turn == black and
               board.board[piece_from].piece == p) {
@@ -127,10 +127,11 @@ void guiDriver::play() {
                 board.display();
 
 
-                Engine::Board::State *latestState =
+                auto latestState =
                     board.gameStateHistory.back();
+                std::cout << "before legal moves" << std::endl;
+
                 board.displayState(latestState);
-                // std::cout << "before legal moves" << std::endl;
                 // board.display();
                 allMoves = Engine::getLegalMoves(board);
                 // std::cout << "after legal moves" << std::endl;

@@ -21,7 +21,7 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
   // if this is a sliding piece then here are the available moves for that
   // piece.
   int mailBoxIndex = mailbox64[num];
-  Board::State *currentState = board.gameStateHistory.back();
+  auto currentState = board.gameStateHistory.back();
   // board.displayState(currentState);
   if ((square.type == currentState->turn) &&
       (isSlide[square.piece] || square.piece == n)) {
