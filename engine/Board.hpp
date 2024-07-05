@@ -40,6 +40,7 @@ public:
   void populatePieceList(Color color);
   std::string toFenString();
   std::string squareToNotation(int square);
+  void populatePieceSet();
 private:
   std::unique_ptr<State> state;
   Square emptySquare = {.type = none, .piece = e, .c = '.'};

@@ -118,6 +118,15 @@ void guiDriver::play() {
                 piece_to = piece;
                 // board.display();
                 board.makeMove(i);
+                for(int spots : board.pieceSets[white]) {
+                  std::cout << spots << " ";
+                }
+                std::cout << std::endl;
+
+                for(int spots : board.pieceSets[black]) {
+                  std::cout << spots << " ";
+                }
+                std::cout << std::endl;
                 std::cout << "_________________________________" << std::endl;
                 guiBoard.clearPossibleMoves();
                 // i.printMove();

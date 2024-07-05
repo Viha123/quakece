@@ -6,9 +6,9 @@
 #include <cassert>
 #include <cctype>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <memory>
 namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -16,6 +16,7 @@ Board::Board() {
   state = std::make_unique<State>();
   gameStateHistory.push_back(std::move(state));
   generateBoardFromFen(fen);
+  populatePieceSet();
 }
 
 Board::Board(std::string fen) {
@@ -25,6 +26,7 @@ Board::Board(std::string fen) {
   gameStateHistory.push_back(std::move(state));
   generateBoardFromFen(fen);
   // initializePieceArrays();
+  populatePieceSet();
 }
 void Board::generateBoardFromFen(std::string fen) {
   std::string token = fen.substr(0, fen.find(" ")); // part 1 of string
@@ -123,56 +125,48 @@ void Board::generateBoardFromFen(std::string fen) {
     }
   }
 }
-void Board::populatePieceList(Color color) {
-  // white pieces
-  int count = 0;
+void Board::populatePieceSet() {
   for (int i = 0; i < 64; i++) {
-    if (board[i].type == color) {
-      pieceList[color][count] = i;
-      // std::cout << color << " " << count << " " << pieceList[color][count] <<
-      // std::endl;
-      pieceSets[color].insert(i);
-      count += 1;
+    if (board[i].type != none) {
+      pieceSets[board[i].type].insert(i);
     }
   }
-  assert(count <= 16);
-  if (count < 16) {
-    pieceList[color][count] = -1; // signal end of piece count
-  }
-  
 }
 void Board::makeMove(
     Move &move) { // updates the board representation given the move
   bool enpessantToggled = false;
   // state = gameStateHistory.back();
-  
-  std::unique_ptr<State> newState = std::make_unique<State>(*gameStateHistory.back());
+
+  std::unique_ptr<State> newState =
+      std::make_unique<State>(*gameStateHistory.back());
   // std::cout << "new state created ";
   // displayState(newState);
   Piece pieceFrom = board[move._move_from].piece;
   Piece pieceTo = board[move._move_to].piece;
-  Square& move_to_square = board[move._move_to];
-  Square& move_from_square = board[move._move_from];
-  Color oppType = move_to_square.type == white ? black : white;
-  Color currType = move_to_square.type;
-  if (move._isCapture && pieceTo != r && !move._isPromotion &&
-      pieceFrom != k && pieceFrom != r) { // simply replace the thing that was previously at that
+  Square &move_to_square = board[move._move_to];
+  Square &move_from_square = board[move._move_from];
+  Color oppType = move_from_square.type == white ? black : white;
+  Color currType = move_from_square.type;
+  if (move._isCapture && pieceTo != r && !move._isPromotion && pieceFrom != k &&
+      pieceFrom != r) { // simply replace the thing that was previously at that
                         // box
     if (pieceTo == e && move_from_square.type == black) {
       // enpessant capture
       // std::cout << "Making enpessant" << std::endl;
       board[move._move_to - 8] = emptySquare;
-      pieceSets[oppType].erase(move._move_to -8);
+      pieceSets[oppType].erase(move._move_to - 8);
     } else if (pieceTo == e && move_from_square.type == white) {
       // std::cout << "Making enpessant" << std::endl;
       board[move._move_to + 8] = emptySquare;
-      pieceSets[oppType].erase(move._move_to +8);
-
+      pieceSets[oppType].erase(move._move_to + 8);
     }
     move_to_square = move_from_square;
     move_from_square = emptySquare;
     pieceSets[currType].erase(move._move_from);
-    pieceSets[oppType].erase(move._move_to); //if capture remove the other person's piece.
+    if (pieceSets[oppType].count(move._move_to)) {
+      pieceSets[oppType].erase(
+          move._move_to); // if capture remove the other person's piece.
+    }
     pieceSets[currType].insert(move._move_to);
     // board[move._move_from].piece = emptySquare;
     // std::cout << pieceTo << std::endl;
@@ -185,8 +179,12 @@ void Board::makeMove(
       // turn of the respective castle
       move_to_square = move_from_square;
       move_from_square = emptySquare;
+      pieceSets[currType].erase(move._move_from);
+      pieceSets[currType].insert(move._move_to);
       board[move._move_to - 1] = board[move._move_to + 1];
       board[move._move_to + 1] = emptySquare;
+      pieceSets[currType].erase(move._move_to + 1);
+      pieceSets[currType].insert(move._move_to - 1);
       if (move_to_square.type == white) {
         // flip bit to not allow white king castle
         newState->castle_flag &= 0b1100;
@@ -201,8 +199,12 @@ void Board::makeMove(
       // display();
       move_to_square = move_from_square;
       move_from_square = emptySquare;
+      pieceSets[currType].erase(move._move_from);
+      pieceSets[currType].insert(move._move_to);
       board[move._move_to + 1] = board[move._move_to - 2];
       board[move._move_to - 2] = emptySquare;
+      pieceSets[currType].erase(move._move_to - 2);
+      pieceSets[currType].insert(move._move_to + 1);
       if (move_to_square.type == white) {
         // flip bit to not allow white queen castle
         newState->castle_flag &=
@@ -214,13 +216,29 @@ void Board::makeMove(
         newState->castle_flag &= 0b0011;
       }
       // display();
-
     }
+  } else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
+    // std::cout << "HERE in rook capture" << std::endl;
+    move_to_square = move_from_square;
+    move_from_square = emptySquare;
+    pieceSets[currType].erase(move._move_from);
+    pieceSets[currType].insert(move._move_to);
+    if (pieceSets[oppType].count(move._move_to)) {
+      pieceSets[oppType].erase(
+          move._move_to); // if capture remove the other person's piece.
+    }
+    // std::cout << "HERE in rook capture" << std::endl;
+    handleCastleToggle(move, newState);
+    // displayState(newState);
   } else if (pieceFrom == k) {
     move_to_square = move_from_square;
     move_from_square = emptySquare;
     pieceSets[currType].erase(move._move_from);
     pieceSets[currType].insert(move._move_to);
+    if (pieceSets[oppType].count(move._move_to)) {
+      pieceSets[oppType].erase(
+          move._move_to); // if capture remove the other person's piece.
+    }
     if (move_to_square.type == black) {
       newState->castle_flag &= 0b0011;
     }
@@ -229,10 +247,9 @@ void Board::makeMove(
     }
   } else if (move._isPromotion) {
     // std::cout << "make move saw promotion" << std::endl;
-    Square newSquare = {
-        .type = move_from_square.type,
-        .piece = move._toPromote,
-        .c = pieceReps[move_from_square.type][move._toPromote]};
+    Square newSquare = {.type = move_from_square.type,
+                        .piece = move._toPromote,
+                        .c = pieceReps[move_from_square.type][move._toPromote]};
     move_to_square = newSquare;
     move_from_square = emptySquare;
     pieceSets[currType].erase(move._move_from);
@@ -241,13 +258,6 @@ void Board::makeMove(
       handleCastleToggle(move, newState);
     }
     // display();
-  } else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
-    // std::cout << "HERE in rook capture" << std::endl;
-    move_to_square = move_from_square;
-    move_from_square = emptySquare;
-    // std::cout << "HERE in rook capture" << std::endl;
-    handleCastleToggle(move, newState);
-    // displayState(newState);
   }
 
   // if double jump then mark enpessant
@@ -255,6 +265,8 @@ void Board::makeMove(
 
     move_to_square = move_from_square;
     move_from_square = emptySquare;
+    pieceSets[currType].erase(move._move_from);
+    pieceSets[currType].insert(move._move_to);
     // if pawn and if pawn did a double jump
     if (move._move_from - move._move_to == -16) { // black double jump
       // board[move._move_to].jumpCount = 1;
@@ -272,6 +284,8 @@ void Board::makeMove(
     // move_to becomes move_from and then move-from becomes empty
     move_to_square = move_from_square;
     move_from_square = emptySquare;
+    pieceSets[currType].erase(move._move_from);
+    pieceSets[currType].insert(move._move_to);
   }
   // handles promootion.
 
@@ -281,9 +295,11 @@ void Board::makeMove(
   history.push_back(&move);
   // std::cout << "appending new state to history: " << std::endl;
   // displayState(newState);
-  // std::cout << "length of gamestate before make" <<  gameStateHistory.size() << std::endl;
+  // std::cout << "length of gamestate before make" <<  gameStateHistory.size()
+  // << std::endl;
   gameStateHistory.push_back(std::move(newState));
-  // std::cout << "length of gamestate after make" <<  gameStateHistory.size() << std::endl;
+  // std::cout << "length of gamestate after make" <<  gameStateHistory.size()
+  // << std::endl;
 
   toggleTurn();
 
@@ -291,7 +307,8 @@ void Board::makeMove(
   // history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
 }
-void Board::handleCastleToggle(Move& move, std::unique_ptr<State>& newState) {
+void Board::handleCastleToggle(Move &move, std::unique_ptr<State> &newState) {
+  // std::cout << "here" << std::endl;
   if (move._move_from == 63 || move._move_to == 63) {
     // turn off white king side castle
     newState->castle_flag &= 0b1110;
@@ -310,18 +327,18 @@ void Board::handleCastleToggle(Move& move, std::unique_ptr<State>& newState) {
     newState->castle_flag &= 0b1011;
   }
 }
-void Board::unmakeMove(Move& move) {
+void Board::unmakeMove(Move &move) {
   // std::cout << "Move to unmake: " << std::endl;
   // display();
   history.pop_back();
   gameStateHistory.pop_back();
-  Square& move_to_square = board[move._move_to];
-  Square& move_from_square = board[move._move_from];
+  Square &move_to_square = board[move._move_to];
+  Square &move_from_square = board[move._move_from];
   Color oppType = move_to_square.type == white ? black : white;
   Color currType = move_to_square.type;
   // move.printMove();\
 
-  auto& state =
+  auto &state =
       gameStateHistory.back(); // state before the move that was deleted
   if (move._isCapture &&
       move._move_to != state->enpessant) { // enpessant unmake would be wrong
@@ -330,7 +347,6 @@ void Board::unmakeMove(Move& move) {
     } else {
       // is promotion and is capture
       move_from_square.c = pieceReps[currType][p];
-
       move_from_square.piece = p;
       move_from_square.type = move_to_square.type;
     }
@@ -340,20 +356,26 @@ void Board::unmakeMove(Move& move) {
     // sure if the usage of state here is correct
     move_to_square.piece = move._capturedPiece;
     move_to_square.type = oppType;
+    pieceSets[currType].erase(move._move_to);
+    pieceSets[currType].insert(move._move_from);
+    pieceSets[oppType].insert(move._move_to);
 
   } else if (move._isCapture && move._move_to == state->enpessant &&
              state->enpessant != -1) {
     // slightly different unmake
     // restore state
-    move_from_square =
-        board[move._move_to];           // moving pawn back to where it was
-    move_to_square = emptySquare; // move to becomes an empty square
+    move_from_square = board[move._move_to]; // moving pawn back to where it was
+    move_to_square = emptySquare;            // move to becomes an empty square
+    pieceSets[currType].erase(move._move_to);
+    pieceSets[currType].insert(move._move_from);
     int offset = currType == white ? 8 : -8;
     board[move._move_to + offset].c =
         pieceReps[oppType][p]; // the square below or above gets the
                                // pawn/captured piece back.
     board[move._move_to + offset].piece = p;
     board[move._move_to + offset].type = oppType;
+    pieceSets[oppType].insert(move._move_to + offset);
+
     // std::cout << "unmaking enpessant" << std::endl;
     // displayState(state);
   } else if (move._isCastle) {
@@ -366,35 +388,48 @@ void Board::unmakeMove(Move& move) {
       move_from_square = move_to_square;
       move_to_square = emptySquare;
       // rook by + 2;
+      pieceSets[currType].erase(move._move_to);
+      pieceSets[currType].insert(move._move_from);
       board[move._move_to + 1] = board[move._move_to - 1];
       board[move._move_to - 1] = emptySquare;
+      pieceSets[currType].erase(move._move_to - 1);
+      pieceSets[currType].insert(move._move_to + 1);
     } else if (move._move_to == 58 || move._move_to == 2) {
       // unmake the king by offset -2 and rook by + 2
       // std::cout << "unmaking castle" << std::endl;
       // display();
       move_from_square = move_to_square;
       move_to_square = emptySquare;
+      pieceSets[currType].erase(move._move_to);
+      pieceSets[currType].insert(move._move_from);
       // rook goes back 2 spots
-      // std::cout << move._move_to - 2 << " " << move._move_to + 1 << " " << move._move_to + 1 << std::endl;
+      // std::cout << move._move_to - 2 << " " << move._move_to + 1 << " " <<
+      // move._move_to + 1 << std::endl;
       board[move._move_to - 2] = board[move._move_to + 1];
       board[move._move_to + 1] = emptySquare;
+      pieceSets[currType].erase(move._move_to + 1);
+      pieceSets[currType].insert(move._move_to - 2);
       // display();
     }
-  } else if(move._isPromotion && !move._isCapture) {
+  } else if (move._isPromotion && !move._isCapture) {
     // std::cout << "not covered yet" << std::endl;
-    Square pawnSquare = {.type = state->turn, .piece = p, .c = state->turn == white ? 'P' : 'p'};
+    Square pawnSquare = {
+        .type = state->turn, .piece = p, .c = state->turn == white ? 'P' : 'p'};
     move_from_square = pawnSquare;
     move_to_square = emptySquare;
-  }  
-  else {
+    pieceSets[currType].erase(move._move_to);
+    pieceSets[currType].insert(move._move_from);
+  } else {
     // quiet move.
     move_from_square = move_to_square;
     move_to_square = emptySquare;
+    pieceSets[currType].erase(move._move_to);
+    pieceSets[currType].insert(move._move_from);
   }
 }
 inline void Board::toggleTurn() {
-  auto& s = gameStateHistory.back();
-  s->turn =  s->turn == white ? black : white;
+  auto &s = gameStateHistory.back();
+  s->turn = s->turn == white ? black : white;
 }
 // Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {
@@ -402,7 +437,7 @@ void Board::initialize_remainding_parameters(std::string remaining) {
   remaining = remaining.substr(remaining.find(" ") + 1);
   std::string castling = remaining.substr(0, remaining.find(" ") + 1);
   remaining = remaining.substr(remaining.find(" ") + 1);
-  auto& state = gameStateHistory.back();
+  auto &state = gameStateHistory.back();
   if (turn[0] == 'w') {
     state->turn = white;
   } else {
@@ -433,6 +468,7 @@ void Board::initialize_remainding_parameters(std::string remaining) {
 }
 Board::Square Board::getSquare(int num) {
   if (num < 0 or num > 63) {
+    std::cout << num << std::endl;
     throw std::invalid_argument("index must be between 0 and 63");
   } else {
     return board[num];
@@ -447,7 +483,7 @@ void Board::display() {
   }
   std::cout << std::endl;
 }
-void Board::displayState(std::unique_ptr<State>& state) {
+void Board::displayState(std::unique_ptr<State> &state) {
   std::cout << "Castle Flag: " << static_cast<int>(state->castle_flag) << '\n';
   std::cout << "Enpessant: " << static_cast<int>(state->enpessant) << '\n';
   std::cout << "Turn: " << (state->turn == white ? "white" : "black") << '\n';

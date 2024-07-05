@@ -4,6 +4,7 @@
 #include "../Board.hpp"
 #include "../move.hpp"
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 #include <cassert>
 
@@ -75,12 +76,6 @@ std::vector<Move> getMoveForPiece(Board &board, int num) {
     } else {
       // generate promotion possibility:
       if (square.type == black && row == 6 && board.board[num + 8].piece == e) {
-        // std::cout << "black promotion possibility" << std::endl;
-        // Piece promotions[4] = {q, n, b, r};
-        // for (auto pr : promotions) {
-        //   Move m(num, num + 8, false, true, false, pr);
-        //   moves.push_back(m);
-        // }
         handlePromotions(moves, num, num + 8, e);
 
       } else if (square.type == white && row == 1 &&
@@ -187,28 +182,24 @@ void handlePromotions(std::vector<Move> &moves, int numFrom, int numTo,
 }
 void getLegalMoves(Board &board, std::vector<Move>& allMoves) {
   Color turn = board.gameStateHistory.back()->turn;
-  // std::cout << turn << std::endl;
-  board.populatePieceList(turn);
-  // for(auto i : board.pieceList[turn]) {
-  //   std::cout << i << " " << board.board[i].c;
-  // }
-  // std::cout << std::endl;
-  for (int i = 0; i < 16; i++) {
-    if (board.pieceList[turn][i] == -1) {
+  std::array<int,16> copyPieceSet;
+  copyPieceSet.fill(-1);
+  int i = 0;
+  for(auto num: board.pieceSets[turn]) {
+    copyPieceSet[i] = num;
+    i += 1;
+  }
+  if(i < 15) {
+    copyPieceSet[i+1] = -1;
+  }
+  // std::unordered_set<int> copyPieceSets = board.pieceSets[turn];
+  for(auto num: copyPieceSet) { 
+    if(num == -1) {
       break;
     }
-    // std::cout << board.pieceList[turn][i] << std::endl;
-    // board.display();
-    // std::vector<Move> pieceMove =
-    getLegalMovesForPiece(board, board.pieceList[turn][i], allMoves);
-    // board.display();
-    // allMoves.insert(allMoves.end(), pieceMove.begin(), pieceMove.end());
-    // std::cout << pieceMove.size() << " Piece Number "
-    //           << board.pieceList[turn][i] << std::endl;
+    getLegalMovesForPiece(board, num, allMoves);
   }
   assert(allMoves.size() <= 218);
-  // std::cout << allMoves.size() << std::endl;
-  // return allMoves;
 }
 void getLegalMovesForPiece(Board &board, int num, std::vector<Move>& legal) {
   std::vector<Move> pseudolegal = getMoveForPiece(board, num);
@@ -320,13 +311,10 @@ bool kingInCheck(Board &board, Color color) {
   return false; // not in check
 }
 int findKingIndex(Board &board, Color color) {
-  // use a localkingindex variable to cache this value
-  int i = 0;
-  for (auto square : board.board) {
-    if (square.piece == k and square.type == color) {
-      return i;
+  for(auto num: board.pieceSets[color]) {
+    if(board.board[num].piece == k) {
+      return num;
     }
-    i += 1;
   }
   return -1; // no king. should never happen
 }
