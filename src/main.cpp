@@ -6,6 +6,7 @@
 #include <bits/stdc++.h>
 #include <cassert>
 #include <iostream>
+#include "./FixedStack.hpp"
 using namespace std;
 
 int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
@@ -46,6 +47,27 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     // cout << str << endl;
   } else if (*argv[1] == 't') {
     Tests::testCases();
+  } else if (*argv[1] == 's') {
+    std::size_t sizearr = 10;
+    FixedStack<int, 10> mystack;
+    for(int i = 0; i < 5; i ++) {
+      mystack.push(i);
+      cout << mystack.peek() << std::endl;
+    }
+    std::cout << mystack.size() << std::endl;
+
+    cout << mystack.peek() << std::endl;
+    mystack.pop();
+    mystack.pop();
+    mystack.push(100);
+    mystack.pop();
+    if(mystack.size() > 5) {
+      cout << "yea " << std::endl;
+    }
+    for(int i = 0; i < mystack.size(); i ++) {
+      cout << mystack.peek() << std::endl;
+      mystack.pop();
+    }
   }
   else {
     cout << "Mode not accepted" << endl;
