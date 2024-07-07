@@ -5,7 +5,7 @@ namespace Engine {
 std::string Board::toFenString() {
   std::ostringstream fen;
   int emptyCount = 0;
-  auto lastState = gameStateHistory.back();
+  auto lastState = gameStateHistory.peek();
   for (int rank = 0; rank < 8; ++rank) {
     for (int file = 0; file < 8; ++file) {
       Square sq = getSquare(rank * 8 + file);

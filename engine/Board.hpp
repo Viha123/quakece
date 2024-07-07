@@ -9,7 +9,7 @@
 #include <utility>
 #include <unordered_set>
 #include "../src/FixedStack.hpp"
-#include <vector>
+// #include <vector>
 namespace Engine {
 class Board {
 public:
@@ -27,10 +27,10 @@ public:
   std::array<Square, 64> board{};
   Board();
   Board(std::string fen);
-  std::vector<Move *> history;
-  std::vector<State> gameStateHistory; // keeps track of game state
+  FixedStack<Move, 512> history;
+  FixedStack<State, 512> gameStateHistory; // keeps track of game state
   std::array<std::array<int, 16>, 2> pieceList;
-  std::array<std::unordered_set<int>,2> pieceSets; //0 for white 1 for black
+  // std::array<std::unordered_set<int>,2> pieceSets; //0 for white 1 for black
   
 public:
   void makeMove(Move &move);  // make move and update the board with the result
@@ -43,6 +43,9 @@ public:
   std::string toFenString();
   std::string squareToNotation(int square);
   void populatePieceSet();
+  // int whiteKingIndex = 60;
+  // int blackKingIndex = 4;
+  std::array<int, 2> kingIndexes = {60,4};
 private:
   State state;
   Square emptySquare = {.type = none, .piece = e, .c = '.'};

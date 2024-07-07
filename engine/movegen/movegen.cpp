@@ -1,19 +1,19 @@
 #include "movegen.hpp"
 #include "../../Headers/engine.hpp"
+#include "../../src/FixedStack.hpp"
 #include "../../utils.hpp"
 #include "../Board.hpp"
 #include "../move.hpp"
+#include <cassert>
 #include <iostream>
 #include <unordered_map>
-#include <cassert>
-#include "../../src/FixedStack.hpp"
 namespace Engine {
 
-void getMoveForPiece(Board &board, int num, FixedStack<Move,64>& moves) {
+void getMoveForPiece(Board &board, int num, FixedStack<Move, 64> &moves) {
   // board.display();
   // std::cout << "piece getting move for: " << board.getSquare(num).piece
   //           << std::endl;
-  
+
   Board::Square square = board.getSquare(num);
   int row = utils::getRank(num);
   int col = utils::getFile(num);
@@ -22,7 +22,7 @@ void getMoveForPiece(Board &board, int num, FixedStack<Move,64>& moves) {
   // if this is a sliding piece then here are the available moves for that
   // piece.
   int mailBoxIndex = mailbox64[num];
-  auto& currentState = board.gameStateHistory.back();
+  auto &currentState = board.gameStateHistory.peek();
   // board.displayState(currentState);
   if ((square.type == currentState.turn) &&
       (isSlide[square.piece] || square.piece == n)) {
@@ -34,15 +34,14 @@ void getMoveForPiece(Board &board, int num, FixedStack<Move,64>& moves) {
           break;
         }
         int targetIndex = mailbox[(offset)*i + mailBoxIndex]; // test
-        
+
         if ((targetIndex != -1) && (targetIndex != num) &&
             (board.getSquare(targetIndex).type != currentState.turn)) {
-            Board::Square targetSquare = board.getSquare(targetIndex);
+          Board::Square targetSquare = board.getSquare(targetIndex);
           if ((targetSquare.type != currentState.turn &&
                targetSquare.type != none)) {
             // capture
-            Move m(num, targetIndex, false, false, true, e,
-                   targetSquare.piece);
+            Move m(num, targetIndex, false, false, true, e, targetSquare.piece);
             moves.push(m);
             break;
           }
@@ -167,9 +166,8 @@ void getMoveForPiece(Board &board, int num, FixedStack<Move,64>& moves) {
       }
     }
   }
-
 }
-void handlePromotions(FixedStack<Move,64> &moves, int numFrom, int numTo,
+void handlePromotions(FixedStack<Move, 64> &moves, int numFrom, int numTo,
                       Piece capturedPiece) {
   Piece promotions[4] = {q, n, b, r};
   bool isCapture = capturedPiece == e ? false : true;
@@ -179,34 +177,35 @@ void handlePromotions(FixedStack<Move,64> &moves, int numFrom, int numTo,
     moves.push(m);
   }
 }
-void getLegalMoves(Board &board, FixedStack<Move,256>& allMoves) {
-  Color turn = board.gameStateHistory.back().turn;
-  std::array<int,16> copyPieceSet;
-  copyPieceSet.fill(-1);
-  int i = 0;
-  for(auto num: board.pieceSets[turn]) {
-    copyPieceSet[i] = num;
-    i += 1;
-  }
-  if(i < 15) {
-    copyPieceSet[i+1] = -1;
-  }
-  // std::unordered_set<int> copyPieceSets = board.pieceSets[turn];
-  for(auto num: copyPieceSet) { 
-    if(num == -1) {
+void getLegalMoves(Board &board, FixedStack<Move, 256> &allMoves) {
+  Color turn = board.gameStateHistory.peek().turn;
+  board.populatePieceList(turn);
+  // for(auto i : board.pieceList[turn]) {
+  //   std::cout << i << " " << board.board[i].c;
+  // }
+  // std::cout << std::endl;
+  for (int i = 0; i < 16; i++) {
+    if (board.pieceList[turn][i] == -1) {
       break;
     }
-    getLegalMovesForPiece(board, num, allMoves);
+    // std::cout << board.pieceList[turn][i] << std::endl;
+    // board.display();
+    
+    getLegalMovesForPiece(board, board.pieceList[turn][i], allMoves);
+    // board.display();
+    // std::cout << pieceMove.size() << " Piece Number "
+    //           << board.pieceList[turn][i] << std::endl;
   }
   assert(allMoves.size() <= 218);
 }
-void getLegalMovesForPiece(Board &board, int num, FixedStack<Move,256>& legal) {
+void getLegalMovesForPiece(Board &board, int num,
+                           FixedStack<Move, 256> &legal) {
   FixedStack<Move, 64> pseudolegal;
   getMoveForPiece(board, num, pseudolegal);
   // std::cout << "pseudo legal size: " << pseudolegal.size() << std::endl;
   // std::vector<Move> legal;
   Color color = board.board[num].type;
-  for (int i = 0; i < pseudolegal.size(); i ++) {
+  for (int i = 0; i < pseudolegal.size(); i++) {
     Move move = pseudolegal[i];
     // std::cout << "board num type: " << board.board[num].type << std::endl;
     if (!move._isCastle) {
@@ -233,27 +232,18 @@ void getLegalMovesForPiece(Board &board, int num, FixedStack<Move,256>& legal) {
         }
       }
     }
-
   }
 
   // return legal;
 }
 void handleKingCheck(Board &board, int offset, Move &move, Color color,
-                     FixedStack<Move,256>& legal ) {
+                     FixedStack<Move, 256> &legal) {
   Move checkImmediateRight(move._move_from, move._move_from + offset, false,
                            false, false, e, e);
   board.makeMove(checkImmediateRight);
   if (!kingInCheck(board, color)) {
-    // check actual move
-    // std::cout << "KING NOT IMMEDIATELY RIGHT IN CHECK" << std::endl;
-    // board.display();
 
     board.unmakeMove(checkImmediateRight);
-    // std::cout << "KING immediately right unmade display:: " << std::endl;
-
-    // // board.display();
-    // std::cout << "KING make true castle:::: " << std::endl;
-
     board.makeMove(move);
     // board.display();
     if (!kingInCheck(board, color)) {
@@ -310,18 +300,9 @@ bool kingInCheck(Board &board, Color color) {
   // return false;
   return false; // not in check
 }
-int findKingIndex(Board &board, Color color) {
-  for(auto num: board.pieceSets[color]) {
-    if(board.board[num].piece == k) {
-      return num;
-    }
-  }
-  return -1; // no king. should never happen
-}
-// later
-// std::vector<Move> getPsuedoLegalMoves() {
-//   std::vector<Move> moves;
 
-//   return moves;
-// }
+int findKingIndex(Board &board, Color color) {
+  return board.kingIndexes[color];
+}
+
 } // namespace Engine

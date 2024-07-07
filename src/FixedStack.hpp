@@ -27,7 +27,7 @@ public:
       top++;
     }
   }
-  T peek() {
+  T& peek() {
     if (top >= 1) {
       return array[top - 1];
     }

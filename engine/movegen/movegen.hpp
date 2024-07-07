@@ -8,7 +8,7 @@ namespace Engine {
 // return list of available moves given board and given index of board pressed
 // for example if w or black rook is pressed give available list of moves
 void getLegalMoves(Board &board, FixedStack<Move,256>& allMoves); // gets all moves given board
-std::vector<Move> getPsuedoLegalMoves(Board &board);
+// std::vector<Move> getPsuedoLegalMoves(Board &board);
 void handlePromotions(FixedStack<Move, 64> &moves, int numFrom, int numTo,
                       Piece capturedPiece);
 // std::vector<Move> getSliderMoves(Board& board); //Rook, bishop, queen, king

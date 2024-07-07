@@ -102,7 +102,7 @@ void guiDriver::play() {
           int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                event.mouseButton.y);
           Piece promoted_piece = e;
-          auto currentState = board.gameStateHistory.back();
+          auto currentState = board.gameStateHistory.peek();
           // board.displayState(currentState);
           if (utils::getRank(piece) == 7 and currentState.turn == black and
               board.board[piece_from].piece == p) {
@@ -120,16 +120,16 @@ void guiDriver::play() {
                 piece_to = piece;
                 // board.display();
                 board.makeMove(i);
-                for(int spots : board.pieceSets[white]) {
-                  std::cout << spots << " ";
-                }
-                std::cout << std::endl;
+                // for(int spots : board.pieceSets[white]) {
+                //   std::cout << spots << " ";
+                // }
+                // std::cout << std::endl;
 
-                for(int spots : board.pieceSets[black]) {
-                  std::cout << spots << " ";
-                }
-                std::cout << std::endl;
-                std::cout << "_________________________________" << std::endl;
+                // for(int spots : board.pieceSets[black]) {
+                //   std::cout << spots << " ";
+                // // }
+                // std::cout << std::endl;
+                // std::cout << "_________________________________" << std::endl;
                 guiBoard.clearPossibleMoves();
                 // i.printMove();
                 guiBoard.updateMove(i);
@@ -140,7 +140,7 @@ void guiDriver::play() {
 
 
                 auto& latestState =
-                    board.gameStateHistory.back();
+                    board.gameStateHistory.peek();
                 std::cout << "before legal moves" << std::endl;
 
                 board.displayState(latestState);
@@ -164,7 +164,7 @@ void guiDriver::play() {
           if (board.history.size() == 0 or board.gameStateHistory.size() == 0) {
             throw std::out_of_range("cannot unmake a move that is not made");
           }
-          Engine::Move moveToUnmake = *board.history.back();
+          Engine::Move moveToUnmake = board.history.peek();
           moveToUnmake.printMove();
           
           // board.display();
