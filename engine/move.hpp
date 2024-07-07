@@ -1,9 +1,10 @@
 #pragma once
 #include "../Headers/engine.hpp"
-#include <vector>
+// #include <vector>
 namespace Engine {
 class Move {
 public:
+  Move() = default;
   Move(int from, int to, bool isCastle, bool isPromotion, bool isCapture,
        Piece toPromote, Piece capturedPiece);
   int _move_from;

@@ -13,6 +13,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include "../FixedStack.hpp"
 using namespace std;
 BoardDisplay::BoardDisplay() {
   // nothing
@@ -126,14 +127,15 @@ void BoardDisplay::parseFenString(string fenString) {
     }
   }
 }
-void BoardDisplay::highlightPossibleMoves(vector<Engine::Move> moves) {
+void BoardDisplay::highlightPossibleMoves(FixedStack<Engine::Move,256> moves) {
   // for(auto j: nums) {
   //   std::cout << j << std::endl;
   // }
   // std::cout << "here" << std::endl;
   vector<int> nums{};
-  for (auto move : moves) {
+  for (int i = 0; i < moves.size(); i ++) {
     // std::cout << move._move_to << std::endl;
+    auto move = moves[i];
     nums.push_back(move._move_to);
   }
   for (auto i : nums) {

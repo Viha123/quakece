@@ -9,12 +9,14 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <vector>
 namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   history = {};
-  state = std::make_unique<State>();
-  gameStateHistory.push_back(std::move(state));
+  // state = std::make_unique<State>();
+
+  gameStateHistory.push_back(state);
   generateBoardFromFen(fen);
   populatePieceSet();
 }
@@ -22,8 +24,7 @@ Board::Board() {
 Board::Board(std::string fen) {
   history = {};
   // gameStateHistory = {};
-  state = std::make_unique<State>();
-  gameStateHistory.push_back(std::move(state));
+  gameStateHistory.push_back(state);
   generateBoardFromFen(fen);
   // initializePieceArrays();
   populatePieceSet();
@@ -135,10 +136,9 @@ void Board::populatePieceSet() {
 void Board::makeMove(
     Move &move) { // updates the board representation given the move
   bool enpessantToggled = false;
-  // state = gameStateHistory.back();
+  state = gameStateHistory.back();
 
-  std::unique_ptr<State> newState =
-      std::make_unique<State>(*gameStateHistory.back());
+  State newState = state;
   // std::cout << "new state created ";
   // displayState(newState);
   Piece pieceFrom = board[move._move_from].piece;
@@ -187,11 +187,11 @@ void Board::makeMove(
       pieceSets[currType].insert(move._move_to - 1);
       if (move_to_square.type == white) {
         // flip bit to not allow white king castle
-        newState->castle_flag &= 0b1100;
+        newState.castle_flag &= 0b1100;
       }
       if (move_to_square.type == black) {
         // flip bit to not allow black king castle
-        newState->castle_flag &= 0b0011;
+        newState.castle_flag &= 0b0011;
       }
     }
     if (file == 2) { // queen side castle
@@ -207,13 +207,13 @@ void Board::makeMove(
       pieceSets[currType].insert(move._move_to + 1);
       if (move_to_square.type == white) {
         // flip bit to not allow white queen castle
-        newState->castle_flag &=
+        newState.castle_flag &=
             0b1100; // turn off all castles for that color because once you
                     // castle once you cannot castle again.
       }
       if (move_to_square.type == black) {
         // flip bit to not allow black queen castle
-        newState->castle_flag &= 0b0011;
+        newState.castle_flag &= 0b0011;
       }
       // display();
     }
@@ -240,10 +240,10 @@ void Board::makeMove(
           move._move_to); // if capture remove the other person's piece.
     }
     if (move_to_square.type == black) {
-      newState->castle_flag &= 0b0011;
+      newState.castle_flag &= 0b0011;
     }
     if (move_to_square.type == white) {
-      newState->castle_flag &= 0b1100;
+      newState.castle_flag &= 0b1100;
     }
   } else if (move._isPromotion) {
     // std::cout << "make move saw promotion" << std::endl;
@@ -270,11 +270,11 @@ void Board::makeMove(
     // if pawn and if pawn did a double jump
     if (move._move_from - move._move_to == -16) { // black double jump
       // board[move._move_to].jumpCount = 1;
-      newState->enpessant = move._move_to - 8;
+      newState.enpessant = move._move_to - 8;
       enpessantToggled = true;
     } else if (move._move_from - move._move_to == 16) {
       // board[move._move_to].jumpCount = 1;
-      newState->enpessant = move._move_to + 8;
+      newState.enpessant = move._move_to + 8;
       enpessantToggled = true;
     }
 
@@ -290,14 +290,18 @@ void Board::makeMove(
   // handles promootion.
 
   if (enpessantToggled == false) {
-    newState->enpessant = -1;
+    newState.enpessant = -1;
   }
   history.push_back(&move);
   // std::cout << "appending new state to history: " << std::endl;
   // displayState(newState);
   // std::cout << "length of gamestate before make" <<  gameStateHistory.size()
   // << std::endl;
-  gameStateHistory.push_back(std::move(newState));
+  // displayState(gameStateHistory.back());
+
+  // newState.turn = newState.turn == white ? black : white;
+  gameStateHistory.push_back(newState);
+  // displayState(gameStateHistory.back());
   // std::cout << "length of gamestate after make" <<  gameStateHistory.size()
   // << std::endl;
 
@@ -307,24 +311,24 @@ void Board::makeMove(
   // history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
 }
-void Board::handleCastleToggle(Move &move, std::unique_ptr<State> &newState) {
+void Board::handleCastleToggle(Move &move, State &newState) {
   // std::cout << "here" << std::endl;
   if (move._move_from == 63 || move._move_to == 63) {
     // turn off white king side castle
-    newState->castle_flag &= 0b1110;
+    newState.castle_flag &= 0b1110;
   }
   if (move._move_from == 56 || move._move_to == 56) {
     // turn off white queen side castle
-    newState->castle_flag &= 0b1101;
+    newState.castle_flag &= 0b1101;
   }
   if (move._move_from == 0 || move._move_to == 0) {
     // turn off black queen side castle
-    newState->castle_flag &= 0b0111;
+    newState.castle_flag &= 0b0111;
   }
   if (move._move_from == 7 || move._move_to == 7) {
     // turn off black king side castle
     // std::cout << "here??" << std::endl;
-    newState->castle_flag &= 0b1011;
+    newState.castle_flag &= 0b1011;
   }
 }
 void Board::unmakeMove(Move &move) {
@@ -341,7 +345,7 @@ void Board::unmakeMove(Move &move) {
   auto &state =
       gameStateHistory.back(); // state before the move that was deleted
   if (move._isCapture &&
-      move._move_to != state->enpessant) { // enpessant unmake would be wrong
+      move._move_to != state.enpessant) { // enpessant unmake would be wrong
     if (!move._isPromotion) {
       move_from_square = move_to_square;
     } else {
@@ -360,8 +364,8 @@ void Board::unmakeMove(Move &move) {
     pieceSets[currType].insert(move._move_from);
     pieceSets[oppType].insert(move._move_to);
 
-  } else if (move._isCapture && move._move_to == state->enpessant &&
-             state->enpessant != -1) {
+  } else if (move._isCapture && move._move_to == state.enpessant &&
+             state.enpessant != -1) {
     // slightly different unmake
     // restore state
     move_from_square = board[move._move_to]; // moving pawn back to where it was
@@ -414,7 +418,7 @@ void Board::unmakeMove(Move &move) {
   } else if (move._isPromotion && !move._isCapture) {
     // std::cout << "not covered yet" << std::endl;
     Square pawnSquare = {
-        .type = state->turn, .piece = p, .c = state->turn == white ? 'P' : 'p'};
+        .type = state.turn, .piece = p, .c = state.turn == white ? 'P' : 'p'};
     move_from_square = pawnSquare;
     move_to_square = emptySquare;
     pieceSets[currType].erase(move._move_to);
@@ -428,8 +432,17 @@ void Board::unmakeMove(Move &move) {
   }
 }
 inline void Board::toggleTurn() {
-  auto &s = gameStateHistory.back();
-  s->turn = s->turn == white ? black : white;
+  auto& s = gameStateHistory.back();
+  
+  
+  if(gameStateHistory.back().turn == white) {
+    gameStateHistory.back().turn = black;
+  } else {
+
+    gameStateHistory.back().turn = white;
+
+  }
+  
 }
 // Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {
@@ -439,31 +452,31 @@ void Board::initialize_remainding_parameters(std::string remaining) {
   remaining = remaining.substr(remaining.find(" ") + 1);
   auto &state = gameStateHistory.back();
   if (turn[0] == 'w') {
-    state->turn = white;
+    state.turn = white;
   } else {
-    state->turn = black;
+    state.turn = black;
   }
   // std::cout << castling.find("-1") << std::endl;
   if (castling.find("k") >= 0 and castling.find("k") < 4) { // black king side
-    state->castle_flag |= 0b0100;
+    state.castle_flag |= 0b0100;
   }
   if (castling.find("K") >= 0 and castling.find("K") < 4) { // white king side
-    state->castle_flag |= 0b0001;
+    state.castle_flag |= 0b0001;
   }
   if (castling.find("q") >= 0 and castling.find("q") < 4) { // black queen side
-    state->castle_flag |= 0b1000;
+    state.castle_flag |= 0b1000;
   }
   if (castling.find("Q") >= 0 and castling.find("Q") < 4) { // white queen side
-    state->castle_flag |= 0b0010;
+    state.castle_flag |= 0b0010;
   }
   // en pessant
   std::string en_string = remaining.substr(0, remaining.find(" "));
   // std::cout << en_string << std::endl;
   if (en_string.find("-") == 0) {
-    state->enpessant = -1;
+    state.enpessant = -1;
   } else {
 
-    state->enpessant = utils::getNumFromStr(en_string);
+    state.enpessant = utils::getNumFromStr(en_string);
   }
 }
 Board::Square Board::getSquare(int num) {
@@ -483,10 +496,10 @@ void Board::display() {
   }
   std::cout << std::endl;
 }
-void Board::displayState(std::unique_ptr<State> &state) {
-  std::cout << "Castle Flag: " << static_cast<int>(state->castle_flag) << '\n';
-  std::cout << "Enpessant: " << static_cast<int>(state->enpessant) << '\n';
-  std::cout << "Turn: " << (state->turn == white ? "white" : "black") << '\n';
+void Board::displayState(State &state) {
+  std::cout << "Castle Flag: " << static_cast<int>(state.castle_flag) << '\n';
+  std::cout << "Enpessant: " << static_cast<int>(state.enpessant) << '\n';
+  std::cout << "Turn: " << (state.turn == white ? "white" : "black") << '\n';
 
   std::cout << '\n';
 }

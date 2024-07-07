@@ -1,5 +1,6 @@
 #include <array>
 #include <stdexcept>
+#pragma once
 // This is a wrapper to the array class. It is a FixedStack with all the stack
 // functionality but with the class keeping the index of the top
 
@@ -10,7 +11,7 @@ private:
 
 public:
   FixedStack() = default;
-
+  ~FixedStack() = default;
   T pop() {
     if (top <= 0) {
       throw std::out_of_range("Not enough elements in array");
@@ -18,21 +19,24 @@ public:
       return array[--top];
     }
   }
-  void push(const T& item) {
+  void push(const T &item) {
     if (top >= N) {
       throw std::out_of_range("Cannot add more elements to stack");
     } else {
       array[top] = item;
-      top ++;
+      top++;
     }
   }
-  T peek(){
-    return array[top-1];
+  T peek() {
+    if (top >= 1) {
+      return array[top - 1];
+    }
+    else{
+      throw std::out_of_range("Nothing in the stack yet");
+    }
   }
-  bool isEmpty(){
-    return (top == 0);
-  }
-  std::size_t size(){
-    return top;
-  }
+  bool isEmpty() { return (top == 0); }
+  std::size_t size() { return top; }
+  T operator[](int index) { return array[index]; }
+  void clear() { top = 0; }
 };

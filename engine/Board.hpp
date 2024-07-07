@@ -8,6 +8,8 @@
 #include <string>
 #include <utility>
 #include <unordered_set>
+#include "../src/FixedStack.hpp"
+#include <vector>
 namespace Engine {
 class Board {
 public:
@@ -26,7 +28,7 @@ public:
   Board();
   Board(std::string fen);
   std::vector<Move *> history;
-  std::vector<std::unique_ptr<State>> gameStateHistory; // keeps track of game state
+  std::vector<State> gameStateHistory; // keeps track of game state
   std::array<std::array<int, 16>, 2> pieceList;
   std::array<std::unordered_set<int>,2> pieceSets; //0 for white 1 for black
   
@@ -34,7 +36,7 @@ public:
   void makeMove(Move &move);  // make move and update the board with the result
   void unmakeMove(Move &move); // undo the move.
   void toggleTurn();
-  void displayState(std::unique_ptr<State>& state);
+  void displayState(State& state);
   void display();            // display board for testing purposes
   Square getSquare(int num); // get piece at index
   void populatePieceList(Color color);
@@ -42,13 +44,13 @@ public:
   std::string squareToNotation(int square);
   void populatePieceSet();
 private:
-  std::unique_ptr<State> state;
+  State state;
   Square emptySquare = {.type = none, .piece = e, .c = '.'};
   void generateBoardFromFen(
       std::string fen); // updates board array and also initializes all the
                         // other variables such as enpessant, castle rights etc.
   void initialize_remainding_parameters(
       std::string remaining); // this initializes castle enassatns and turns.
-  void handleCastleToggle(Move& move, std::unique_ptr<State>& newState);
+  void handleCastleToggle(Move& move, State& newState);
 };
 } // namespace Engine

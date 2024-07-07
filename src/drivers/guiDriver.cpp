@@ -49,10 +49,11 @@ void guiDriver::initialize_char_to_piece() {
 }
 
 void guiDriver::handle_gui_promotion(Piece &promoted_piece,
-                                     std::vector<Engine::Move> moves,
+                                     FixedStack<Engine::Move, 256> moves,
                                      int piece_from, int piece_to) {
   bool foundPiece = false;
-  for (auto move : moves) {
+  for (int i = 0; i < moves.size(); i ++) {
+    auto move = moves[i];
     if (piece_from == move._move_from && piece_to == move._move_to) {
       char promotion;
 
@@ -101,18 +102,19 @@ void guiDriver::play() {
           int piece = guiBoard.getPieceClicked(event.mouseButton.x,
                                                event.mouseButton.y);
           Piece promoted_piece = e;
-          auto& currentState = board.gameStateHistory.back();
+          auto currentState = board.gameStateHistory.back();
           // board.displayState(currentState);
-          if (utils::getRank(piece) == 7 and currentState->turn == black and
+          if (utils::getRank(piece) == 7 and currentState.turn == black and
               board.board[piece_from].piece == p) {
             handle_gui_promotion(promoted_piece, moves, piece_from, piece);
           }
-          if (utils::getRank(piece) == 0 and currentState->turn == white and
+          if (utils::getRank(piece) == 0 and currentState.turn == white and
               board.board[piece_from].piece == p) {
             handle_gui_promotion(promoted_piece, moves, piece_from, piece);
           }
 
-          for (auto i : moves) {
+          for (int j = 0; j < moves.size(); j ++) {
+            auto i = moves[j];
             if (piece_from == i._move_from && i._move_to == piece) {
               if (promoted_piece == i._toPromote) {
                 piece_to = piece;
@@ -151,7 +153,7 @@ void guiDriver::play() {
 
                 if(allMoves.size() == 0) {
                   std::cout << "CHECKMATE" << std::endl;
-                  std::cout << latestState->turn << " " << "LOSES" << std::endl;
+                  std::cout << latestState.turn << " " << "LOSES" << std::endl;
                   // window.close();
                 }
               }

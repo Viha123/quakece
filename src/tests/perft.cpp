@@ -8,17 +8,19 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include "../FixedStack.hpp"
 namespace Tests {
 int perft(Engine::Board &board, int depth) {
 
-  std::vector<Engine::Move> moves = {};
+  FixedStack<Engine::Move, 256> moves;
   Engine::getLegalMoves(board, moves);
   if (depth == 1) {
     return moves.size();
   }
 
   int nodes = 0;
-  for (auto move : moves) {
+  for (int i = 0; i < moves.size(); i ++) {
+    auto move = moves[i];
     board.makeMove(move);
     int node = perft(board, depth - 1);
     nodes += node;
@@ -30,10 +32,12 @@ int perft(Engine::Board &board, int depth) {
 void divide(int depth, std::string fen) {
   // starter
   Engine::Board perftBoard(fen);
-  std::vector<Engine::Move> moves = {};
+  FixedStack<Engine::Move, 256> moves;
   Engine::getLegalMoves(perftBoard, moves);
   // std::cout << "board created" << std::endl;
-  for (auto move : moves) {
+  for (int i = 0; i < moves.size(); i ++) {
+    auto move = moves[i];
+
     // if (move._move_from == 6 && move._move_to == 21) {
     //   perftBoard.makeMove(move);
     //   std::string fen = perftBoard.toFenString();
