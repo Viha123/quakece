@@ -260,16 +260,13 @@ bool kingInCheck(Board &board, Color color) {
   int mailBoxIndex = mailbox64[kingIndex];
   Color oppType = color == white ? black : white;
 
-  std::array<Piece, 5> checkPieces = {n, b, r, q, k};
+  std::array<Piece, 5> checkPieces = { b, r, q};
   for (auto piece : checkPieces) {
 
     for (int offset : directionOffsets[piece]) {
 
       for (int i = 1; i <= 8; i++) {
 
-        if ((piece == k or piece == n) and i > 1) {
-          break;
-        }
         if (mailbox[mailBoxIndex + (offset * i)] != -1 &&
             board.board[mailbox[mailBoxIndex + (offset * i)]].type != color) {
           if (board.board[mailbox[mailBoxIndex + (offset * i)]].piece ==
@@ -285,6 +282,18 @@ bool kingInCheck(Board &board, Color color) {
 
           break;
         }
+      } 
+    }
+  }
+  std::array<Piece,2> jumpPiece = {n, k};
+  for (auto piece : jumpPiece) {
+    for (int offset : directionOffsets[piece]) {
+      if (mailbox[mailBoxIndex + offset] != -1 &&
+          board.board[mailbox[mailBoxIndex + offset]].type != color) {
+        if (board.board[mailbox[mailBoxIndex + offset]].piece ==
+            piece) {
+          return true; // king is exposed
+        } 
       }
     }
   }
@@ -301,7 +310,7 @@ bool kingInCheck(Board &board, Color color) {
   return false; // not in check
 }
 
-int findKingIndex(Board &board, Color color) {
+inline int findKingIndex(Board &board, Color color) {
   return board.kingIndexes[color];
 }
 

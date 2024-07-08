@@ -9,3 +9,4 @@ _deps/
 CMakeCache.txt
 Makefile
 valgrind/
+perf.*
