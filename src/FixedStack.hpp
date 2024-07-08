@@ -7,7 +7,7 @@
 template <typename T, std::size_t N> class FixedStack {
 private:
   std::array<T, N> array;
-  int top = 0;
+  uint top = 0;
 
 public:
   FixedStack() = default;

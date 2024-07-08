@@ -16,8 +16,8 @@ void getMoveForPiece(Board &board, int num, FixedStack<Move, 64> &moves) {
 
   Board::Square square = board.getSquare(num);
   int row = utils::getRank(num);
-  int col = utils::getFile(num);
-  Piece piece = square.piece;
+  // int col = utils::getFile(num);
+  // Piece piece = square.piece;
   // std::cout << "Beginning of move availability!!!" << std::endl;
   // if this is a sliding piece then here are the available moves for that
   // piece.
@@ -204,8 +204,9 @@ void getLegalMovesForPiece(Board &board, int num,
   getMoveForPiece(board, num, pseudolegal);
   // std::cout << "pseudo legal size: " << pseudolegal.size() << std::endl;
   // std::vector<Move> legal;
+
   Color color = board.board[num].type;
-  for (int i = 0; i < pseudolegal.size(); i++) {
+  for (uint i = 0; i < pseudolegal.size(); i++) {
     Move move = pseudolegal[i];
     // std::cout << "board num type: " << board.board[num].type << std::endl;
     if (!move._isCastle) {
@@ -213,7 +214,6 @@ void getLegalMovesForPiece(Board &board, int num,
       // std::cout << "board display after hypothetical move made" << std::endl;
       // board.display();
       if (!kingInCheck(board, color)) {
-
         legal.push(move);
       }
 

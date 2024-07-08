@@ -103,11 +103,14 @@ void Board::generateBoardFromFen(std::string fen) {
       case 'K': {
         board[i].piece = k;
         board[i].type = white;
+        kingIndexes[white] = i;
         break;
       }
       case 'k': {
         board[i].piece = k;
         board[i].type = black;
+        kingIndexes[black] = i;
+
         break;
       }
       default: { // is an integer and need to skip squares
@@ -124,13 +127,6 @@ void Board::generateBoardFromFen(std::string fen) {
     }
   }
 }
-// void Board::populatePieceSet() {
-//   for (int i = 0; i < 64; i++) {
-//     if (board[i].type != none) {
-//       pieceSets[board[i].type].insert(i);
-//     }
-//   }
-// }
 void Board::populatePieceList(Color color) {
   // white pieces
   int count = 0;
@@ -159,7 +155,7 @@ void Board::makeMove(
   Piece pieceTo = board[move._move_to].piece;
   Square &move_to_square = board[move._move_to];
   Square &move_from_square = board[move._move_from];
-  Color oppType = move_from_square.type == white ? black : white;
+  // Color oppType = move_from_square.type == white ? black : white;
   Color currType = move_from_square.type;
   if (move._isCapture && pieceTo != r && !move._isPromotion && pieceFrom != k &&
       pieceFrom != r) { // simply replace the thing that was previously at that
@@ -233,10 +229,28 @@ void Board::makeMove(
       // display();
     }
     kingIndexes[move_to_square.type] = move._move_to;
+  } else if (move._isPromotion) {
+    // std::cout << "make move saw promotion" << std::endl;
+    Square newSquare = {.type = move_from_square.type,
+                        .piece = move._toPromote,
+                        .c = pieceReps[move_from_square.type][move._toPromote]};
+    move_to_square = newSquare;
+    move_from_square = emptySquare;
+    // pieceSets[currType].erase(move._move_from);
+    // pieceSets[currType].insert(move._move_to);
+    if (move._capturedPiece == r) {
+      handleCastleToggle(move, newState);
+    }
+    // display();
   } else if (pieceFrom == r || (move._isCapture && pieceTo == r)) {
     // std::cout << "HERE in rook capture" << std::endl;
     move_to_square = move_from_square;
     move_from_square = emptySquare;
+    if(pieceFrom == k) {
+      kingIndexes[currType] = move._move_to;
+
+    }
+    
     // pieceSets[currType].erase(move._move_from);
     // pieceSets[currType].insert(move._move_to);
     // if (pieceSets[oppType].count(move._move_to)) {
@@ -261,21 +275,8 @@ void Board::makeMove(
     if (move_to_square.type == white) {
       newState.castle_flag &= 0b1100;
     }
-    kingIndexes[move_to_square.type] = move._move_to;
-  } else if (move._isPromotion) {
-    // std::cout << "make move saw promotion" << std::endl;
-    Square newSquare = {.type = move_from_square.type,
-                        .piece = move._toPromote,
-                        .c = pieceReps[move_from_square.type][move._toPromote]};
-    move_to_square = newSquare;
-    move_from_square = emptySquare;
-    // pieceSets[currType].erase(move._move_from);
-    // pieceSets[currType].insert(move._move_to);
-    if (move._capturedPiece == r) {
-      handleCastleToggle(move, newState);
-    }
-    // display();
-  }
+    kingIndexes[currType] = move._move_to;
+  } 
 
   // if double jump then mark enpessant
   else if (pieceFrom == p && !move._isPromotion) {
@@ -357,7 +358,7 @@ void Board::unmakeMove(Move &move) {
   Square &move_from_square = board[move._move_from];
   Color oppType = move_to_square.type == white ? black : white;
   Color currType = move_to_square.type;
-  // move.printMove();\
+  // move.printMove();
 
   auto &state =
       gameStateHistory.peek(); // state before the move that was deleted
@@ -366,8 +367,11 @@ void Board::unmakeMove(Move &move) {
     if (!move._isPromotion) {
 
       move_from_square = move_to_square;
-      if (move_from_square.piece == k) {
-        kingIndexes[move_to_square.type] = move._move_from;
+      if (move_to_square.piece == k) {
+        // std::cout << kingIndexes[currType] << std::endl;
+        kingIndexes[currType] = move._move_from;
+        // std::cout << kingIndexes[currType] << std::endl;
+
       }
 
     } else {
@@ -437,7 +441,7 @@ void Board::unmakeMove(Move &move) {
       // pieceSets[currType].insert(move._move_to - 2);
       // display();
     }
-    kingIndexes[move_to_square.type] = move._move_from;
+    kingIndexes[currType] = move._move_from;
   } else if (move._isPromotion && !move._isCapture) {
     // std::cout << "not covered yet" << std::endl;
     Square pawnSquare = {
@@ -460,12 +464,13 @@ void Board::unmakeMove(Move &move) {
 inline void Board::toggleTurn() {
   auto &s = gameStateHistory.peek();
 
-  if (gameStateHistory.peek().turn == white) {
-    gameStateHistory.peek().turn = black;
-  } else {
+  // if (s.turn == white) {
+  //   gameStateHistory.peek().turn = black;
+  // } else {
 
-    gameStateHistory.peek().turn = white;
-  }
+  //   gameStateHistory.peek().turn = white;
+  // }
+  s.turn = s.turn == white ? black :  white;
 }
 // Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {

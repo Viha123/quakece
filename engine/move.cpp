@@ -4,7 +4,8 @@
 // #include <vector>
 
 namespace Engine {
-  Move::Move(int from, int to, bool isCastle, bool isPromotion, bool isCapture, Piece toPromote, Piece capturedPiece) {
+  Move::Move(uint8_t from, uint8_t to, bool isCastle, bool isPromotion, bool isCapture,
+       Piece toPromote, Piece capturedPiece) {
     _move_from = from;
     _move_to = to;
     _isCastle = isCastle;

@@ -14,6 +14,9 @@ int perft(Engine::Board &board, int depth) {
 
   FixedStack<Engine::Move, 256> moves;
   Engine::getLegalMoves(board, moves);
+  if(depth == 0) {
+    return 1;
+  }
   if (depth == 1) {
     return moves.size();
   }
@@ -35,7 +38,7 @@ void divide(int depth, std::string fen) {
   FixedStack<Engine::Move, 256> moves;
   Engine::getLegalMoves(perftBoard, moves);
   // std::cout << "board created" << std::endl;
-  for (int i = 0; i < moves.size(); i ++) {
+  for (uint i = 0; i < moves.size(); i ++) {
     auto move = moves[i];
 
     // if (move._move_from == 6 && move._move_to == 21) {
@@ -111,6 +114,7 @@ bool testCases() {
         }
         std::string actualNumber =
             token.substr(token.find(" ") + 1, token.find(" ;") - 3);
+        // std::cout << actualNumber << std::endl;
         depthValues[c][i] = stoi(actualNumber);
         depths = depths.substr(depths.find(" ;") + 2);
         i += 1;
@@ -124,7 +128,7 @@ bool testCases() {
 
   for (int i = 0; i < 128; i++) {
     Engine::Board perftBoard(fenStrings[i]); // initial start position
-    for (int j = 0; j < 4; j++) {
+    for (int j = 0; j < 5; j++) {
       int nodes = perft(perftBoard, j + 1);
       if (nodes == depthValues[i][j]) {
         std::cout << GREEN << "Test Case " << i << " depth: " << j + 1 << RESET

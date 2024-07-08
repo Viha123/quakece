@@ -11,12 +11,12 @@ using namespace std;
 
 int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                    // player or computer vs computer
-  std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  std::string fen = "r3k2r/p1ppqpb1/bn1Ppnp1/4N3/1p2P3/P1N2Q2/1PPBBPpP/R3K2R b KQkq - 0 1";
   // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
   //  r3k1r1/Rppp1ppp/1b3nbN/nPB5/B1P1P3/q4N2/Pp1P2PP/R2Q1RK1 w q - 0 1 //after
   //  h8g8
   if (*argv[1] == '2') {
-    guiDriver gui(fen);
+    guiDriver gui;
     gui.play();
   } else if (*argv[1] == '1') {
     // gui play against computer
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     Engine::Board perftBoard(fen); // initial start position
     // int depth = *argv[2] - '0';
 
-    for (int d = 1; d <= 5; d++) {
+    for (int d = 1; d <= 6; d++) {
       clock_t start, end;
       start = clock();
 
@@ -45,10 +45,19 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     // Tests::divide(depth, fen);
     // std::string str = utils::convertToChessNotation(19);
     // cout << str << endl;
-  } else if (*argv[1] == 't') {
+  } else if(*argv[1] == 'd') {
+    int depth = *argv[2] - '0';
+    Engine::Board perftBoard(fen);
+    int nodes = Tests::perft(perftBoard, depth);
+    std::cout << YELLOW << nodes << RESET << std::endl;
+    Tests::divide(depth, fen);
+    // std::string str = utils::convertToChessNotation(19);
+    // cout << str << endl;
+  } 
+  else if (*argv[1] == 't') {
     Tests::testCases();
   } else if (*argv[1] == 's') {
-    std::size_t sizearr = 10;
+    // std::size_t sizearr = 10;
     FixedStack<int, 10> mystack;
     for(int i = 0; i < 5; i ++) {
       mystack.push(i);
@@ -64,7 +73,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     if(mystack.size() > 5) {
       cout << "yea " << std::endl;
     }
-    for(int i = 0; i < mystack.size(); i ++) {
+    for(uint i = 0; i < mystack.size(); i ++) {
       cout << mystack.peek() << std::endl;
       mystack.pop();
     }
@@ -72,4 +81,6 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
   else {
     cout << "Mode not accepted" << endl;
   }
+  (void)argc;
+  return 0;
 }

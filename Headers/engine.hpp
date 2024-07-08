@@ -1,8 +1,8 @@
 #pragma once
-#include <unordered_map>
-enum Piece { p, n, b, r, q, k, e };
+#include <X11/Xmd.h>
+enum Piece : BYTE { p, n, b, r, q, k, e };
 
-enum Color { white, black, none };
+enum Color : BYTE { white, black, none };
 enum Directions {
   northwest,
   northeast,

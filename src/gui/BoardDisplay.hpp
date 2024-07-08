@@ -34,7 +34,7 @@ class BoardDisplay : public sf::Drawable
   private:
     virtual void draw (sf::RenderTarget& target, sf::RenderStates states) const;
     void parseFenString(string fenString); //parses fenString and fills the board representation accordingly
-    void generateSprite(string path, int xPos, int yPos, piece_values value);
+    void generateSprite(string path, int xPos, int yPos);
     vector<unique_ptr<sf::Texture>> textures; // this stores the pointers to the textures 
     array<array<Square, 8>, 8> boardOutWardRepresentation;
     void make_move(int move_from_r, int move_from_c, int move_to_r, int move_to_c);

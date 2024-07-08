@@ -39,76 +39,76 @@ void BoardDisplay::parseFenString(string fenString) {
     // cout << r << endl;
     int col = 0;
     for (char c : trow) {
-      int yPos = utils::getYPos(r - 1);
-      int xPos = utils::getXPos(c);
+      // int yPos = utils::getYPos(r - 1);
+      // int xPos = utils::getXPos(c);
       boardOutWardRepresentation[r - 1][col].num =
           utils::getNumFromRF(r - 1, col);
       switch (c) {
       case 'B': {
 
         boardOutWardRepresentation[r - 1][col].piece = wbishop;
-        generateSprite("assets/wbishop.png", r - 1, col, wbishop);
+        generateSprite("assets/wbishop.png", r - 1, col);
 
         break;
       }
       case 'b': {
         boardOutWardRepresentation[r - 1][col].piece = bbishop;
-        generateSprite("assets/bbishop.png", r - 1, col, bbishop);
+        generateSprite("assets/bbishop.png", r - 1, col);
         break;
       }
       case 'P': {
         boardOutWardRepresentation[r - 1][col].piece = wpawn;
-        generateSprite("assets/wpawn.png", r - 1, col, wpawn);
+        generateSprite("assets/wpawn.png", r - 1, col);
 
         break;
       }
       case 'p': {
         boardOutWardRepresentation[r - 1][col].piece = bpawn;
-        generateSprite("assets/bpawn.png", r - 1, col, bpawn);
+        generateSprite("assets/bpawn.png", r - 1, col);
         break;
       }
       case 'N': {
         boardOutWardRepresentation[r - 1][col].piece = wknight;
-        generateSprite("assets/wknight.png", r - 1, col, wknight);
+        generateSprite("assets/wknight.png", r - 1, col);
         break;
       }
       case 'n': {
         boardOutWardRepresentation[r - 1][col].piece = bknight;
-        generateSprite("assets/bknight.png", r - 1, col, bknight);
+        generateSprite("assets/bknight.png", r - 1, col);
 
         break;
       }
       case 'R': {
         boardOutWardRepresentation[r - 1][col].piece = wrook;
-        generateSprite("assets/wrook.png", r - 1, col, wrook);
+        generateSprite("assets/wrook.png", r - 1, col);
         break;
       }
       case 'r': {
         boardOutWardRepresentation[r - 1][col].piece = brook;
-        generateSprite("assets/brook.png", r - 1, col, brook);
+        generateSprite("assets/brook.png", r - 1, col);
         break;
       }
       case 'Q': {
         boardOutWardRepresentation[r - 1][col].piece = wqueen;
-        generateSprite("assets/wqueen.png", r - 1, col, wqueen);
+        generateSprite("assets/wqueen.png", r - 1, col);
 
         break;
       }
       case 'q': {
         boardOutWardRepresentation[r - 1][col].piece = bqueen;
-        generateSprite("assets/bqueen.png", r - 1, col, bqueen);
+        generateSprite("assets/bqueen.png", r - 1, col);
 
         break;
       }
       case 'K': {
         boardOutWardRepresentation[r - 1][col].piece = wking;
-        generateSprite("assets/wking.png", r - 1, col, wking);
+        generateSprite("assets/wking.png", r - 1, col);
 
         break;
       }
       case 'k': {
         boardOutWardRepresentation[r - 1][col].piece = bking;
-        generateSprite("assets/bking.png", r - 1, col, bking);
+        generateSprite("assets/bking.png", r - 1, col);
 
         break;
       }
@@ -133,7 +133,7 @@ void BoardDisplay::highlightPossibleMoves(FixedStack<Engine::Move,256> moves) {
   // }
   // std::cout << "here" << std::endl;
   vector<int> nums{};
-  for (int i = 0; i < moves.size(); i ++) {
+  for (uint i = 0; i < moves.size(); i ++) {
     // std::cout << move._move_to << std::endl;
     auto move = moves[i];
     nums.push_back(move._move_to);
@@ -307,8 +307,7 @@ int BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
 // pointer to the sprite. In thsi function we can also append the pointer
 // reference to vector/array make this not const let the displayboard method
 // call target.draw(dereference pointer to sprite)
-void BoardDisplay::generateSprite(string path, int row, int col,
-                                  piece_values value) {
+void BoardDisplay::generateSprite(string path, int row, int col) {
   auto texture = make_unique<sf::Texture>();
   if (!texture->loadFromFile(path)) {
     // Error...
@@ -323,34 +322,34 @@ void BoardDisplay::generateSprite(string path, int row, int col,
 void BoardDisplay::handlePromotion(Piece piece, Color color, int row, int col) {
   if(piece == q && color == white) {
     boardOutWardRepresentation[row][col].piece = wqueen;
-    generateSprite("assets/wqueen.png", row, col, wqueen);
+    generateSprite("assets/wqueen.png", row, col);
   }
   if(piece == q && color == black) {
     boardOutWardRepresentation[row][col].piece = bqueen;
-    generateSprite("assets/bqueen.png", row, col, bqueen);
+    generateSprite("assets/bqueen.png", row, col);
   }
   if(piece == r && color == white) {
     boardOutWardRepresentation[row][col].piece = wrook;
-    generateSprite("assets/wrook.png", row, col, wrook);
+    generateSprite("assets/wrook.png", row, col);
   }
   if(piece == r && color == black) {
     boardOutWardRepresentation[row][col].piece = brook;
-    generateSprite("assets/brook.png", row, col, brook);
+    generateSprite("assets/brook.png", row, col);
   }
   if(piece == n && color == white) {
     boardOutWardRepresentation[row][col].piece = wknight;
-    generateSprite("assets/wknight.png", row, col, wknight);
+    generateSprite("assets/wknight.png", row, col);
   }
   if(piece == n && color == black) {
     boardOutWardRepresentation[row][col].piece = bknight;
-    generateSprite("assets/bknight.png", row, col, bknight);
+    generateSprite("assets/bknight.png", row, col);
   }
   if(piece == b && color == white) {
     boardOutWardRepresentation[row][col].piece = wbishop;
-    generateSprite("assets/wbishop.png", row, col, wbishop);
+    generateSprite("assets/wbishop.png", row, col);
   }
   if(piece == b && color == black) {
     boardOutWardRepresentation[row][col].piece = bbishop;
-    generateSprite("assets/bbishop.png", row, col, bbishop);
+    generateSprite("assets/bbishop.png", row, col);
   }
 }
