@@ -20,6 +20,8 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     gui.play();
   } else if (*argv[1] == '1') {
     // gui play against computer
+    guiDriver gui(white); //player play as white
+    gui.play2();
   } else if (*argv[1] == 'p') {
 
     // Tests::testCases();

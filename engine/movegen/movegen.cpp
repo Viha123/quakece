@@ -5,8 +5,10 @@
 #include "../Board.hpp"
 #include "../move.hpp"
 #include <cassert>
-#include <iostream>
-#include <unordered_map>
+#include <exception>
+#include <stdexcept>
+#include <stdlib.h> /* srand, rand */
+
 namespace Engine {
 
 void getMoveForPiece(Board &board, int num, FixedStack<Move, 64> &moves) {
@@ -190,7 +192,7 @@ void getLegalMoves(Board &board, FixedStack<Move, 256> &allMoves) {
     }
     // std::cout << board.pieceList[turn][i] << std::endl;
     // board.display();
-    
+
     getLegalMovesForPiece(board, board.pieceList[turn][i], allMoves);
     // board.display();
     // std::cout << pieceMove.size() << " Piece Number "
@@ -255,12 +257,24 @@ void handleKingCheck(Board &board, int offset, Move &move, Color color,
     board.unmakeMove(checkImmediateRight);
   }
 }
+Move pickRandomMove(Board &board, Color color) {
+  FixedStack<Move, 256> moveList;
+
+  getLegalMoves(board, moveList);
+  srand(time(NULL));
+  if (moveList.size() == 0) {
+    throw std::out_of_range("Computer Lost!");
+  }
+  int r = rand() % (moveList.size());
+
+  return moveList[r];
+}
 bool kingInCheck(Board &board, Color color) {
   int kingIndex = findKingIndex(board, color);
   int mailBoxIndex = mailbox64[kingIndex];
   Color oppType = color == white ? black : white;
 
-  std::array<Piece, 5> checkPieces = { b, r, q};
+  std::array<Piece, 5> checkPieces = {b, r, q};
   for (auto piece : checkPieces) {
 
     for (int offset : directionOffsets[piece]) {
@@ -282,18 +296,17 @@ bool kingInCheck(Board &board, Color color) {
 
           break;
         }
-      } 
+      }
     }
   }
-  std::array<Piece,2> jumpPiece = {n, k};
+  std::array<Piece, 2> jumpPiece = {n, k};
   for (auto piece : jumpPiece) {
     for (int offset : directionOffsets[piece]) {
       if (mailbox[mailBoxIndex + offset] != -1 &&
           board.board[mailbox[mailBoxIndex + offset]].type != color) {
-        if (board.board[mailbox[mailBoxIndex + offset]].piece ==
-            piece) {
+        if (board.board[mailbox[mailBoxIndex + offset]].piece == piece) {
           return true; // king is exposed
-        } 
+        }
       }
     }
   }

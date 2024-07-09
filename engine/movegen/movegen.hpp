@@ -18,7 +18,7 @@ void getLegalMovesForPiece(Board &board, int num, FixedStack<Move,256>& legal);
 void getMoveForPiece(
     Board &board, int num,
     FixedStack<Move, 64>& moves); // this is only for the gui and easier testing.
-
+Move pickRandomMove(Board &board, Color color);
 int findKingIndex(Board &board, Color color);
 bool kingInCheck(Board &board, Color color);
 void handleKingCheck(Board &board, int offset, Move &move, Color color,
