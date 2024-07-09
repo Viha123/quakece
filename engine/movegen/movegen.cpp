@@ -200,6 +200,26 @@ void getLegalMoves(Board &board, FixedStack<Move, 256> &allMoves) {
   }
   assert(allMoves.size() <= 218);
 }
+void getLegalMovesForColor(Board &board, FixedStack<Move, 256> &allMoves, Color color) {
+  board.populatePieceList(color);
+  // for(auto i : board.pieceList[turn]) {
+  //   std::cout << i << " " << board.board[i].c;
+  // }
+  // std::cout << std::endl;
+  for (int i = 0; i < 16; i++) {
+    if (board.pieceList[color][i] == -1) {
+      break;
+    }
+    // std::cout << board.pieceList[turn][i] << std::endl;
+    // board.display();
+
+    getLegalMovesForPiece(board, board.pieceList[color][i], allMoves);
+    // board.display();
+    // std::cout << pieceMove.size() << " Piece Number "
+    //           << board.pieceList[turn][i] << std::endl;
+  }
+  assert(allMoves.size() <= 218);
+}
 void getLegalMovesForPiece(Board &board, int num,
                            FixedStack<Move, 256> &legal) {
   FixedStack<Move, 64> pseudolegal;

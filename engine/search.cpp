@@ -16,12 +16,14 @@ int negamax(Board &board, int depth) { // returns score
     Move move = moves[i];
     board.makeMove(move);
     score = -negamax(board, depth - 1);
+    // std::cout << +board.gameStateHistory.peek().turn << " " << score << std::endl;
     board.unmakeMove(move);
     if (score > max) {
+      
       max = score;
     }
   }
-  return score;
+  return max;
 }
 Move negamaxRoot(Board &board, int depth) {
   int max = std::numeric_limits<int>::min();
@@ -33,12 +35,11 @@ Move negamaxRoot(Board &board, int depth) {
     Move move = moves[i];
     board.makeMove(move);
     score = -negamax(board, depth - 1);
-    std::cout << utils::convertToChessNotation(move._move_from)
-              << utils::convertToChessNotation(move._move_to) << " " << score
-              << std::endl;
-
     board.unmakeMove(move);
     if (score > max) {
+      std::cout << utils::convertToChessNotation(move._move_from)
+              << utils::convertToChessNotation(move._move_to) << " " << score
+              << std::endl;
       toMake = move;
       max = score;
     }

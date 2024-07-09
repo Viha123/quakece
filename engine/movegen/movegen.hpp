@@ -15,6 +15,7 @@ void handlePromotions(FixedStack<Move, 64> &moves, int numFrom, int numTo,
 // std::vector<Move> getJumpMoves(Board& board); //
 // then conver thsi into slider, jump pseudolegal moves etc
 void getLegalMovesForPiece(Board &board, int num, FixedStack<Move,256>& legal);
+void getLegalMovesForColor(Board &board, FixedStack<Move, 256> &allMoves, Color color);
 void getMoveForPiece(
     Board &board, int num,
     FixedStack<Move, 64>& moves); // this is only for the gui and easier testing.

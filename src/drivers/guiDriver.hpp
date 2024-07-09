@@ -40,4 +40,5 @@ public:
   int handleSquareClick(sf::Event event, FixedStack<Engine::Move, 256>& moves);
   void handleRightClickUnmake(Engine::Board& board);
   bool makeMoveOnDisplay(sf::Event event,Engine::Board &board, FixedStack<Engine::Move, 256>& moves);
+  void checkCheckMate();
 };

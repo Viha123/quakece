@@ -2,8 +2,10 @@
 #include "../../Headers/engine.hpp"
 #include "../../Headers/gui.hpp"
 #include "../../engine/Board.hpp"
+#include "../../engine/eval.hpp"
 #include "../../engine/move.hpp"
 #include "../../engine/movegen/movegen.hpp"
+#include "../../engine/search.hpp"
 #include "../../utils.hpp"
 #include "../gui/BoardDisplay.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
@@ -14,8 +16,6 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
-#include "../../engine/eval.hpp"
-#include "../../engine/search.hpp"
 guiDriver::guiDriver()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
       fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
@@ -96,20 +96,22 @@ void guiDriver::play2() {
                    board.gameStateHistory.peek().turn == player_type) {
           // the player is clicking on a MOVE_TO OR AN INVALID MOVE.
           bool validMove = makeMoveOnDisplay(event, board, moves);
+          checkCheckMate();
           if (validMove) {
             // std::cout << "computer making move" << std::endl;
             // computer play a move
             // int weval = Engine::evaluation(player_type, board);
             // std::cout << "EVAL WHITE: " << weval << std::endl;
-            Engine::Move move = Engine::negamaxRoot(board, 2);
+            Engine::Move move = Engine::negamaxRoot(board, 3);
             board.makeMove(move);
             guiBoard.updateMove(move);
             updateWindow(window, guiBoard);
+            board.display();
             // int beval = Engine::evaluation(computer_type, board);
 
             // std::cout << "computer made move" << std::endl;
           }
-
+          checkCheckMate();
         } else if (event.mouseButton.button == sf::Mouse::Right) {
           handleRightClickUnmake(board);
         }
@@ -139,6 +141,24 @@ void guiDriver::play() {
         }
       }
     }
+  }
+}
+void guiDriver::checkCheckMate() {
+  auto &latestState = board.gameStateHistory.peek();
+  std::cout << "before legal moves" << std::endl;
+
+  board.displayState(latestState);
+
+  allMoves.clear();
+  Engine::getLegalMoves(board, allMoves);
+
+  if (allMoves.size() == 0 && Engine::kingInCheck(board, latestState.turn)) {
+    std::cout << "CHECKMATE" << std::endl;
+    std::cout << +latestState.turn << " "
+              << "LOSES" << std::endl;
+    // window.close();
+  } else if (allMoves.size() == 0) {
+    std::cout << "STALEMATE" << std::endl;
   }
 }
 int guiDriver::handleSquareClick(sf::Event event,
@@ -198,21 +218,8 @@ bool guiDriver::makeMoveOnDisplay(sf::Event event, Engine::Board &board,
         // Engine::Move::history.push_back(&i);
         updateWindow(window, guiBoard);
         board.display();
-
-        auto &latestState = board.gameStateHistory.peek();
-        std::cout << "before legal moves" << std::endl;
-
-        board.displayState(latestState);
         // board.display();
-        allMoves.clear();
-        Engine::getLegalMoves(board, allMoves);
 
-        if (allMoves.size() == 0) {
-          std::cout << "CHECKMATE" << std::endl;
-          std::cout << latestState.turn << " "
-                    << "LOSES" << std::endl;
-          // window.close();
-        }
         return true;
       }
     }
