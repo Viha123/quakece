@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <vector>
 #include "../../engine/eval.hpp"
+#include "../../engine/search.hpp"
 guiDriver::guiDriver()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
       fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
@@ -98,13 +99,13 @@ void guiDriver::play2() {
           if (validMove) {
             // std::cout << "computer making move" << std::endl;
             // computer play a move
-            int weval = Engine::evaluation(player_type, board);
-            std::cout << "EVAL WHITE: " << weval << std::endl;
-            Engine::Move move = Engine::pickRandomMove(board, computer_type);
+            // int weval = Engine::evaluation(player_type, board);
+            // std::cout << "EVAL WHITE: " << weval << std::endl;
+            Engine::Move move = Engine::negamaxRoot(board, 2);
             board.makeMove(move);
             guiBoard.updateMove(move);
             updateWindow(window, guiBoard);
-            int beval = Engine::evaluation(computer_type, board);
+            // int beval = Engine::evaluation(computer_type, board);
 
             // std::cout << "computer made move" << std::endl;
           }
