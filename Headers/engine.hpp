@@ -79,3 +79,5 @@ constexpr int mailbox64[64] =
         81, 82, 83, 84, 85, 86, 87, 88,
 
         91, 92, 93, 94, 95, 96, 97, 98};
+
+constexpr int evaluationWeightsMaterial[6] = {10, 30, 30, 50, 90, 1000}; 

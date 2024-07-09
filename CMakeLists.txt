@@ -18,7 +18,7 @@ file(GLOB EXEC_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp
                    ${PROJECT_SOURCE_DIR}/utils.cpp
                    ${PROJECT_SOURCE_DIR}/src/drivers/*.cpp
                    ${PROJECT_SOURCE_DIR}/src/tests/*.cpp
-                   
+                   ${PROJECT_SOURCE_DIR}/engine/eval.cpp
                    )
 
 add_executable(main ${EXEC_SRC})
