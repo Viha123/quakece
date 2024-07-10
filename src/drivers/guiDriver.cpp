@@ -102,7 +102,8 @@ void guiDriver::play2() {
             // computer play a move
             // int weval = Engine::evaluation(player_type, board);
             // std::cout << "EVAL WHITE: " << weval << std::endl;
-            Engine::Move move = Engine::negamaxRoot(board, 3);
+            Engine::Move move = Engine::alphabetaroot(board, 4);
+            move.printMove();
             board.makeMove(move);
             guiBoard.updateMove(move);
             updateWindow(window, guiBoard);
