@@ -9,6 +9,7 @@
 #include <unordered_map>
 // #include <vector>
 #include "../FixedStack.hpp"
+#include "Computer.hpp"
 
 class guiDriver {
 public:
@@ -38,6 +39,8 @@ public:
   Engine::Board board;
   FixedStack<Engine::Move, 256> moves;
   FixedStack<Engine::Move, 256> allMoves;
+  Computer computerai;
+  bool playerMoveMade = true;
   int handleSquareClick(sf::Event event, FixedStack<Engine::Move, 256>& moves);
   void handleRightClickUnmake(Engine::Board& board);
   bool makeMoveOnDisplay(sf::Event event,Engine::Board &board, FixedStack<Engine::Move, 256>& moves);

@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                    // player or computer vs computer
-  std::string fen = "r3k2k/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2K w KQkq - 0 1";
+  std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
   //  r3k1r1/Rppp1ppp/1b3nbN/nPB5/B1P1P3/q4N2/Pp1P2PP/R2Q1RK1 w q - 0 1 //after
   //  h8g8
@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     gui.play();
   } else if (*argv[1] == '1') {
     // gui play against computer
-    guiDriver gui(white, fen); //player play as white
+    guiDriver gui(black, fen); //player play as white
     gui.play2();
   } else if (*argv[1] == 'p') {
 

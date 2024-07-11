@@ -138,7 +138,16 @@ void Board::populatePieceList(Color color) {
       count += 1;
     }
   }
+  // std::cout << +color << " " << count << std::endl;
+  if(count > 16) {
+    display();
+    for(auto i : pieceList[color]) {
+      std::cout << i << std::endl;
+    }
+    std::cout << count << std::endl;
+  }
   assert(count <= 16);
+
   if (count < 16) {
     pieceList[color][count] = -1; // signal end of piece count
   }

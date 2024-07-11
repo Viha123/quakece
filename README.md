@@ -34,7 +34,8 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 
 ## Goals for Version 2:
 - [x] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
-- [ ] Basic Move Ordering (MVV-LVA) Most Valuable Victim - Least Valuable Aggressor
+- [x] Basic Move Ordering (MVV-LVA) Most Valuable Victim - Least Valuable Aggressor
+- [ ] Check Promotions and checks as well
 - [ ] Piece Square Lists
 - [ ] Improve Endgame Evaluation.
 - [ ] Quiescence search

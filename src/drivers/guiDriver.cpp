@@ -8,6 +8,7 @@
 #include "../../engine/search.hpp"
 #include "../../utils.hpp"
 #include "../gui/BoardDisplay.hpp"
+#include "Computer.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
@@ -19,7 +20,7 @@
 guiDriver::guiDriver()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
       fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-      guiBoard(fen), board(fen) {
+      guiBoard(fen), board(fen), computerai() {
   initialize_char_to_piece();
   window.draw(guiBoard); // only rerender when required
   window.display();
@@ -27,26 +28,27 @@ guiDriver::guiDriver()
 guiDriver::guiDriver(Color color)
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
       fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-      guiBoard(fen), board(fen) {
+      guiBoard(fen), board(fen), computerai() {
   initialize_char_to_piece();
   window.draw(guiBoard); // only rerender when required
   window.display();
   player_type = color;
   computer_type = color == white ? black : white;
+  computerai.setSide(computer_type);
 }
 guiDriver::guiDriver(Color color, std::string fen)
-    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
-      fen(fen),
-      guiBoard(fen), board(fen) {
+    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"), fen(fen),
+      guiBoard(fen), board(fen), computerai() {
   initialize_char_to_piece();
   window.draw(guiBoard); // only rerender when required
   window.display();
   player_type = color;
   computer_type = color == white ? black : white;
+  computerai.setSide(computer_type);
 }
 guiDriver::guiDriver(std::string fen)
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"), fen(fen),
-      guiBoard(fen), board(fen) {
+      guiBoard(fen), board(fen), computerai() {
   initialize_char_to_piece();
   window.draw(guiBoard); // only rerender when required
   window.display();
@@ -107,28 +109,18 @@ void guiDriver::play2() {
           // the player is clicking on a MOVE_TO OR AN INVALID MOVE.
           bool validMove = makeMoveOnDisplay(event, board, moves);
           checkCheckMate();
-          if (validMove) {
-            // std::cout << "computer making move" << std::endl;
-            // computer play a move
-            // int weval = Engine::evaluation(player_type, board);
-            // std::cout << "EVAL WHITE: " << weval << std::endl;
-            int nodes = 0;
-            Engine::Move move = Engine::alphabetaroot(board, 4, nodes);
-
-            move.printMove();
-            board.makeMove(move);
-            guiBoard.updateMove(move);
-            updateWindow(window, guiBoard);
-            board.display();
-            std::cout << nodes << std::endl;
-            // int beval = Engine::evaluation(computer_type, board);
-
-            // std::cout << "computer made move" << std::endl;
-          }
-          checkCheckMate();
+          playerMoveMade = validMove;
         } else if (event.mouseButton.button == sf::Mouse::Right) {
           handleRightClickUnmake(board);
         }
+      }
+      if (board.gameStateHistory.peek().turn == computer_type &&
+          playerMoveMade) {
+        playerMoveMade = false;
+        Engine::Move computerMove = computerai.makeMove(board, 4);
+        guiBoard.updateMove(computerMove);
+        updateWindow(window, guiBoard);
+        checkCheckMate();
       }
     }
   }
@@ -190,7 +182,7 @@ int guiDriver::handleSquareClick(sf::Event event,
   // }
   std::cout << "_______________________" << std::endl;
   Engine::orderMoves(test, board);
-  for(int i = 0; i < test.size(); i ++) {
+  for (int i = 0; i < test.size(); i++) {
     test[i].printInChess();
   }
   guiBoard.highlightPossibleMoves(moves);
