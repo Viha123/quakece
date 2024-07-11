@@ -15,6 +15,7 @@ public:
   guiDriver();
   guiDriver(std::string fen);
   guiDriver(Color color);
+  guiDriver(Color color, std::string fen);
   // void handleRightClickUnmake();
   void updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard);
   void initialize_char_to_piece();

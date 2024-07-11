@@ -1,6 +1,7 @@
 #include "../Headers/engine.hpp"
 #include "move.hpp"
 #include <iostream>
+#include "../utils.hpp"
 // #include <vector>
 
 namespace Engine {
@@ -27,5 +28,9 @@ namespace Engine {
     " Promotion? " << _isPromotion <<
     " Promoted Piece " << _toPromote << std::endl;
   }
-
+  void Move::printInChess() {
+    std::cout << utils::convertToChessNotation(_move_from)
+                 << utils::convertToChessNotation(_move_to) << " " <<
+                 std::endl;
+  }
 }

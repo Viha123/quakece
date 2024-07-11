@@ -17,6 +17,8 @@ constexpr char pieceReps[2][7] = {{'P', 'N', 'B', 'R', 'Q', 'K', '.'},
                                   {'p', 'n', 'b', 'r', 'q', 'k', '.'}};
 constexpr bool isSlide[6] = {false, false, true, true, true, true};
 
+constexpr int strengths[7] = {0,2,1,3,4,5, 0}; //knight is stronger than bishop so thats why we have that and in case of enpessant capture pawn takes pawn
+
 constexpr int directionOffsets[6][8] = {
     // updated to mailbox method
     {0, 0, 0, 0, 0, 0, 0, 0}, // pawn

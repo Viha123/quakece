@@ -12,24 +12,17 @@
 namespace Engine {
 
 void getMoveForPiece(Board &board, int num, FixedStack<Move, 64> &moves) {
-  // board.display();
-  // std::cout << "piece getting move for: " << board.getSquare(num).piece
-  //           << std::endl;
+
 
   Board::Square square = board.getSquare(num);
   int row = utils::getRank(num);
-  // int col = utils::getFile(num);
-  // Piece piece = square.piece;
-  // std::cout << "Beginning of move availability!!!" << std::endl;
   // if this is a sliding piece then here are the available moves for that
   // piece.
   int mailBoxIndex = mailbox64[num];
   auto &currentState = board.gameStateHistory.peek();
-  // board.displayState(currentState);
   if ((square.type == currentState.turn) &&
       (isSlide[square.piece] || square.piece == n)) {
     // go until all directions until end of board (mailbox returns -1)
-
     for (auto offset : directionOffsets[square.piece]) {
       for (int i = 1; i <= 8; i++) {
         if ((square.piece == k or square.piece == n) and i > 1) {
@@ -40,8 +33,7 @@ void getMoveForPiece(Board &board, int num, FixedStack<Move, 64> &moves) {
         if ((targetIndex != -1) && (targetIndex != num) &&
             (board.getSquare(targetIndex).type != currentState.turn)) {
           Board::Square targetSquare = board.getSquare(targetIndex);
-          if ((targetSquare.type != currentState.turn &&
-               targetSquare.type != none)) {
+          if (targetSquare.type != none) {
             // capture
             Move m(num, targetIndex, false, false, true, e, targetSquare.piece);
             moves.push(m);
@@ -210,13 +202,7 @@ void getLegalMovesForColor(Board &board, FixedStack<Move, 256> &allMoves, Color 
     if (board.pieceList[color][i] == -1) {
       break;
     }
-    // std::cout << board.pieceList[turn][i] << std::endl;
-    // board.display();
-
     getLegalMovesForPiece(board, board.pieceList[color][i], allMoves);
-    // board.display();
-    // std::cout << pieceMove.size() << " Piece Number "
-    //           << board.pieceList[turn][i] << std::endl;
   }
   assert(allMoves.size() <= 218);
 }
@@ -347,4 +333,26 @@ inline int findKingIndex(Board &board, Color color) {
   return board.kingIndexes[color];
 }
 
+void orderMoves(FixedStack<Move, 256> &legalMoves, Board &board) {
+  //first find all capture moves
+  for(int i = 0; i < legalMoves.size(); i ++) {
+    //find smallest and replace with whatever is at index i;
+    int minIndex = i;
+    for(int j = i; j < legalMoves.size(); j ++) {
+      if(getMoveScore(legalMoves[j], board) < getMoveScore(legalMoves[minIndex], board)) {
+        minIndex = j;
+      }
+    }
+    legalMoves.swap(i, minIndex);
+  }
+
+}
+int getMoveScore(const Move& move, Board& board) { //gets score for move selection sort
+  if(!move._isCapture) {
+    return 5;
+  }
+  else {
+    return strengths[board.board[move._move_from].piece] - strengths[board.board[move._move_to].piece];
+  }
+}
 } // namespace Engine

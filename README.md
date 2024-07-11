@@ -1,18 +1,43 @@
 # Chess Engine!
 This is an attempt to make a Chess Engine that is UCI complient eventually, as well as a basic GUI that allows you to test and play the game. 
+## Current Features:
+- GUI player 1 vs player 2 and GUI player 1 vs Computer
+- Mailbox Representation for the Board
+- Complete set of perft tests 
+- Perft 6 in around 14 seconds. 
+- Basic Material and Mobility Evaluation
+- Negamax and Alpha Beta Pruning Search. 
+
+## Features To Add:
+- Refactor code to better follow best pracitces
+- Basic Move Ordering (MVV-LVA) Most Valuable Victim - Least Valuable Aggressor
+- Piece Square Lists
+- Improve Endgame Evaluation. 
+- Quiescence search
+- UCI compatibility
+- Transposition Tables ?
+- MAYBE (bitboards and magic bitboards but that might require a huge code haul)
+
 ## Goals for Version 1:
 - [x] Make a basic gui that represents all the pieces in SFML
 - [x] basic class structure for internal and external representation of board
 - [x] make sure all moves are implemented correctly
 - [x] Test if all moves are implemented correctly using the test cases given in the wiki. 
+
 ## Task List for V1:
 - [x] Make a test folder 
 - [x] Test multiple fen strings
+
 ## Task List for V1.5:
-- [ ] Randomly choose moves allow a vs computer mode
-- [ ] Perform time tests for depth results and go over code to reduce speed because there are a lot of low hanging performance improvements that can be made to this. 
+- [x] Randomly choose moves allow a vs computer mode
+- [x] Perform time tests for depth results and go over code to reduce speed because there are a lot of low hanging performance improvements that can be made to this. 
+
 ## Goals for Version 2:
-- [ ] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
+- [x] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
+- [ ] Basic Move Ordering (MVV-LVA) Most Valuable Victim - Least Valuable Aggressor
+- [ ] Piece Square Lists
+- [ ] Improve Endgame Evaluation.
+- [ ] Quiescence search
 
 ### To build:
 ```cmake --build ./build```

@@ -17,6 +17,7 @@ public:
   Piece _capturedPiece;
 
   void printMove();
+  void printInChess();
   // static std::vector<Move*> history;
   // static std::vector<Move*> getMoveHistory(); 
 };

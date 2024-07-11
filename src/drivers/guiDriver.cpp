@@ -34,6 +34,16 @@ guiDriver::guiDriver(Color color)
   player_type = color;
   computer_type = color == white ? black : white;
 }
+guiDriver::guiDriver(Color color, std::string fen)
+    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
+      fen(fen),
+      guiBoard(fen), board(fen) {
+  initialize_char_to_piece();
+  window.draw(guiBoard); // only rerender when required
+  window.display();
+  player_type = color;
+  computer_type = color == white ? black : white;
+}
 guiDriver::guiDriver(std::string fen)
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"), fen(fen),
       guiBoard(fen), board(fen) {
@@ -102,12 +112,15 @@ void guiDriver::play2() {
             // computer play a move
             // int weval = Engine::evaluation(player_type, board);
             // std::cout << "EVAL WHITE: " << weval << std::endl;
-            Engine::Move move = Engine::alphabetaroot(board, 4);
+            int nodes = 0;
+            Engine::Move move = Engine::alphabetaroot(board, 4, nodes);
+
             move.printMove();
             board.makeMove(move);
             guiBoard.updateMove(move);
             updateWindow(window, guiBoard);
             board.display();
+            std::cout << nodes << std::endl;
             // int beval = Engine::evaluation(computer_type, board);
 
             // std::cout << "computer made move" << std::endl;
@@ -170,7 +183,16 @@ int guiDriver::handleSquareClick(sf::Event event,
 
   moves.clear();
   Engine::getLegalMovesForPiece(board, piece_from, moves);
-
+  FixedStack<Engine::Move, 256> test;
+  Engine::getLegalMoves(board, test);
+  // for(int i = 0; i < test.size(); i ++) {
+  //   test[i].printInChess();
+  // }
+  std::cout << "_______________________" << std::endl;
+  Engine::orderMoves(test, board);
+  for(int i = 0; i < test.size(); i ++) {
+    test[i].printInChess();
+  }
   guiBoard.highlightPossibleMoves(moves);
 
   options = true;

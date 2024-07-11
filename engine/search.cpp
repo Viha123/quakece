@@ -4,8 +4,9 @@
 #include "movegen/movegen.hpp"
 #include <limits>
 namespace Engine {
-int negamax(Board &board, int depth) { // returns score
+int negamax(Board &board, int depth, int &nodes) { // returns score
   if (depth == 0) {
+    nodes +=1;
     return evaluation(board.gameStateHistory.peek().turn, board);
   }
   int max = std::numeric_limits<int>::min();
@@ -15,9 +16,7 @@ int negamax(Board &board, int depth) { // returns score
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];
     board.makeMove(move);
-    score = -negamax(board, depth - 1);
-    // std::cout << +board.gameStateHistory.peek().turn << " " << score <<
-    // std::endl;
+    score = -negamax(board, depth - 1, nodes);
     board.unmakeMove(move);
     if (score > max) {
 
@@ -26,7 +25,7 @@ int negamax(Board &board, int depth) { // returns score
   }
   return max;
 }
-Move negamaxRoot(Board &board, int depth) {
+Move negamaxRoot(Board &board, int depth, int &nodes) {
   int max = std::numeric_limits<int>::min();
   int score = max;
   Move toMake;
@@ -35,28 +34,27 @@ Move negamaxRoot(Board &board, int depth) {
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];
     board.makeMove(move);
-    score = -negamax(board, depth - 1);
+    score = -negamax(board, depth - 1, nodes);  
     board.unmakeMove(move);
     if (score > max) {
-      // std::cout << utils::convertToChessNotation(move._move_from)
-      //         << utils::convertToChessNotation(move._move_to) << " " << score
-      //         << std::endl;
       toMake = move;
       max = score;
     }
   }
   return toMake;
 }
-int alphabeta(int alpha, int beta, int depth, Board &board) {
+int alphabeta(int alpha, int beta, int depth, Board &board, int &nodes) {
   if (depth == 0) {
+    nodes +=1;
     return evaluation(board.gameStateHistory.peek().turn, board);
   }
   FixedStack<Move, 256> moves;
   getLegalMoves(board, moves);
+  orderMoves(moves, board);
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];
     board.makeMove(move);
-    int score = -alphabeta(-beta, -alpha, depth - 1, board);
+    int score = -alphabeta(-beta, -alpha, depth - 1, board, nodes);
     board.unmakeMove(move);
     if (score >= beta) {
       // std::cout << score << beta << std::endl;
@@ -70,26 +68,24 @@ int alphabeta(int alpha, int beta, int depth, Board &board) {
   return alpha;
 }
 
-Move alphabetaroot(Board &board, int depth) {
+Move alphabetaroot(Board &board, int depth, int &nodes) {
   FixedStack<Move, 256> moves;
   int alpha = -1000000000; //-inf
   int beta = 1000000000;
   getLegalMoves(board, moves);
+  orderMoves(moves, board);
   Move toMake;
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];
-    // toMake = move;
     board.makeMove(move);
-    int score = -alphabeta(-beta, -alpha, depth - 1, board);
-    // std::cout << +board.gameStateHistory.peek().turn << " " << score <<
-    // std::endl;
-    // std::cout << score << std::endl;
+    int score = -alphabeta(-beta, -alpha, depth - 1, board, nodes);
     board.unmakeMove(move);
-    if (score >= beta) {
+    if (score >= beta) { 
+      //the move is very good, so the opponent will anyways avoid thsi
       return move;
     }
     if (score > alpha) {
-      // std::cout << "HER" << std::endl;
+      // better than what we have so far, acts as max
       alpha = score;
       toMake = move;
     }

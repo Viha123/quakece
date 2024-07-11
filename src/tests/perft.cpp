@@ -14,6 +14,7 @@ int perft(Engine::Board &board, int depth) {
 
   FixedStack<Engine::Move, 256> moves;
   Engine::getLegalMoves(board, moves);
+  Engine::orderMoves(moves, board);
   if(depth == 0) {
     return 1;
   }
