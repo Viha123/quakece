@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                    // player or computer vs computer
-  std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  std::string fen = "r1b1k2r/ppppnpRp/8/1B2P3/3B4/8/PPP1QP1q/R3K3 b Qkq - 0 1";
   // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
   //3r4/3r4/3k4/8/8/3K4/8/8 w -- - 0 1
   //BUGG: r1b1k2r/ppppnpRp/8/1B2P3/3B4/8/PPP1QP1q/R3K3 b Qkq - 0 1 (possibly a king castle)

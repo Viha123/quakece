@@ -139,18 +139,17 @@ void Board::populatePieceList(Color color) {
     }
   }
   // std::cout << +color << " " << count << std::endl;
-  if(count > 16) {
+  if (count > 16) {
     display();
     // for(auto i : pieceList[color]) {
     //   std::cout << i << std::endl;
     // }
     // std::cout << count << std::endl;
-    for(int i = 0; i < history.size(); i ++) {
+    for (int i = 0; i < history.size(); i++) {
       Move m = history[i];
       m.printInChess();
     }
     std::cout << toFenString() << std::endl;
-
   }
   assert(count <= 16);
 
@@ -261,11 +260,18 @@ void Board::makeMove(
     // std::cout << "HERE in rook capture" << std::endl;
     move_to_square = move_from_square;
     move_from_square = emptySquare;
-    if(pieceFrom == k) {
+    if (pieceFrom == k) {
       kingIndexes[currType] = move._move_to;
-
+      if (move_to_square.type == black) {
+        newState.castle_flag &= 0b0011;
+      }
+      if (move_to_square.type == white) {
+        // std::cout << "HERE canceling out the castle" << std::endl;
+        // toFenString();
+        newState.castle_flag &= 0b1100;
+      }
     }
-    
+
     // pieceSets[currType].erase(move._move_from);
     // pieceSets[currType].insert(move._move_to);
     // if (pieceSets[oppType].count(move._move_to)) {
@@ -288,10 +294,12 @@ void Board::makeMove(
       newState.castle_flag &= 0b0011;
     }
     if (move_to_square.type == white) {
+      // std::cout << "HERE canceling out the castle" << std::endl;
+      // toFenString();
       newState.castle_flag &= 0b1100;
     }
     kingIndexes[currType] = move._move_to;
-  } 
+  }
 
   // if double jump then mark enpessant
   else if (pieceFrom == p && !move._isPromotion) {
@@ -386,7 +394,6 @@ void Board::unmakeMove(Move &move) {
         // std::cout << kingIndexes[currType] << std::endl;
         kingIndexes[currType] = move._move_from;
         // std::cout << kingIndexes[currType] << std::endl;
-
       }
 
     } else {
@@ -485,7 +492,7 @@ inline void Board::toggleTurn() {
 
   //   gameStateHistory.peek().turn = white;
   // }
-  s.turn = s.turn == white ? black :  white;
+  s.turn = s.turn == white ? black : white;
 }
 // Board::State Board::getState() { return state; }
 void Board::initialize_remainding_parameters(std::string remaining) {

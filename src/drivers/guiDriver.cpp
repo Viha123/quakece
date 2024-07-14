@@ -141,9 +141,14 @@ void guiDriver::play() {
                    options == true) {
           // the player is clicking on a MOVE_TO OR AN INVALID MOVE.
           makeMoveOnDisplay(event, board, moves);
+          std::cout << board.toFenString() << std::endl;
+          std::cout << +board.gameStateHistory.peek().castle_flag << std::endl;
 
         } else if (event.mouseButton.button == sf::Mouse::Right) {
           handleRightClickUnmake(board);
+          std::cout << board.toFenString() << std::endl;
+          std::cout << +board.gameStateHistory.peek().castle_flag << std::endl;
+
         }
       }
     }
@@ -177,14 +182,6 @@ int guiDriver::handleSquareClick(sf::Event event,
   Engine::getLegalMovesForPiece(board, piece_from, moves);
   FixedStack<Engine::Move, 256> test;
   Engine::getLegalMoves(board, test);
-  // for(int i = 0; i < test.size(); i ++) {
-  //   test[i].printInChess();
-  // }
-  // std::cout << "_______________________" << std::endl;
-  // Engine::orderMoves(test, board);
-  // for (int i = 0; i < test.size(); i++) {
-  //   test[i].printInChess();
-  // }
   guiBoard.highlightPossibleMoves(moves);
 
   options = true;
