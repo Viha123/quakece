@@ -16,14 +16,14 @@ int evaluation(Color color2move, Board &board) {
   int blackMaterial = 0;
   for(int i = 0; i < 64; i ++) {
     if(board.board[i].type == white) {
-      whiteMaterial += evaluationWeightsMaterial[board.board[i].piece];
+      whiteMaterial += evaluationWeightsMaterial[board.board[i].piece] + pieceSquareTables[board.board[i].type][board.board[i].piece][i];
     }
     if(board.board[i].type == black) {
-      blackMaterial -= evaluationWeightsMaterial[board.board[i].piece];
+      blackMaterial -= evaluationWeightsMaterial[board.board[i].piece] + pieceSquareTables[board.board[i].type][board.board[i].piece][i];
     }
   }
   
-
-  return ((whiteMaterial + blackMaterial) + mobilityWeight*10) * multiplier;
+  
+  return ((whiteMaterial + blackMaterial) + mobilityWeight*50) * multiplier;
 }
 }; // namespace Engine

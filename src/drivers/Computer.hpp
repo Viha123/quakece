@@ -4,7 +4,7 @@
 class Computer {
   public:
   Computer();
-  Engine::Move makeMove(Engine::Board& board, int depth);
+  Engine::Move makeMove(Engine::Board& board);
   Color m_side;
   void setSide(Color side);
 

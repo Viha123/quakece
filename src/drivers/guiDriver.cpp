@@ -117,7 +117,7 @@ void guiDriver::play2() {
       if (board.gameStateHistory.peek().turn == computer_type &&
           playerMoveMade) {
         playerMoveMade = false;
-        Engine::Move computerMove = computerai.makeMove(board, 4);
+        Engine::Move computerMove = computerai.makeMove(board);
         guiBoard.updateMove(computerMove);
         updateWindow(window, guiBoard);
         checkCheckMate();
@@ -180,11 +180,11 @@ int guiDriver::handleSquareClick(sf::Event event,
   // for(int i = 0; i < test.size(); i ++) {
   //   test[i].printInChess();
   // }
-  std::cout << "_______________________" << std::endl;
-  Engine::orderMoves(test, board);
-  for (int i = 0; i < test.size(); i++) {
-    test[i].printInChess();
-  }
+  // std::cout << "_______________________" << std::endl;
+  // Engine::orderMoves(test, board);
+  // for (int i = 0; i < test.size(); i++) {
+  //   test[i].printInChess();
+  // }
   guiBoard.highlightPossibleMoves(moves);
 
   options = true;
@@ -196,11 +196,12 @@ void guiDriver::handleRightClickUnmake(Engine::Board &board) {
     throw std::out_of_range("cannot unmake a move that is not made");
   }
   Engine::Move moveToUnmake = board.history.peek();
-  moveToUnmake.printMove();
+  moveToUnmake.printInChess();
 
-  // board.display();
+ 
   board.unmakeMove(moveToUnmake);
   updateWindow(window, guiBoard);
+   board.display();
 }
 
 bool guiDriver::makeMoveOnDisplay(sf::Event event, Engine::Board &board,

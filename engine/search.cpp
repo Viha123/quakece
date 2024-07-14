@@ -2,7 +2,10 @@
 #include "Board.hpp"
 #include "eval.hpp"
 #include "movegen/movegen.hpp"
+#include <cstddef>
+#include <exception>
 #include <limits>
+#include <stdexcept>
 namespace Engine {
 int negamax(Board &board, int depth, int &nodes) { // returns score
   if (depth == 0) {
@@ -51,6 +54,13 @@ int alphabeta(int alpha, int beta, int depth, Board &board, int &nodes) {
   FixedStack<Move, 256> moves;
   getLegalMoves(board, moves);
   orderMoves(moves, board);
+  if(moves.size() == 0) {
+    if(kingInCheck(board, board.gameStateHistory.peek().turn)) {
+      return -1000000000;
+    } else {
+      return 0;
+    }
+  }
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];
     board.makeMove(move);
@@ -74,6 +84,13 @@ Move alphabetaroot(Board &board, int depth, int &nodes) {
   int beta = 1000000000;
   getLegalMoves(board, moves);
   orderMoves(moves, board);
+  if(moves.size() == 0) {
+    if(kingInCheck(board, board.gameStateHistory.peek().turn)) {
+      throw std::out_of_range("Checkmate");
+    } else {
+      throw std::length_error("Stalemate");
+    }
+  }
   Move toMake;
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];

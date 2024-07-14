@@ -13,6 +13,8 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                    // player or computer vs computer
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  //3r4/3r4/3k4/8/8/3K4/8/8 w -- - 0 1
+  //BUGG: r1b1k2r/ppppnpRp/8/1B2P3/3B4/8/PPP1QP1q/R3K3 b Qkq - 0 1 (possibly a king castle)
   //  r3k1r1/Rppp1ppp/1b3nbN/nPB5/B1P1P3/q4N2/Pp1P2PP/R2Q1RK1 w q - 0 1 //after
   //  h8g8
   if (*argv[1] == '2') {
@@ -37,6 +39,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
       ios_base::sync_with_stdio(false);
       int nodes = Tests::perft(perftBoard, d);
       std::cout << YELLOW << nodes << RESET << std::endl;
+      // std::cout << perftBoard.toFenString() << std::endl;
       end = clock();
       double time_taken = double(end - start)/double(CLOCKS_PER_SEC);
       cout << "Time taken by d:" << d << " is " << fixed << time_taken
@@ -46,6 +49,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
   } else if(*argv[1] == 'd') {
     int depth = *argv[2] - '0';
     Engine::Board perftBoard(fen);
+    perftBoard.display();
     int nodes = Tests::perft(perftBoard, depth);
     std::cout << YELLOW << nodes << RESET << std::endl;
     Tests::divide(depth, fen);

@@ -141,10 +141,16 @@ void Board::populatePieceList(Color color) {
   // std::cout << +color << " " << count << std::endl;
   if(count > 16) {
     display();
-    for(auto i : pieceList[color]) {
-      std::cout << i << std::endl;
+    // for(auto i : pieceList[color]) {
+    //   std::cout << i << std::endl;
+    // }
+    // std::cout << count << std::endl;
+    for(int i = 0; i < history.size(); i ++) {
+      Move m = history[i];
+      m.printInChess();
     }
-    std::cout << count << std::endl;
+    std::cout << toFenString() << std::endl;
+
   }
   assert(count <= 16);
 
