@@ -215,6 +215,7 @@ void getLegalMovesForPiece(Board &board, int num,
 
   Color color = board.board[num].type;
   for (uint i = 0; i < pseudolegal.size(); i++) {
+    // std::cout << "segfault somewhere here?" << std::endl;
     Move move = pseudolegal[i];
     // std::cout << "board num type: " << board.board[num].type << std::endl;
     if (!move._isCastle) {

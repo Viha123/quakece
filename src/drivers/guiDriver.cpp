@@ -124,6 +124,7 @@ void guiDriver::play2() {
           checkCheckMate();
         } catch (const std::exception &exc) {
           std::cout << exc.what();
+          std::cout << "\nclosing window" << std::endl;
           window.close();
         }
       }

@@ -91,7 +91,7 @@ Move alphabetaroot(Board &board, int depth, int &nodes) {
       throw std::length_error("Stalemate");
     }
   }
-  Move toMake;
+  Move toMake = moves[0];
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];
     board.makeMove(move);
