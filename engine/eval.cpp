@@ -23,7 +23,18 @@ int evaluation(Color color2move, Board &board) {
     }
   }
   
-  
+  // goal is to reduce opposite king mobility
+  if(whiteMaterial < 4000) { //white is in endgame
+    int whiteKingIndex = board.kingIndexes[white];
+    whiteMaterial += -pieceSquareTables[white][k][whiteKingIndex] + kingEndGame[white][whiteKingIndex];
+  }
+  if(blackMaterial > -4000) { //black is in endgame
+    int blackKingIndex = board.kingIndexes[black];
+    // std::cout << "black is in endgame" << std::endl;
+
+    whiteMaterial -= -pieceSquareTables[black][k][blackKingIndex] + kingEndGame[black][blackKingIndex];
+  }
+
   return ((whiteMaterial + blackMaterial) + mobilityWeight*50) * multiplier;
 }
 }; // namespace Engine

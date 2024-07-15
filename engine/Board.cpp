@@ -266,8 +266,6 @@ void Board::makeMove(
         newState.castle_flag &= 0b0011;
       }
       if (move_to_square.type == white) {
-        // std::cout << "HERE canceling out the castle" << std::endl;
-        // toFenString();
         newState.castle_flag &= 0b1100;
       }
     }

@@ -12,7 +12,7 @@ Engine::Move Computer::makeMove(Engine::Board &board) {
   int depth = 5;
   //detect middle and end game and change depth based on that. 
   Engine::Move move = Engine::alphabetaroot(board, depth, nodes);
-
+  
   move.printMove();
   board.makeMove(move);
 

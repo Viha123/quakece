@@ -20,5 +20,6 @@ public:
   void printInChess();
   // static std::vector<Move*> history;
   // static std::vector<Move*> getMoveHistory(); 
+  bool operator==(Move other);
 };
 } // namespace Engine

@@ -10,8 +10,6 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 
 ## Features To Add:
 - Refactor code to better follow best pracitces
-- Basic Move Ordering (MVV-LVA) Most Valuable Victim - Least Valuable Aggressor
-- Piece Square Lists
 - Improve Endgame Evaluation. 
 - Quiescence search
 - UCI compatibility
@@ -35,11 +33,14 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 ## Goals for Version 2:
 - [x] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
 - [x] Basic Move Ordering (MVV-LVA) Most Valuable Victim - Least Valuable Aggressor
-- [ ] Check Promotions and checks as well
-- [ ] Piece Square Lists
-- [ ] Improve Endgame Evaluation.
+- [ ] Order based on promotions and checks
+- [ ] Opening books (choose from a database of openings)
+- [x] Piece Square Lists
+- [x] Improve Endgame Evaluation.
 - [ ] Quiescence search
-
+- [ ] Transposition tables
+- [ ] Iterative deeping. Add timer management
+- [ ] Massively improve GUI and checkmate acknolwedgement. 
 ### To build:
 ```cmake --build ./build```
 ### To run: 

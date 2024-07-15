@@ -33,4 +33,10 @@ namespace Engine {
                  << utils::convertToChessNotation(_move_to) << " " <<
                  std::endl;
   }
+  bool Move::operator==(Move other) {
+    if(_isCapture == other._isCapture && _move_to == other._move_to && _move_from == other._move_from) {
+      return true;
+    }
+    return false;
+  }
 }

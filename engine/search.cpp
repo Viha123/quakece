@@ -103,6 +103,10 @@ Move alphabetaroot(Board &board, int depth, int &nodes) {
     }
     if (score > alpha) {
       // better than what we have so far, acts as max
+      int lastIndex = board.history.size();
+      if(lastIndex >= 4 and toMake == board.history[lastIndex - 4]) {
+        break; //do not update toMake to be the next best move 
+      }
       alpha = score;
       toMake = move;
     }

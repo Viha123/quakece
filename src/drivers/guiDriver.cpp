@@ -117,10 +117,15 @@ void guiDriver::play2() {
       if (board.gameStateHistory.peek().turn == computer_type &&
           playerMoveMade) {
         playerMoveMade = false;
-        Engine::Move computerMove = computerai.makeMove(board);
-        guiBoard.updateMove(computerMove);
-        updateWindow(window, guiBoard);
-        checkCheckMate();
+        try {
+          Engine::Move computerMove = computerai.makeMove(board);
+          guiBoard.updateMove(computerMove);
+          updateWindow(window, guiBoard);
+          checkCheckMate();
+        } catch (const std::exception &exc) {
+          std::cout << exc.what();
+          window.close();
+        }
       }
     }
   }
@@ -141,14 +146,10 @@ void guiDriver::play() {
                    options == true) {
           // the player is clicking on a MOVE_TO OR AN INVALID MOVE.
           makeMoveOnDisplay(event, board, moves);
-          std::cout << board.toFenString() << std::endl;
-          std::cout << +board.gameStateHistory.peek().castle_flag << std::endl;
+          Engine::evaluation(board.gameStateHistory.peek().turn, board);
 
         } else if (event.mouseButton.button == sf::Mouse::Right) {
           handleRightClickUnmake(board);
-          std::cout << board.toFenString() << std::endl;
-          std::cout << +board.gameStateHistory.peek().castle_flag << std::endl;
-
         }
       }
     }
@@ -195,10 +196,9 @@ void guiDriver::handleRightClickUnmake(Engine::Board &board) {
   Engine::Move moveToUnmake = board.history.peek();
   moveToUnmake.printInChess();
 
- 
   board.unmakeMove(moveToUnmake);
   updateWindow(window, guiBoard);
-   board.display();
+  board.display();
 }
 
 bool guiDriver::makeMoveOnDisplay(sf::Event event, Engine::Board &board,
