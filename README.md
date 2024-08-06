@@ -7,13 +7,16 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - Perft 6 in around 14 seconds. 
 - Basic Material and Mobility Evaluation
 - Negamax and Alpha Beta Pruning Search. 
-
+- Move ordering based on captures first that massively reduce search space of the Alpha beta pruning
+- Piece Square Tables for the evaluation function
 ## Features To Add:
 - Refactor code to better follow best pracitces
 - Improve Endgame Evaluation. 
 - Quiescence search
 - UCI compatibility
+- Collect principal variation moves
 - Transposition Tables ?
+- Iterative Deapening and add timer logic
 - MAYBE (bitboards and magic bitboards but that might require a huge code haul)
 
 ## Goals for Version 1:
@@ -31,7 +34,7 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - [x] Perform time tests for depth results and go over code to reduce speed because there are a lot of low hanging performance improvements that can be made to this. 
 
 ## Goals for Version 2:
-- [x] implement more complex algorithms, not entirely sure, basic minimax or alpha beta pruning and move on from there. 
+- [x] implement more complex algorithms basic minimax or alpha beta pruning and move on from there. 
 - [x] Basic Move Ordering (MVV-LVA) Most Valuable Victim - Least Valuable Aggressor
 - [ ] Order based on promotions and checks
 - [ ] Opening books (choose from a database of openings)

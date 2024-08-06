@@ -1,9 +1,6 @@
-#include "../utils.hpp"
 #include "Board.hpp"
 #include "eval.hpp"
 #include "movegen/movegen.hpp"
-#include <cstddef>
-#include <exception>
 #include <limits>
 #include <stdexcept>
 namespace Engine {
@@ -22,7 +19,6 @@ int negamax(Board &board, int depth, int &nodes) { // returns score
     score = -negamax(board, depth - 1, nodes);
     board.unmakeMove(move);
     if (score > max) {
-
       max = score;
     }
   }
@@ -46,7 +42,7 @@ Move negamaxRoot(Board &board, int depth, int &nodes) {
   }
   return toMake;
 }
-int alphabeta(int alpha, int beta, int depth, Board &board, int &nodes) {
+int alphabeta(int alpha, int beta, int depth, Board &board, int &nodes, int line, std::array<Move, 16> &pv) {
   if (depth == 0) {
     nodes +=1;
     return evaluation(board.gameStateHistory.peek().turn, board);
@@ -54,6 +50,7 @@ int alphabeta(int alpha, int beta, int depth, Board &board, int &nodes) {
   FixedStack<Move, 256> moves;
   getLegalMoves(board, moves);
   orderMoves(moves, board);
+  std::array<Move, 16> localPv = {};
   if(moves.size() == 0) {
     if(kingInCheck(board, board.gameStateHistory.peek().turn)) {
       return -1000000000;
@@ -64,7 +61,7 @@ int alphabeta(int alpha, int beta, int depth, Board &board, int &nodes) {
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];
     board.makeMove(move);
-    int score = -alphabeta(-beta, -alpha, depth - 1, board, nodes);
+    int score = -alphabeta(-beta, -alpha, depth - 1, board, nodes, line + 1, localPv);
     board.unmakeMove(move);
     if (score >= beta) {
       // std::cout << score << beta << std::endl;
@@ -72,18 +69,26 @@ int alphabeta(int alpha, int beta, int depth, Board &board, int &nodes) {
     }
     if (score > alpha) {
       alpha = score;
+      pv[0] = move;
+      for (int j = 0; j < depth - 1; j ++) { // copy old principal variation to the current one. because each step is built on the previous steps
+        pv[j + 1] = localPv[j];
+      }
+      // std::cout << line << " ";
+      // move.printInChess(); //this is the move to make
     }
   }
   // std::cout << "here" << std::endl;
   return alpha;
 }
 
-Move alphabetaroot(Board &board, int depth, int &nodes) {
+Move alphabetaroot(Board &board, int depth, int &nodes) { //max depth will be 16 at all times, so there can be only 16 pv moves
   FixedStack<Move, 256> moves;
   int alpha = -1000000000; //-inf
   int beta = 1000000000;
   getLegalMoves(board, moves);
   orderMoves(moves, board);
+  std::array<Move, 16> pv = {};
+
   if(moves.size() == 0) {
     if(kingInCheck(board, board.gameStateHistory.peek().turn)) {
       throw std::out_of_range("Checkmate");
@@ -95,7 +100,8 @@ Move alphabetaroot(Board &board, int depth, int &nodes) {
   for (int i = 0; i < moves.size(); i++) {
     Move move = moves[i];
     board.makeMove(move);
-    int score = -alphabeta(-beta, -alpha, depth - 1, board, nodes);
+    std::array<Move, 16> localPV = {};
+    int score = -alphabeta(-beta, -alpha, depth - 1, board, nodes, 1, localPV);
     board.unmakeMove(move);
     if (score >= beta) { 
       //the move is very good, so the opponent will anyways avoid thsi
@@ -109,7 +115,16 @@ Move alphabetaroot(Board &board, int depth, int &nodes) {
       }
       alpha = score;
       toMake = move;
+      pv[0] = toMake;
+      // std::cout << depth << " ";
+      // move.printInChess(); //this is the move to make
+      for(int j = 0; j < depth-1; j ++) {
+        pv[j + 1] = localPV[j];
+      }
     }
+  }
+  for(int i = 0; i < depth; i ++) {
+    pv[i].printInChess();
   }
   return toMake;
 }

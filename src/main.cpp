@@ -1,4 +1,5 @@
 #include "../utils.hpp"
+#include "./FixedStack.hpp"
 #include "drivers/guiDriver.hpp"
 #include "tests/perft.hpp"
 #include <SFML/Graphics.hpp>
@@ -6,23 +7,26 @@
 #include <bits/stdc++.h>
 #include <cassert>
 #include <iostream>
-#include "./FixedStack.hpp"
 using namespace std;
 
 int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
                                    // player or computer vs computer
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-  //3r4/3r4/3k4/8/8/3K4/8/8 w -- - 0 1
+  // 3r4/3r4/3k4/8/8/3K4/8/8 w -- - 0 1
   //  r3k1r1/Rppp1ppp/1b3nbN/nPB5/B1P1P3/q4N2/Pp1P2PP/R2Q1RK1 w q - 0 1 //after
   //  h8g8
+
   if (*argv[1] == '2') {
     guiDriver gui(fen);
     gui.play();
   } else if (*argv[1] == '1') {
     // gui play against computer
-    guiDriver gui(black, fen); //player play as white
+    guiDriver gui(black, fen); // player play as white
     gui.play2();
+  } else if (*argv[1] == 'u') {
+    //implement UCI protocol
+    
   } else if (*argv[1] == 'p') {
 
     // Tests::testCases();
@@ -40,25 +44,24 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
       std::cout << YELLOW << nodes << RESET << std::endl;
       // std::cout << perftBoard.toFenString() << std::endl;
       end = clock();
-      double time_taken = double(end - start)/double(CLOCKS_PER_SEC);
+      double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
       cout << "Time taken by d:" << d << " is " << fixed << time_taken
            << setprecision(5);
       cout << " sec " << endl;
     }
-  } else if(*argv[1] == 'd') {
+  } else if (*argv[1] == 'd') {
     int depth = *argv[2] - '0';
     Engine::Board perftBoard(fen);
     perftBoard.display();
     int nodes = Tests::perft(perftBoard, depth);
     std::cout << YELLOW << nodes << RESET << std::endl;
     Tests::divide(depth, fen);
-  } 
-  else if (*argv[1] == 't') { //Perft Suite tests
+  } else if (*argv[1] == 't') { // Perft Suite tests
     Tests::testCases();
-  } else if (*argv[1] == 's') { //FixedStack testing
+  } else if (*argv[1] == 's') { // FixedStack testing
     // std::size_t sizearr = 10;
     FixedStack<int, 10> mystack;
-    for(int i = 0; i < 5; i ++) {
+    for (int i = 0; i < 5; i++) {
       mystack.push(i);
       cout << mystack.peek() << std::endl;
     }
@@ -69,15 +72,14 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     mystack.pop();
     mystack.push(100);
     mystack.pop();
-    if(mystack.size() > 5) {
+    if (mystack.size() > 5) {
       cout << "yea " << std::endl;
     }
-    for(uint i = 0; i < mystack.size(); i ++) {
+    for (uint i = 0; i < mystack.size(); i++) {
       cout << mystack.peek() << std::endl;
       mystack.pop();
     }
-  }
-  else {
+  } else {
     cout << "Mode not accepted" << endl;
   }
   (void)argc;

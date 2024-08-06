@@ -346,7 +346,6 @@ void orderMoves(FixedStack<Move, 256> &legalMoves, Board &board) {
     }
     legalMoves.swap(i, minIndex);
   }
-
 }
 int getMoveScore(const Move& move, Board& board) { //gets score for move selection sort
   if(!move._isCapture) {
