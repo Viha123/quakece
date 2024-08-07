@@ -1,6 +1,7 @@
 #include "Board.hpp"
 #include "eval.hpp"
 #include "movegen/movegen.hpp"
+#include "search.hpp"
 #include <limits>
 #include <stdexcept>
 namespace Engine {
@@ -42,10 +43,42 @@ Move negamaxRoot(Board &board, int depth, int &nodes) {
   }
   return toMake;
 }
+int quiescense_search(int alpha, int beta, Board &board, int &nodes, int line, std::array<Move, 16> &pv) {
+  nodes+=1;
+  int score = evaluation(board.gameStateHistory.peek().turn, board);
+  if (score >= beta) {
+    return beta;
+  }
+  if (alpha <= score) {
+    alpha = score;
+  }
+  FixedStack<Move, 256> moves;
+  getLegalMoves(board, moves);
+  orderMoves(moves, board);
+  for(int i = 0; i < moves.size(); i ++) {
+    if (getMoveScore(moves[i], board) < 5) { //this is some sort of capture move
+      //keep iterative searching until its really done
+      Move move = moves[i];
+      board.makeMove(move);
+      int s = quiescense_search(-beta, -alpha, board, nodes, line, pv);
+      board.unmakeMove(move);
+      if (s >= beta) {
+        return beta;
+      }
+      if (score > alpha) {
+        alpha = score;
+      }
+    } else {
+      break;
+    }
+    
+  }
+  return alpha;
+}
 int alphabeta(int alpha, int beta, int depth, Board &board, int &nodes, int line, std::array<Move, 16> &pv) {
   if (depth == 0) {
     nodes +=1;
-    return evaluation(board.gameStateHistory.peek().turn, board);
+    return quiescense_search(alpha, beta, board, nodes, line, pv);
   }
   FixedStack<Move, 256> moves;
   getLegalMoves(board, moves);
@@ -117,7 +150,7 @@ Move alphabetaroot(Board &board, int depth, int &nodes) { //max depth will be 16
       toMake = move;
       pv[0] = toMake;
       // std::cout << depth << " ";
-      // move.printInChess(); //this is the move to make
+      // move.printInChess();s = quiescense_search //this is the move to make
       for(int j = 0; j < depth-1; j ++) {
         pv[j + 1] = localPV[j];
       }

@@ -35,6 +35,6 @@ int evaluation(Color color2move, Board &board) {
     whiteMaterial -= -pieceSquareTables[black][k][blackKingIndex] + kingEndGame[black][blackKingIndex];
   }
 
-  return ((whiteMaterial + blackMaterial) + mobilityWeight*20) * multiplier;
+  return ((whiteMaterial + blackMaterial) + mobilityWeight*2) * multiplier;
 }
 }; // namespace Engine

@@ -1,5 +1,6 @@
 #include <array>
 #include <stdexcept>
+#include <ranges>
 #pragma once
 // This is a wrapper to the array class. It is a FixedStack with all the stack
 // functionality but with the class keeping the index of the top
@@ -27,11 +28,10 @@ public:
       top++;
     }
   }
-  T& peek() {
+  T &peek() {
     if (top >= 1) {
       return array[top - 1];
-    }
-    else{
+    } else {
       throw std::out_of_range("Nothing in the stack yet");
     }
   }
@@ -45,4 +45,29 @@ public:
     array[index2] = temp;
   }
   void clear() { top = 0; }
+  // class Iterator {
+  // public:
+  //   using difference_type = std::ptrdiff_t;
+  //   using value_type = T;
+  //   Iterator(T* ptr) : m_ptr(ptr) {};                              // default-initializable
+  //   bool operator==(const Iterator& other) const {return m_ptr == other.m_ptr;}; // equality 
+  //   bool operator!=(const Iterator& other) const {return m_ptr != other.m_ptr;}; // equality 
+
+  //   T &operator*() const {return m_ptr;};                    // dereferenceable
+  //   Iterator &operator++()                   // pre-incrementable
+  //   {                                        /*do stuff...*/
+  //     return *this;
+  //   }
+  //   void operator++(int) // post-incrementable
+  //   {
+  //     ++*this;
+  //   }
+
+  // private:
+  //   // implementation...
+  //   T* m_ptr;
+  // };
+  // Iterator begin() { return Iterator(array); } 
+  // Iterator end() { return Iterator(array + top); }
+
 };

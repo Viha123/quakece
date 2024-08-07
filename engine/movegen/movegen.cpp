@@ -13,7 +13,6 @@ namespace Engine {
 
 void getMoveForPiece(Board &board, int num, FixedStack<Move, 64> &moves) {
 
-
   Board::Square square = board.getSquare(num);
   int row = utils::getRank(num);
   // if this is a sliding piece then here are the available moves for that
@@ -192,7 +191,8 @@ void getLegalMoves(Board &board, FixedStack<Move, 256> &allMoves) {
   }
   assert(allMoves.size() <= 218);
 }
-void getLegalMovesForColor(Board &board, FixedStack<Move, 256> &allMoves, Color color) {
+void getLegalMovesForColor(Board &board, FixedStack<Move, 256> &allMoves,
+                           Color color) {
   board.populatePieceList(color);
   // for(auto i : board.pieceList[turn]) {
   //   std::cout << i << " " << board.board[i].c;
@@ -335,24 +335,33 @@ inline int findKingIndex(Board &board, Color color) {
 }
 
 void orderMoves(FixedStack<Move, 256> &legalMoves, Board &board) {
-  //first find all capture moves
-  for(int i = 0; i < legalMoves.size(); i ++) {
-    //find smallest and replace with whatever is at index i;
+  // first find all capture moves
+  for (int i = 0; i < legalMoves.size(); i++) {
+    // find smallest and replace with whatever is at index i;
     int minIndex = i;
-    for(int j = i; j < legalMoves.size(); j ++) {
-      if(getMoveScore(legalMoves[j], board) < getMoveScore(legalMoves[minIndex], board)) {
+    for (int j = i; j < legalMoves.size(); j++) {
+      if (getMoveScore(legalMoves[j], board) <
+          getMoveScore(legalMoves[minIndex], board)) {
         minIndex = j;
       }
     }
     legalMoves.swap(i, minIndex);
   }
+  // for (int i = 0; i < legalMoves.size(); i ++) {
+  //   std::cout << getMoveScore(legalMoves[i], board) << " ";
+  // }
+  // for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
+  //   std::cout << getMoveScore(*it, board)<< " ";
+  // }
+  
 }
-int getMoveScore(const Move& move, Board& board) { //gets score for move selection sort
-  if(!move._isCapture) {
+int getMoveScore(const Move &move,
+                 Board &board) { // gets score for move selection sort
+  if (!move._isCapture) {
     return 5;
-  }
-  else {
-    return strengths[board.board[move._move_from].piece] - strengths[board.board[move._move_to].piece];
+  } else {
+    return strengths[board.board[move._move_from].piece] -
+           strengths[board.board[move._move_to].piece];
   }
 }
 } // namespace Engine

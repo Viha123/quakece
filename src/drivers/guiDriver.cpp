@@ -181,7 +181,7 @@ int guiDriver::handleSquareClick(sf::Event event,
       guiBoard.getPieceClicked(event.mouseButton.x, event.mouseButton.y);
 
   moves.clear();
-  Engine::getLegalMovesForPiece(board, piece_from, moves);
+  Engine::getLegalMovesForPiece(board, piece_from, moves);\
   FixedStack<Engine::Move, 256> test;
   Engine::getLegalMoves(board, test);
   guiBoard.highlightPossibleMoves(moves);
