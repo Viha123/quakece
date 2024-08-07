@@ -107,15 +107,40 @@ void guiDriver::handle_gui_promotion(Piece &promoted_piece,
 void guiDriver::play2() {
   // whiteClock.restart();
   // blackClock.restart();
-  const auto start{std::chrono::steady_clock::now()};
+  // const auto start{std::chrono::steady_clock::now()};
+  auto start = std::chrono::steady_clock::now();
+  bool whiteRunning = true;
+  bool blackRunning = false;
+  Color playerTurn = white;
   while (window.isOpen()) {
     sf::Event event;
+
+    if (whiteRunning) {
+      auto now = std::chrono::steady_clock::now();
+      const std::chrono::duration<double> elapsed_seconds{now - start};
+      whiteTimer =
+          playerTurn == white ? whiteTimer - elapsed_seconds : whiteTimer;
+      // whiteRunning = true;
+      // blackRunning = true;
+      std::cout << YELLOW << "white here" << RESET << std::endl;
+      start = std::chrono::steady_clock::now();
+    }
+    if (blackRunning) {
+      auto now = std::chrono::steady_clock::now();
+      const std::chrono::duration<double> elapsed_seconds{now - start};
+      blackTimer =
+          playerTurn == black ? blackTimer - elapsed_seconds : blackTimer;
+      // whiteRunning = true;
+      // blackRunning = false;
+      // std::cout << "black here" << std::endl;
+
+      start = std::chrono::steady_clock::now();
+    }
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         window.close();
       }
-      
-      Color playerTurn = white;
+
       if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Left && options == false &&
             board.gameStateHistory.peek().turn == player_type) {
@@ -128,12 +153,21 @@ void guiDriver::play2() {
           bool validMove = makeMoveOnDisplay(event, board, moves);
           checkCheckMate();
           playerMoveMade = validMove;
-          const auto end{std::chrono::steady_clock::now()};
-          const std::chrono::duration<double> elapsed_seconds{end - start};
-          whiteTimer = playerTurn == white ? whiteTimer - elapsed_seconds : whiteTimer;
-          playerTurn = playerTurn == white ? black : white;
-          
+          playerTurn = playerTurn == black ? white : black;
+          if (player_type == white) {
+            whiteRunning = false;
+            blackRunning = true;
+          }
+          if (player_type == black) {
+            std::cout << BLUE << "toggled" << RESET << std::endl;
 
+            blackRunning = false;
+            whiteRunning = true;
+          }
+          // const auto end{std::chrono::steady_clock::now()};
+          // const std::chrono::duration<double> elapsed_seconds{end - start};
+          // whiteTimer = playerTurn == white ? whiteTimer - elapsed_seconds :
+          // whiteTimer; playerTurn = playerTurn == white ? black : white;
         } else if (event.mouseButton.button == sf::Mouse::Right) {
           handleRightClickUnmake(board);
         }
@@ -146,6 +180,19 @@ void guiDriver::play2() {
           guiBoard.updateMove(computerMove);
           updateWindow(window, guiBoard);
           checkCheckMate();
+          playerTurn = playerTurn == black ? white : black;
+
+          if (computer_type == white) {
+            std::cout << GREEN << "toggled" << RESET << std::endl;
+
+            whiteRunning = false;
+            blackRunning = true;
+          }
+          if (computer_type == black) {
+
+            blackRunning = false;
+            whiteRunning = true;
+          }
         } catch (const std::out_of_range &exc) {
           // std::cout << exc.what();
           guiBoard.add_text("CHECKMATE", INFO_X, INFO_Y, info);
