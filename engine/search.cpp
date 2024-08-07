@@ -45,7 +45,9 @@ Move negamaxRoot(Board &board, int depth, int &nodes) {
 }
 int quiescense_search(int alpha, int beta, Board &board, int &nodes, int line, std::array<Move, 16> &pv) {
   nodes+=1;
+  
   int score = evaluation(board.gameStateHistory.peek().turn, board);
+
   if (score >= beta) {
     return beta;
   }
@@ -54,6 +56,13 @@ int quiescense_search(int alpha, int beta, Board &board, int &nodes, int line, s
   }
   FixedStack<Move, 256> moves;
   getLegalMoves(board, moves);
+  if(moves.size() == 0) {
+    if(kingInCheck(board, board.gameStateHistory.peek().turn)) {
+      return -1000000000;
+    } else {
+      return 0;
+    }
+  }
   orderMoves(moves, board);
   for(int i = 0; i < moves.size(); i ++) {
     if (getMoveScore(moves[i], board) < 5) { //this is some sort of capture move
