@@ -6,6 +6,8 @@
 #include "../../Headers/gui.hpp"
 #include "../../engine/move.hpp"
 #include "../../utils.hpp"
+#include "../FixedStack.hpp"
+#include "SFML/Graphics/Text.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -13,17 +15,22 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include "../FixedStack.hpp"
 using namespace std;
 BoardDisplay::BoardDisplay() {
   // nothing
   string defaultFendString =
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   parseFenString(defaultFendString);
+  if (!font.loadFromFile("assets/JetBrainsMono-Regular.ttf")) {
+    // error...
+  }
 }
 BoardDisplay::BoardDisplay(string fen) {
   // nothing
   parseFenString(fen);
+  if (!font.loadFromFile("assets/JetBrainsMono-Regular.ttf")) {
+    // error...
+  }
 }
 void BoardDisplay::parseFenString(string fenString) {
   string token = fenString.substr(0, fenString.find(" ")); // part 1 of string
@@ -127,13 +134,13 @@ void BoardDisplay::parseFenString(string fenString) {
     }
   }
 }
-void BoardDisplay::highlightPossibleMoves(FixedStack<Engine::Move,256> moves) {
+void BoardDisplay::highlightPossibleMoves(FixedStack<Engine::Move, 256> moves) {
   // for(auto j: nums) {
   //   std::cout << j << std::endl;
   // }
   // std::cout << "here" << std::endl;
   vector<int> nums{};
-  for (uint i = 0; i < moves.size(); i ++) {
+  for (uint i = 0; i < moves.size(); i++) {
     // std::cout << move._move_to << std::endl;
     auto move = moves[i];
     nums.push_back(move._move_to);
@@ -159,9 +166,10 @@ void BoardDisplay::updateMove(Engine::Move move) {
   int move_to_c = utils::getFile(move._move_to);
   int move_from_r = utils::getRank(move._move_from);
   int move_from_c = utils::getFile(move._move_from);
-  
+
   if (move._isCapture &&
-      boardOutWardRepresentation[move_to_r][move_to_c].piece == nopiece && !move._isPromotion) {
+      boardOutWardRepresentation[move_to_r][move_to_c].piece == nopiece &&
+      !move._isPromotion) {
     if (move_to_r > move_from_r) {
       // black enpessant capture
       // remove sprite at move_to_r - 1
@@ -193,22 +201,22 @@ void BoardDisplay::updateMove(Engine::Move move) {
     if (file == 6) {
       make_move(move_to_r, move_to_c + 1, move_to_r, move_to_c - 1);
       clear_square(move_to_r, move_to_c + 1);
-    }
-    else if(file == 2) {
-      make_move(move_to_r, move_to_c -2 , move_to_r, move_to_c + 1);
-      clear_square(move_to_r, move_to_c -2);
+    } else if (file == 2) {
+      make_move(move_to_r, move_to_c - 2, move_to_r, move_to_c + 1);
+      clear_square(move_to_r, move_to_c - 2);
     }
   }
   make_move(move_from_r, move_from_c, move_to_r, move_to_c);
   clear_square(move_from_r, move_from_c);
-  if(move._isPromotion){
-    //handle promotion. 
-    //change move_to square to be queen, rook bishop or knight
+  if (move._isPromotion) {
+    // handle promotion.
+    // change move_to square to be queen, rook bishop or knight
     cout << "handling promotion in the board display class";
     Color color = move_to_r == 0 ? white : black;
-    clear_square(move_to_r, move_to_c); //clear that square first and then handle promotion
+    clear_square(
+        move_to_r,
+        move_to_c); // clear that square first and then handle promotion
     handlePromotion(move._toPromote, color, move_to_r, move_to_c);
-
   }
   // Clear the source struct
 }
@@ -276,9 +284,28 @@ void BoardDisplay::draw(sf::RenderTarget &target,
         target.draw(*boardOutWardRepresentation[rank][file].sprite, states);
       }
     }
+    target.draw(text);
   }
 }
+void BoardDisplay::add_text(std::string str, int xPos, int yPos, sf::Text t) {
+  text = t;
+  text.setFont(font); // font is a sf::Font
 
+  // set the string to display
+  text.setString(str);
+
+  // set the character size
+  text.setCharacterSize(24); // in pixels, not points!
+
+  // set the color
+  text.setFillColor(sf::Color::White);
+
+  // set the text style
+  text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+
+  // set position
+  text.setPosition(xPos,yPos);
+;}
 int BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
   int row = mouseY / 100;
   int col = mouseX / 100;
@@ -320,35 +347,35 @@ void BoardDisplay::generateSprite(string path, int row, int col) {
   boardOutWardRepresentation[row][col].sprite = std::move(sprite);
 }
 void BoardDisplay::handlePromotion(Piece piece, Color color, int row, int col) {
-  if(piece == q && color == white) {
+  if (piece == q && color == white) {
     boardOutWardRepresentation[row][col].piece = wqueen;
     generateSprite("assets/wqueen.png", row, col);
   }
-  if(piece == q && color == black) {
+  if (piece == q && color == black) {
     boardOutWardRepresentation[row][col].piece = bqueen;
     generateSprite("assets/bqueen.png", row, col);
   }
-  if(piece == r && color == white) {
+  if (piece == r && color == white) {
     boardOutWardRepresentation[row][col].piece = wrook;
     generateSprite("assets/wrook.png", row, col);
   }
-  if(piece == r && color == black) {
+  if (piece == r && color == black) {
     boardOutWardRepresentation[row][col].piece = brook;
     generateSprite("assets/brook.png", row, col);
   }
-  if(piece == n && color == white) {
+  if (piece == n && color == white) {
     boardOutWardRepresentation[row][col].piece = wknight;
     generateSprite("assets/wknight.png", row, col);
   }
-  if(piece == n && color == black) {
+  if (piece == n && color == black) {
     boardOutWardRepresentation[row][col].piece = bknight;
     generateSprite("assets/bknight.png", row, col);
   }
-  if(piece == b && color == white) {
+  if (piece == b && color == white) {
     boardOutWardRepresentation[row][col].piece = wbishop;
     generateSprite("assets/wbishop.png", row, col);
   }
-  if(piece == b && color == black) {
+  if (piece == b && color == black) {
     boardOutWardRepresentation[row][col].piece = bbishop;
     generateSprite("assets/bbishop.png", row, col);
   }

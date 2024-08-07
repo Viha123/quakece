@@ -9,12 +9,13 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - Negamax and Alpha Beta Pruning Search. 
 - Move ordering based on captures first that massively reduce search space of the Alpha beta pruning
 - Piece Square Tables for the evaluation function
+- Quiescence search
+- Collect principal variation moves (for the non quiescence search)
+
 ## Features To Add:
 - Refactor code to better follow best pracitces
 - Improve Endgame Evaluation. 
-- Quiescence search
 - UCI compatibility
-- Collect principal variation moves
 - Transposition Tables ?
 - Iterative Deapening and add timer logic
 - MAYBE (bitboards and magic bitboards but that might require a huge code haul)
@@ -40,7 +41,7 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - [ ] Opening books (choose from a database of openings)
 - [x] Piece Square Lists
 - [x] Improve Endgame Evaluation.
-- [ ] Quiescence search
+- [x] Quiescence search
 - [ ] Transposition tables
 - [ ] Iterative deeping. Add timer management
 - [ ] Massively improve GUI and checkmate acknolwedgement. 

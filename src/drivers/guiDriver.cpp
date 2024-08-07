@@ -12,6 +12,7 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
+#include <chrono>
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
@@ -22,6 +23,8 @@ guiDriver::guiDriver()
       fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
       guiBoard(fen), board(fen), computerai() {
   initialize_char_to_piece();
+  // guiBoard.add_text("White turn", INFO_X, INFO_Y, info);
+  // updateWindow(window, guiBoard);
   window.draw(guiBoard); // only rerender when required
   window.display();
 }
@@ -30,6 +33,8 @@ guiDriver::guiDriver(Color color)
       fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
       guiBoard(fen), board(fen), computerai() {
   initialize_char_to_piece();
+  // guiBoard.add_text("White turn", INFO_X, INFO_Y, info);
+  // updateWindow(window, guiBoard);
   window.draw(guiBoard); // only rerender when required
   window.display();
   player_type = color;
@@ -40,6 +45,8 @@ guiDriver::guiDriver(Color color, std::string fen)
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"), fen(fen),
       guiBoard(fen), board(fen), computerai() {
   initialize_char_to_piece();
+  // guiBoard.add_text("CHECKMATE", INFO_X, INFO_Y, info);
+  // updateWindow(window, guiBoard);
   window.draw(guiBoard); // only rerender when required
   window.display();
   player_type = color;
@@ -50,13 +57,20 @@ guiDriver::guiDriver(std::string fen)
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"), fen(fen),
       guiBoard(fen), board(fen), computerai() {
   initialize_char_to_piece();
+  // guiBoard.add_text("CHECKMATE", INFO_X, INFO_Y, info);
+  // updateWindow(window, guiBoard);
   window.draw(guiBoard); // only rerender when required
   window.display();
 }
 void guiDriver::updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard) {
   window.clear();
+  // guiBoard.add_text("Hello World");
   window.draw(guiBoard);
   window.display();
+  // sf::Time elapsed1 = whiteClock.getElapsedTime();
+
+  std::cout << "White timer: " << whiteTimer.count() << std::endl;
+  std::cout << "Black timer: " << blackTimer.count() << std::endl;
 }
 void guiDriver::initialize_char_to_piece() {
   char_to_piece['q'] = q;
@@ -91,13 +105,17 @@ void guiDriver::handle_gui_promotion(Piece &promoted_piece,
   promoted_piece = foundPiece ? promoted_piece : e;
 }
 void guiDriver::play2() {
+  // whiteClock.restart();
+  // blackClock.restart();
+  const auto start{std::chrono::steady_clock::now()};
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         window.close();
       }
-
+      
+      Color playerTurn = white;
       if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Left && options == false &&
             board.gameStateHistory.peek().turn == player_type) {
@@ -110,6 +128,12 @@ void guiDriver::play2() {
           bool validMove = makeMoveOnDisplay(event, board, moves);
           checkCheckMate();
           playerMoveMade = validMove;
+          const auto end{std::chrono::steady_clock::now()};
+          const std::chrono::duration<double> elapsed_seconds{end - start};
+          whiteTimer = playerTurn == white ? whiteTimer - elapsed_seconds : whiteTimer;
+          playerTurn = playerTurn == white ? black : white;
+          
+
         } else if (event.mouseButton.button == sf::Mouse::Right) {
           handleRightClickUnmake(board);
         }
@@ -122,10 +146,16 @@ void guiDriver::play2() {
           guiBoard.updateMove(computerMove);
           updateWindow(window, guiBoard);
           checkCheckMate();
-        } catch (const std::exception &exc) {
-          std::cout << exc.what();
+        } catch (const std::out_of_range &exc) {
+          // std::cout << exc.what();
+          guiBoard.add_text("CHECKMATE", INFO_X, INFO_Y, info);
+          // window.close();
+        } catch (const std::length_error &exc) {
+          // std::cout << exc.what();
           std::cout << "\nclosing window" << std::endl;
-          window.close();
+          // window.close();
+          guiBoard.add_text("STALEMATE", INFO_X, INFO_Y, info);
+          updateWindow(window, guiBoard);
         }
       }
     }
@@ -164,14 +194,25 @@ void guiDriver::checkCheckMate() {
 
   allMoves.clear();
   Engine::getLegalMoves(board, allMoves);
-
+  std::string turn = latestState.turn == white ? "WHITE" : "BLACK";
+  std::string loss = "LOSES";
   if (allMoves.size() == 0 && Engine::kingInCheck(board, latestState.turn)) {
-    std::cout << "CHECKMATE" << std::endl;
+    std::cout << "CHECKMATE " << std::endl;
     std::cout << +latestState.turn << " "
-              << "LOSES" << std::endl;
+              << " LOSES" << std::endl;
+    std::string checkmate = "CHECKMATE";
+
+    std::string fullString = checkmate + turn + loss;
+    guiBoard.add_text(fullString, INFO_X, INFO_Y, info);
+    updateWindow(window, guiBoard);
+    // std::cout << "\nclosing window" << std::endl;
     // window.close();
   } else if (allMoves.size() == 0) {
-    std::cout << "STALEMATE" << std::endl;
+    std::cout << "STALEMATE " << std::endl;
+    std::string checkmate = "STALEMATE";
+    std::string fullString = checkmate + turn + loss;
+    guiBoard.add_text(fullString, INFO_X, INFO_Y, info);
+    updateWindow(window, guiBoard);
   }
 }
 int guiDriver::handleSquareClick(sf::Event event,
@@ -181,7 +222,7 @@ int guiDriver::handleSquareClick(sf::Event event,
       guiBoard.getPieceClicked(event.mouseButton.x, event.mouseButton.y);
 
   moves.clear();
-  Engine::getLegalMovesForPiece(board, piece_from, moves);\
+  Engine::getLegalMovesForPiece(board, piece_from, moves);
   FixedStack<Engine::Move, 256> test;
   Engine::getLegalMoves(board, test);
   guiBoard.highlightPossibleMoves(moves);

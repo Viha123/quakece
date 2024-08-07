@@ -10,8 +10,9 @@ void Computer::setSide(Color side) {
 Engine::Move Computer::makeMove(Engine::Board &board) {
   int nodes = 0;
   int depth = 5;
+  int quiesc_depth = 0;
   //detect middle and end game and change depth based on that. 
-  Engine::Move move = Engine::alphabetaroot(board, depth, nodes);
+  Engine::Move move = Engine::alphabetaroot(board, depth, nodes, quiesc_depth);
   
   move.printMove();
   board.makeMove(move);

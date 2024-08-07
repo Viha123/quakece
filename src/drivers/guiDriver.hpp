@@ -6,6 +6,7 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
+#include <chrono>
 #include <unordered_map>
 // #include <vector>
 #include "../FixedStack.hpp"
@@ -34,7 +35,11 @@ public:
   const string fen;
   Color player_type;
   Color computer_type;
-
+  sf::Text whiteTime;
+  sf::Text blackTime;
+  sf::Text info;
+  std::chrono::duration<double> whiteTimer = 5min;
+  std::chrono::duration<double> blackTimer = 5min;
   BoardDisplay guiBoard;
   Engine::Board board;
   FixedStack<Engine::Move, 256> moves;

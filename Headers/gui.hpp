@@ -8,7 +8,12 @@
 #define GREEN   "\033[32m"
 #define YELLOW  "\033[33m"
 #define BLUE    "\033[34m"
-
+#define BLACKTIME_X 900
+#define BLACKTIME_Y 200
+#define WHITETIME_X 900
+#define WHITETIME_Y 600
+#define INFO_X 800
+#define INFO_Y 400
 using namespace std;
 enum piece_values {
   wpawn = 1,
