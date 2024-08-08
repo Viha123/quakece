@@ -33,3 +33,4 @@ jobs:
           bash ./build.sh
         else
           ./build.sh
+        fi
