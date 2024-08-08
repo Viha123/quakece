@@ -23,9 +23,9 @@ public:
   // constructor is default add different fenString
   BoardDisplay();
   BoardDisplay(string fen);
-  sf::Font font;
-  sf::Text text;
-  void add_text(std::string str, int xPos, int yPos, sf::Text t);
+  // sf::Font font;
+  // sf::Text text;
+  // void add_text(std::string str, int xPos, int yPos, sf::Text t);
   int getPieceClicked(int mouseX, int mouseY);
   void highlightPossibleMoves(FixedStack<Engine::Move, 256> moves);
   void clearPossibleMoves();

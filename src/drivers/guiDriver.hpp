@@ -11,6 +11,7 @@
 // #include <vector>
 #include "../FixedStack.hpp"
 #include "Computer.hpp"
+#include "TextDriver.hpp"
 
 class guiDriver {
 public:
@@ -35,11 +36,11 @@ public:
   const string fen;
   Color player_type;
   Color computer_type;
-  sf::Text whiteTime;
-  sf::Text blackTime;
-  sf::Text info;
-  std::chrono::duration<double> whiteTimer = 5min;
-  std::chrono::duration<double> blackTimer = 5min;
+  TextDriver whiteTime;
+  TextDriver blackTime;
+  TextDriver info;
+  std::chrono::duration<double> whiteTimer = 300s;
+  std::chrono::duration<double> blackTimer = 300s;
   BoardDisplay guiBoard;
   Engine::Board board;
   FixedStack<Engine::Move, 256> moves;

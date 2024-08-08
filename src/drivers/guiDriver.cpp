@@ -10,12 +10,14 @@
 #include "../gui/BoardDisplay.hpp"
 #include "Computer.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/System/Sleep.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <chrono>
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
+#include <string>
 #include <unordered_map>
 #include <vector>
 guiDriver::guiDriver()
@@ -65,7 +67,16 @@ guiDriver::guiDriver(std::string fen)
 void guiDriver::updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard) {
   window.clear();
   // guiBoard.add_text("Hello World");
+  window.draw(info);
   window.draw(guiBoard);
+  whiteTime.add_text(std::to_string(whiteTimer.count()), WHITETIME_X,
+                     WHITETIME_Y);
+  blackTime.add_text(std::to_string(blackTimer.count()), BLACKTIME_X,
+                     BLACKTIME_Y);
+  window.draw(whiteTime);
+  window.draw(blackTime);
+
+  window.display();
   window.display();
   // sf::Time elapsed1 = whiteClock.getElapsedTime();
 
@@ -111,30 +122,19 @@ void guiDriver::play2() {
   auto start = std::chrono::steady_clock::now();
   bool whiteRunning = true;
   bool blackRunning = false;
-  Color playerTurn = white;
+  // Color playerTurn = white;
   while (window.isOpen()) {
     sf::Event event;
 
+    auto now = std::chrono::steady_clock::now();
+    const std::chrono::duration<double> elapsed_seconds{now - start};
+    start = now;
     if (whiteRunning) {
-      auto now = std::chrono::steady_clock::now();
-      const std::chrono::duration<double> elapsed_seconds{now - start};
-      whiteTimer =
-          playerTurn == white ? whiteTimer - elapsed_seconds : whiteTimer;
-      // whiteRunning = true;
-      // blackRunning = true;
-      std::cout << YELLOW << "white here" << RESET << std::endl;
-      start = std::chrono::steady_clock::now();
-    }
-    if (blackRunning) {
-      auto now = std::chrono::steady_clock::now();
-      const std::chrono::duration<double> elapsed_seconds{now - start};
-      blackTimer =
-          playerTurn == black ? blackTimer - elapsed_seconds : blackTimer;
-      // whiteRunning = true;
-      // blackRunning = false;
-      // std::cout << "black here" << std::endl;
-
-      start = std::chrono::steady_clock::now();
+      whiteTimer -= elapsed_seconds;
+      updateWindow(window, guiBoard);
+    } else if (blackRunning) {
+      blackTimer -= elapsed_seconds;
+      updateWindow(window, guiBoard);
     }
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
@@ -153,7 +153,7 @@ void guiDriver::play2() {
           bool validMove = makeMoveOnDisplay(event, board, moves);
           checkCheckMate();
           playerMoveMade = validMove;
-          playerTurn = playerTurn == black ? white : black;
+          // playerTurn = playerTurn == black ? white : black;
           if (player_type == white) {
             whiteRunning = false;
             blackRunning = true;
@@ -180,8 +180,8 @@ void guiDriver::play2() {
           guiBoard.updateMove(computerMove);
           updateWindow(window, guiBoard);
           checkCheckMate();
-          playerTurn = playerTurn == black ? white : black;
-
+          // playerTurn = playerTurn == black ? white : black;
+          std::cout << "move made" << std::endl;
           if (computer_type == white) {
             std::cout << GREEN << "toggled" << RESET << std::endl;
 
@@ -195,13 +195,14 @@ void guiDriver::play2() {
           }
         } catch (const std::out_of_range &exc) {
           // std::cout << exc.what();
-          guiBoard.add_text("CHECKMATE", INFO_X, INFO_Y, info);
+          info.add_text("CHECKMATE", INFO_X, INFO_Y);
+          updateWindow(window, guiBoard);
           // window.close();
         } catch (const std::length_error &exc) {
           // std::cout << exc.what();
           std::cout << "\nclosing window" << std::endl;
           // window.close();
-          guiBoard.add_text("STALEMATE", INFO_X, INFO_Y, info);
+          info.add_text("STALEMATE", INFO_X, INFO_Y);
           updateWindow(window, guiBoard);
         }
       }
@@ -250,7 +251,7 @@ void guiDriver::checkCheckMate() {
     std::string checkmate = "CHECKMATE";
 
     std::string fullString = checkmate + turn + loss;
-    guiBoard.add_text(fullString, INFO_X, INFO_Y, info);
+    info.add_text(fullString, INFO_X, INFO_Y);
     updateWindow(window, guiBoard);
     // std::cout << "\nclosing window" << std::endl;
     // window.close();
@@ -258,7 +259,7 @@ void guiDriver::checkCheckMate() {
     std::cout << "STALEMATE " << std::endl;
     std::string checkmate = "STALEMATE";
     std::string fullString = checkmate + turn + loss;
-    guiBoard.add_text(fullString, INFO_X, INFO_Y, info);
+    info.add_text(fullString, INFO_X, INFO_Y);
     updateWindow(window, guiBoard);
   }
 }

@@ -21,16 +21,14 @@ BoardDisplay::BoardDisplay() {
   string defaultFendString =
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   parseFenString(defaultFendString);
-  if (!font.loadFromFile("assets/JetBrainsMono-Regular.ttf")) {
-    // error...
-  }
+  // if (!font.loadFromFile("assets/JetBrainsMono-Regular.ttf")) {
+  //   // error...
+  // }
 }
 BoardDisplay::BoardDisplay(string fen) {
   // nothing
   parseFenString(fen);
-  if (!font.loadFromFile("assets/JetBrainsMono-Regular.ttf")) {
-    // error...
-  }
+  
 }
 void BoardDisplay::parseFenString(string fenString) {
   string token = fenString.substr(0, fenString.find(" ")); // part 1 of string
@@ -284,28 +282,28 @@ void BoardDisplay::draw(sf::RenderTarget &target,
         target.draw(*boardOutWardRepresentation[rank][file].sprite, states);
       }
     }
-    target.draw(text);
+    // target.draw(text);
   }
 }
-void BoardDisplay::add_text(std::string str, int xPos, int yPos, sf::Text t) {
-  text = t;
-  text.setFont(font); // font is a sf::Font
+// void BoardDisplay::add_text(std::string str, int xPos, int yPos, sf::Text t) {
+//   text = t;
+//   text.setFont(font); // font is a sf::Font
 
-  // set the string to display
-  text.setString(str);
+//   // set the string to display
+//   text.setString(str);
 
-  // set the character size
-  text.setCharacterSize(24); // in pixels, not points!
+//   // set the character size
+//   text.setCharacterSize(24); // in pixels, not points!
 
-  // set the color
-  text.setFillColor(sf::Color::White);
+//   // set the color
+//   text.setFillColor(sf::Color::White);
 
-  // set the text style
-  text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+//   // set the text style
+//   text.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
-  // set position
-  text.setPosition(xPos,yPos);
-;}
+//   // set position
+//   text.setPosition(xPos,yPos);
+// ;}
 int BoardDisplay::getPieceClicked(int mouseX, int mouseY) {
   int row = mouseY / 100;
   int col = mouseX / 100;
