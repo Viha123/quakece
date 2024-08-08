@@ -36,4 +36,4 @@ jobs:
       run: cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}}
 
     - name: Build
-      run: cmake --build build --config Release
+      run: ./build.sh
