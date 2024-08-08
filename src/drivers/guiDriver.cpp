@@ -78,10 +78,6 @@ void guiDriver::updateWindow(sf::RenderWindow &window, BoardDisplay &guiBoard) {
 
   window.display();
   window.display();
-  // sf::Time elapsed1 = whiteClock.getElapsedTime();
-
-  std::cout << "White timer: " << whiteTimer.count() << std::endl;
-  std::cout << "Black timer: " << blackTimer.count() << std::endl;
 }
 void guiDriver::initialize_char_to_piece() {
   char_to_piece['q'] = q;
@@ -154,11 +150,12 @@ void guiDriver::play2() {
           checkCheckMate();
           playerMoveMade = validMove;
           // playerTurn = playerTurn == black ? white : black;
-          if (player_type == white) {
+
+          if (player_type == white && validMove) {
             whiteRunning = false;
             blackRunning = true;
           }
-          if (player_type == black) {
+          if (player_type == black && validMove) {
             std::cout << BLUE << "toggled" << RESET << std::endl;
 
             blackRunning = false;
@@ -177,19 +174,23 @@ void guiDriver::play2() {
         playerMoveMade = false;
         try {
           Engine::Move computerMove = computerai.makeMove(board);
+          auto now = std::chrono::steady_clock::now();
+          const std::chrono::duration<double> elapsed_seconds{now - start};
+          start = now;
           guiBoard.updateMove(computerMove);
           updateWindow(window, guiBoard);
           checkCheckMate();
           // playerTurn = playerTurn == black ? white : black;
-          std::cout << "move made" << std::endl;
           if (computer_type == white) {
             std::cout << GREEN << "toggled" << RESET << std::endl;
-
+            whiteTimer -= elapsed_seconds;
+            updateWindow(window, guiBoard);
             whiteRunning = false;
             blackRunning = true;
           }
           if (computer_type == black) {
-
+            blackTimer -= elapsed_seconds;
+            updateWindow(window, guiBoard);
             blackRunning = false;
             whiteRunning = true;
           }
@@ -210,9 +211,22 @@ void guiDriver::play2() {
   }
 }
 void guiDriver::play() {
-
+  auto start = std::chrono::steady_clock::now();
+  bool whiteRunning = true;
+  bool blackRunning = false;
   while (window.isOpen()) {
     sf::Event event;
+    auto now = std::chrono::steady_clock::now();
+    const std::chrono::duration<double> elapsed_seconds{now - start};
+    start = now;
+    if (whiteRunning) {
+      whiteTimer -= elapsed_seconds;
+      updateWindow(window, guiBoard);
+    } else if (blackRunning) {
+      blackTimer -= elapsed_seconds;
+      updateWindow(window, guiBoard);
+    }
+
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         window.close();
@@ -224,7 +238,16 @@ void guiDriver::play() {
         } else if (event.mouseButton.button == sf::Mouse::Left &&
                    options == true) {
           // the player is clicking on a MOVE_TO OR AN INVALID MOVE.
-          makeMoveOnDisplay(event, board, moves);
+          bool valid = makeMoveOnDisplay(event, board, moves);
+          if (valid and board.gameStateHistory.peek().turn == black) {
+            whiteRunning = false;
+            blackRunning = true;
+          }
+          if (valid and board.gameStateHistory.peek().turn == white) {
+            whiteRunning = true;
+            blackRunning = false;
+          }
+
           Engine::evaluation(board.gameStateHistory.peek().turn, board);
 
         } else if (event.mouseButton.button == sf::Mouse::Right) {
@@ -320,7 +343,6 @@ bool guiDriver::makeMoveOnDisplay(sf::Event event, Engine::Board &board,
         guiBoard.updateMove(i);
         // Engine::Move::history.push_back(&i);
         updateWindow(window, guiBoard);
-        board.display();
         // board.display();
 
         return true;
