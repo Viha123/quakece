@@ -1,0 +1,38 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up CMake
+      uses: lukka/get-cmake@v3
+
+    - name: Set up dependencies
+      run: |
+        if [ $RUNNER_OS == 'Linux' ]; then
+          sudo apt-get update
+          sudo apt-get install -y g++
+        elif [ $RUNNER_OS == 'macOS' ]; then
+          brew update
+          brew install gcc
+        elif [ $RUNNER_OS == 'Windows' ]; then
+          choco install mingw
+        fi
+
+    - name: Build using build.sh
+      run: |
+        if [ $RUNNER_OS == 'Windows' ]; then
+          bash ./build.sh
+        else
+          ./build.sh

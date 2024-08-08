@@ -1,5 +1,30 @@
 # Chess Engine!
 This is an attempt to make a Chess Engine that is UCI complient eventually, as well as a basic GUI that allows you to test and play the game. 
+## How to build and run?
+### To build:
+- Ensure you have CMAKE and a g++ installed.
+```./build.sh```
+### To run and play against AI: 
+```build/bin/main 1```
+### To run and play against another player:
+```build/bin/main 2```
+### To debug:
+- ```cd build```
+- ```cmake -DCMAKE_BUILD_TYPE=Debug ..```
+### To run in debug mode: (in dir outside of build)
+- ```gdb --args build/bin/main 2```
+
+### To run valgrind: 
+- first compile then run with:
+- ```valgrind --leak-check=full -v build/bin/main p```
+### To profile: 
+- cd build
+- ```cmake -DENABLE_PROFILING=ON ..```
+- run the profiler command:
+```gprof build/bin/main gmon.out```
+- turn the text output into graph form (assume gprof2dot and graphviz are installed):
+```gprof build/bin/main gmon.out | gprof2dot -s -w | dot -Tpng -o output.png```
+
 ## Current Features:
 - GUI player 1 vs player 2 and GUI player 1 vs Computer
 - Mailbox Representation for the Board
@@ -44,35 +69,8 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - [x] Quiescence search
 - [ ] Transposition tables
 - [ ] Iterative deeping. Add timer management
-- [ ] Massively improve GUI and checkmate acknolwedgement. 
-
-## How to build and run?
-### To build:
-```cmake --build ./build```
-### To run and play against AI: 
-```build/bin/main 1```
-### To run and play against another player:
-```build/bin/main 2```
-
-
-### To debug:
-- ```cd build```
-- ```cmake -DCMAKE_BUILD_TYPE=Debug ..```
-### To run in debug mode: (in dir outside of build)
-- ```gdb --args build/bin/main 2```
-
-### To run valgrind: 
-- first compile then run with:
-- ```valgrind --leak-check=full -v build/bin/main p```
-### To profile: 
-- cd build
-- ```cmake -DENABLE_PROFILING=ON ..```
-- run the profiler command:
-```gprof build/bin/main gmon.out```
-- turn the text output into graph form (assume gprof2dot and graphviz are installed):
-```gprof build/bin/main gmon.out | gprof2dot -s -w | dot -Tpng -o output.png```
-### To add more executables:
-- still trying to figure out
+- [ ] Improve GUI
+- [x] checkmate acknolwedgement and Timer in GUI. 
 
 ## Resources used:
 - https://sites.google.com/site/tscpchess/home?authuser=0
