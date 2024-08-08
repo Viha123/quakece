@@ -23,8 +23,7 @@ file(GLOB EXEC_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp
                    )
 
 add_executable(main ${EXEC_SRC})
-
-target_link_libraries(main PRIVATE sfml-graphics)
+target_link_libraries(main sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
 target_compile_features(main PRIVATE cxx_std_17)
 
 if(WIN32)

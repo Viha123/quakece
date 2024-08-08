@@ -11,7 +11,7 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - Piece Square Tables for the evaluation function
 - Quiescence search
 - Collect principal variation moves (for the non quiescence search)
-
+- Basic Timer on the GUI. 
 ## Features To Add:
 - Refactor code to better follow best pracitces
 - Improve Endgame Evaluation. 
@@ -45,10 +45,15 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 - [ ] Transposition tables
 - [ ] Iterative deeping. Add timer management
 - [ ] Massively improve GUI and checkmate acknolwedgement. 
+
+## How to build and run?
 ### To build:
 ```cmake --build ./build```
-### To run: 
-```build/bin/main```
+### To run and play against AI: 
+```build/bin/main 1```
+### To run and play against another player:
+```build/bin/main 2```
+
 
 ### To debug:
 - ```cd build```
@@ -69,9 +74,9 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 ### To add more executables:
 - still trying to figure out
 
-## Major Resources used:
+## Resources used:
 - https://sites.google.com/site/tscpchess/home?authuser=0
 - https://www.chess.com/terms/fen-chess
 - https://www.chessprogramming.org/Main_Page
-## Heavily inspired by:
+## Inspired by:
 - Tom Kerrigen's Simple Chess program

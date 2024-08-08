@@ -10,16 +10,13 @@
 #include "../gui/BoardDisplay.hpp"
 #include "Computer.hpp"
 #include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/System/Sleep.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
 #include <chrono>
 #include <iostream>
-#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <vector>
 guiDriver::guiDriver()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "CHESS GUI"),
       fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),

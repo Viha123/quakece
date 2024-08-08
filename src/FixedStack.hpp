@@ -1,6 +1,5 @@
 #include <array>
 #include <stdexcept>
-#include <ranges>
 #pragma once
 // This is a wrapper to the array class. It is a FixedStack with all the stack
 // functionality but with the class keeping the index of the top
