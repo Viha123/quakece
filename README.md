@@ -3,7 +3,8 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 ## How to build and run?
 ### To build:
 - Ensure you have CMAKE and a g++ installed.
-```./build.sh```
+- Then run:
+    -  ```./build.sh```
 ### To run and play against AI: 
 ```build/bin/main 1```
 ### To run and play against another player:
