@@ -25,6 +25,8 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 ```gprof build/bin/main gmon.out```
 - turn the text output into graph form (assume gprof2dot and graphviz are installed):
 ```gprof build/bin/main gmon.out | gprof2dot -s -w | dot -Tpng -o output.png```
+## Example Video Link: 
+[Link to video of an example play against AI (playing as white)](https://www.youtube.com/watch?v=RsK19mFi5p0)
 
 ## Current Features:
 - GUI player 1 vs player 2 and GUI player 1 vs Computer
