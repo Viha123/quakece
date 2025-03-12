@@ -16,7 +16,7 @@ std::string Board::toFenString() {
           fen << emptyCount;
           emptyCount = 0;
         }
-        char pieceChar = sq.c; // Implement this function based on your Piece and Color enums
+        char pieceChar = sq.c; 
         fen << pieceChar;
       }
     }
@@ -44,7 +44,7 @@ std::string Board::toFenString() {
   // En passant target square
   fen << ' ' << (lastState.enpessant == -1 ? "-" : squareToNotation(lastState.enpessant)); // Implement squareToNotation based on your system
 
-  // Assuming halfmove and fullmove counters are not tracked, use placeholders
+  // halfmove and fullmove counters are not tracked, use placeholders
   fen << " 0 1";
 
   return fen.str();

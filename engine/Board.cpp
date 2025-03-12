@@ -1,22 +1,25 @@
-#include "Board.hpp"
-#include "../Headers/engine.hpp"
-#include "../utils.hpp"
 #include <array>
 #include <cassert>
 #include <cctype>
 #include <iostream>
+#include <random>
 #include <stdexcept>
 #include <string>
 // #include <vector>
+
+#include "../Headers/engine.hpp"
+#include "../utils.hpp"
+#include "Board.hpp"
 namespace Engine {
 Board::Board() {
   std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   history = {};
   // state = std::make_unique<State>();
-
   gameStateHistory.push(state);
   generateBoardFromFen(fen);
   // populatePieceList(white);
+  initializeZobristHashing();
+  generateZobristKey();
 }
 
 Board::Board(std::string fen) {
@@ -24,6 +27,9 @@ Board::Board(std::string fen) {
   // gameStateHistory = {};
   gameStateHistory.push(state);
   generateBoardFromFen(fen);
+  initializeZobristHashing();
+  generateZobristKey();
+
   // initializePieceArrays();
   // populatePieceList();
 }
@@ -161,7 +167,7 @@ void Board::makeMove(
     Move &move) { // updates the board representation given the move
   bool enpessantToggled = false;
   state = gameStateHistory.peek();
-
+    
   State newState = state;
   // std::cout << "new state created ";
   // displayState(newState);
@@ -169,8 +175,18 @@ void Board::makeMove(
   Piece pieceTo = board[move._move_to].piece;
   Square &move_to_square = board[move._move_to];
   Square &move_from_square = board[move._move_from];
-  // Color oppType = move_from_square.type == white ? black : white;
   Color currType = move_from_square.type;
+
+  zobristKey ^=
+      zobristHash
+          .pieces[pieceFrom][currType]
+                 [move._move_from]; // removing piece from the Move_from square
+
+  ;
+  zobristKey ^=
+      zobristHash.pieces[pieceFrom][currType]
+                        [move._move_to]; // adding piece to Move_to square
+
   if (move._isCapture && pieceTo != r && !move._isPromotion && pieceFrom != k &&
       pieceFrom != r) { // simply replace the thing that was previously at that
                         // box
@@ -308,11 +324,9 @@ void Board::makeMove(
     // pieceSets[currType].insert(move._move_to);
     // if pawn and if pawn did a double jump
     if (move._move_from - move._move_to == -16) { // black double jump
-      // board[move._move_to].jumpCount = 1;
       newState.enpessant = move._move_to - 8;
       enpessantToggled = true;
     } else if (move._move_from - move._move_to == 16) {
-      // board[move._move_to].jumpCount = 1;
       newState.enpessant = move._move_to + 8;
       enpessantToggled = true;
     }
@@ -330,7 +344,14 @@ void Board::makeMove(
 
   if (enpessantToggled == false) {
     newState.enpessant = -1;
+  } else {
+    // we know enpessant happened
+    std::cout << "before enpessant move made" << zobristKey << std::endl;
+    std::cout << "ep: " << int(newState.enpessant) << std::endl;
+    zobristKey ^= zobristHash.en_pessant[newState.enpessant];
+    std::cout << "after enpessant move made" << zobristKey << std::endl;
   }
+  zobristKey ^= zobristHash.side;
   history.push(move);
   // std::cout << "appending new state to history: " << std::endl;
   // displayState(newState);
@@ -355,34 +376,63 @@ void Board::handleCastleToggle(Move &move, State &newState) {
   if (move._move_from == 63 || move._move_to == 63) {
     // turn off white king side castle
     newState.castle_flag &= 0b1110;
+    zobristKey ^= zobristHash.castle_rights[0];
   }
   if (move._move_from == 56 || move._move_to == 56) {
     // turn off white queen side castle
     newState.castle_flag &= 0b1101;
+    zobristKey ^= zobristHash.castle_rights[1];
+
   }
   if (move._move_from == 0 || move._move_to == 0) {
     // turn off black queen side castle
     newState.castle_flag &= 0b0111;
+    zobristKey ^= zobristHash.castle_rights[3];
+
   }
   if (move._move_from == 7 || move._move_to == 7) {
     // turn off black king side castle
     // std::cout << "here??" << std::endl;
     newState.castle_flag &= 0b1011;
+    zobristKey ^= zobristHash.castle_rights[2];
+
   }
+  // zobristKey ^= newState.castle_flag;
 }
 void Board::unmakeMove(Move &move) {
   // std::cout << "Move to unmake: " << std::endl;
   // display();
+  if (gameStateHistory.peek().enpessant != -1) {
+    std::cout << "before enpessant move unmade" << zobristKey << std::endl;
+    std::cout << "ep: " << int(gameStateHistory.peek().enpessant) << std::endl;
+    zobristKey ^= zobristHash.en_pessant[gameStateHistory.peek().enpessant];
+    std::cout << "after enpessant move unmade" << zobristKey << std::endl;
+  }
+  auto currentCastleState = gameStateHistory.peek().castle_flag;
   history.pop();
   gameStateHistory.pop();
+  auto previousCastleState = gameStateHistory.peek().castle_flag;
+  for (int i = 0; i < 4; i++) {
+    if ((currentCastleState & (1 << i)) != (previousCastleState & (1 << i))) {
+      // restore the old state
+      zobristKey ^= zobristHash.castle_rights[i];
+    }
+  }
   Square &move_to_square = board[move._move_to];
   Square &move_from_square = board[move._move_from];
   Color oppType = move_to_square.type == white ? black : white;
   Color currType = move_to_square.type;
   // move.printMove();
+  std::cout << " before zobrist move unmade" << zobristKey << std::endl;
+  zobristKey ^= zobristHash.pieces[move_to_square.piece][currType]
+                                  [move._move_to]; // remove piece from Move_to
+  zobristKey ^= zobristHash.pieces[move_to_square.piece][currType]
+                                  [move._move_from]; // add piece to Move_from
+  std::cout << " after zobrist move unmade" << zobristKey << std::endl;
 
   auto &state =
       gameStateHistory.peek(); // state before the move that was deleted
+  zobristKey ^= zobristHash.side;
   if (move._isCapture &&
       move._move_to != state.enpessant) { // enpessant unmake would be wrong
     if (!move._isPromotion) {
@@ -462,6 +512,8 @@ void Board::unmakeMove(Move &move) {
       // display();
     }
     kingIndexes[currType] = move._move_from;
+    // castle move undo, zobrist key
+
   } else if (move._isPromotion && !move._isCapture) {
     // std::cout << "not covered yet" << std::endl;
     Square pawnSquare = {
@@ -480,6 +532,71 @@ void Board::unmakeMove(Move &move) {
     // pieceSets[currType].erase(move._move_to);
     // pieceSets[currType].insert(move._move_from);
   }
+}
+
+void Board::generateZobristKey() {
+  for (int i = 0; i < 64; i++) {
+    if (board[i].piece != n) {
+      Piece p = board[i].piece;
+      Color c = board[i].type;
+      zobristKey ^= zobristHash.pieces[p][c][i];
+    }
+    if (gameStateHistory.peek().enpessant != -1) {
+      zobristKey ^= zobristHash.en_pessant[i];
+    }
+  }
+  for (int k = 0; k < 4; k++) {
+    zobristKey ^=
+        zobristHash
+            .castle_rights[k]; // initially all of them are available. ONLY
+                               // WORKS FOR INITIAL POS. NEED TO UPDATE IF YOU
+                               // USE IT FOR DIFFERENT CASTLE RIGHTS!!!!!!!!!!
+  }
+  zobristKey ^= zobristHash.side;
+  // zobristKey ^= zobristHash.en_pessant;
+}
+
+void Board::initializeZobristHashing() {
+  // every array in the Zobrist struct should consist of random numbers
+  std::random_device rd;
+  std::mt19937_64 gen(rd());
+  std::uniform_int_distribution<long> dis;
+  for (int i = 0; i < 64; i++) {
+    for (int j = 0; j < 6; j++) {
+      zobristHash.pieces[j][Color::white][i] = dis(gen);
+      zobristHash.pieces[j][Color::black][i] = dis(gen);
+    }
+    zobristHash.en_pessant[i] = dis(gen);
+  }
+  // zobristHash.en_pessant/ = dis(gen);
+  for (int k = 0; k < 4; k++) {
+    zobristHash.castle_rights[k] = dis(gen);
+  }
+  zobristHash.side = dis(gen);
+  // printZobristHashStruct();
+}
+void Board::printZobristHashStruct() {
+  std::cout << "Zobrist Hash Values:\n";
+
+  // Print piece positions
+  for (int pieceType = 0; pieceType < 6; ++pieceType) {
+    for (int color = 0; color < 2; ++color) {
+      for (int square = 0; square < 64; ++square) {
+        std::cout << "Piece Type " << pieceType << ", Color " << color
+                  << ", Square " << square << ": "
+                  << zobristHash.pieces[pieceType][color][square] << "\n";
+      }
+    }
+  }
+
+  // Print en passant squares
+  for (int square = 0; square < 64; ++square) {
+    std::cout << "En Passant Square " << square << ": "
+              << zobristHash.en_pessant[square] << "\n";
+  }
+
+  // Print side to move
+  std::cout << "Side to Move: " << zobristHash.side << "\n";
 }
 inline void Board::toggleTurn() {
   auto &s = gameStateHistory.peek();

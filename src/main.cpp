@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     guiDriver gui(black, fen); // player play as white
     gui.play2();
   } else if (*argv[1] == 'u') {
-    //implement UCI protocol
-    
+    // implement UCI protocol
+
   } else if (*argv[1] == 'p') {
 
     // Tests::testCases();
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     Engine::Board perftBoard(fen); // initial start position
     // int depth = *argv[2] - '0';
 
-    for (int d = 1; d <= 6; d++) {
+    for (int d = 1; d <= 3; d++) {
       clock_t start, end;
       start = clock();
 
@@ -58,6 +58,27 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     Tests::divide(depth, fen);
   } else if (*argv[1] == 't') { // Perft Suite tests
     Tests::testCases();
+  } else if (*argv[1] == 'z') { // Zobrist Hashing testing
+    Engine::Board board;
+    cout << board.zobristKey << endl;
+    Engine::Move a2a4(48, 32, false, false, false, Piece::e, Piece::e);
+
+    board.makeMove(a2a4);
+    cout << board.zobristKey << endl;
+    board.unmakeMove(a2a4);
+    cout << board.zobristKey << endl;
+
+    cout << "<______________________________>" << endl;
+    cout << board.zobristKey << endl;
+    long key = board.zobristKey;
+    key ^= board.zobristHash.pieces[0][0][48];
+    key ^= board.zobristHash.pieces[0][0][32];
+    cout << key << endl;
+    key ^= board.zobristHash.pieces[0][0][48];
+    key ^= board.zobristHash.pieces[0][0][32];
+    cout << key << endl;
+
+
   } else if (*argv[1] == 's') { // FixedStack testing
     // std::size_t sizearr = 10;
     FixedStack<int, 10> mystack;
@@ -80,7 +101,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
       mystack.pop();
     }
   } else {
-    cout << "Mode not accepted" << endl;
+    cout << "Mode not accepted" << *argv[1] << endl;
   }
   (void)argc;
   return 0;

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Computer.hpp"
 #include "../../engine/Board.hpp"
 #include "../../engine/move.hpp"
