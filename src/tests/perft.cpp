@@ -3,19 +3,18 @@
 #include "../../engine/move.hpp"
 #include "../../engine/movegen/movegen.hpp"
 #include "../../utils.hpp"
+#include "../FixedStack.hpp"
 #include <cassert>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <utility>
-#include "../FixedStack.hpp"
 namespace Tests {
-int perft(Engine::Board &board, int depth) {
-
+int perft(Engine::Board &board, int depth, std::ofstream &debugFile) {
   FixedStack<Engine::Move, 256> moves;
   Engine::getLegalMoves(board, moves);
   Engine::orderMoves(moves, board);
-  if(depth == 0) {
+  if (depth == 0) {
     return 1;
   }
   if (depth == 1) {
@@ -23,23 +22,31 @@ int perft(Engine::Board &board, int depth) {
   }
 
   int nodes = 0;
-  for (int i = 0; i < moves.size(); i ++) {
+  for (int i = 0; i < moves.size(); i++) {
     auto move = moves[i];
+    long currentZobrist = board.zobristKey;
     board.makeMove(move);
-    int node = perft(board, depth - 1);
+    int node = perft(board, depth - 1, debugFile);
     nodes += node;
     board.unmakeMove(move);
+    long newZobrist = board.zobristKey;
+    // assert(currentZobrist == newZobrist && move.printMove());
+    if (currentZobrist != newZobrist) {
+      debugFile << depth << " " << i << " " <<  currentZobrist << " " << newZobrist << std::endl;
+      board.display(debugFile);
+      move.printMove(debugFile);
+    }
   }
   // std::cout << moves.size() << std::endl;
   return nodes;
 }
-void divide(int depth, std::string fen) {
+void divide(int depth, std::string fen, std::ofstream &debugFile) {
   // starter
   Engine::Board perftBoard(fen);
   FixedStack<Engine::Move, 256> moves;
   Engine::getLegalMoves(perftBoard, moves);
   // std::cout << "board created" << std::endl;
-  for (uint i = 0; i < moves.size(); i ++) {
+  for (uint i = 0; i < moves.size(); i++) {
     auto move = moves[i];
 
     // if (move._move_from == 6 && move._move_to == 21) {
@@ -75,7 +82,7 @@ void divide(int depth, std::string fen) {
     std::string fen = perftBoard.toFenString();
     std::cout << fen << std::endl;
     // perftBoard.display();
-    int nodes = perft(perftBoard, depth - 1);
+    int nodes = perft(perftBoard, depth - 1, debugFile);
     std::cout << utils::convertToChessNotation(move._move_from)
               << utils::convertToChessNotation(move._move_to) << " " << nodes
               << std::endl;
@@ -126,11 +133,11 @@ bool testCases() {
   } else {
     std::cout << "unable to open file" << std::endl;
   }
-
+  std::ofstream debugFile("src/crashes/testcases_zobrist.txt");
   for (int i = 0; i < 128; i++) {
     Engine::Board perftBoard(fenStrings[i]); // initial start position
     for (int j = 0; j < 5; j++) {
-      int nodes = perft(perftBoard, j + 1);
+      int nodes = perft(perftBoard, j + 1, debugFile);
       if (nodes == depthValues[i][j]) {
         std::cout << GREEN << "Test Case " << i << " depth: " << j + 1 << RESET
                   << std::endl;

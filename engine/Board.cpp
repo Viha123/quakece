@@ -166,8 +166,9 @@ void Board::populatePieceList(Color color) {
 void Board::makeMove(
     Move &move) { // updates the board representation given the move
   bool enpessantToggled = false;
+  bool enpessantCapture = false;
   state = gameStateHistory.peek();
-    
+
   State newState = state;
   // std::cout << "new state created ";
   // displayState(newState);
@@ -176,13 +177,13 @@ void Board::makeMove(
   Square &move_to_square = board[move._move_to];
   Square &move_from_square = board[move._move_from];
   Color currType = move_from_square.type;
+  Color oppType = currType == white ? black : white;
 
   zobristKey ^=
       zobristHash
           .pieces[pieceFrom][currType]
                  [move._move_from]; // removing piece from the Move_from square
 
-  ;
   zobristKey ^=
       zobristHash.pieces[pieceFrom][currType]
                         [move._move_to]; // adding piece to Move_to square
@@ -194,10 +195,12 @@ void Board::makeMove(
       // enpessant capture
       // std::cout << "Making enpessant" << std::endl;
       board[move._move_to - 8] = emptySquare;
+      enpessantCapture = true;
       // pieceSets[oppType].erase(move._move_to - 8);
     } else if (pieceTo == e && move_from_square.type == white) {
       // std::cout << "Making enpessant" << std::endl;
       board[move._move_to + 8] = emptySquare;
+      enpessantCapture = true;
       // pieceSets[oppType].erase(move._move_to + 8);
     }
     move_to_square = move_from_square;
@@ -228,11 +231,14 @@ void Board::makeMove(
       // pieceSets[currType].insert(move._move_to - 1);
       if (move_to_square.type == white) {
         // flip bit to not allow white king castle
+
         newState.castle_flag &= 0b1100;
+        zobristDisableCastle(newState.castle_flag);
       }
       if (move_to_square.type == black) {
         // flip bit to not allow black king castle
         newState.castle_flag &= 0b0011;
+        zobristDisableCastle(newState.castle_flag);
       }
     }
     if (file == 2) { // queen side castle
@@ -250,11 +256,13 @@ void Board::makeMove(
         // flip bit to not allow white queen castle
         newState.castle_flag &=
             0b1100; // turn off all castles for that color because once you
-                    // castle once you cannot castle again.
+        // castle once you cannot castle again.
+        zobristDisableCastle(newState.castle_flag);
       }
       if (move_to_square.type == black) {
         // flip bit to not allow black queen castle
         newState.castle_flag &= 0b0011;
+        zobristDisableCastle(newState.castle_flag);
       }
       // display();
     }
@@ -280,9 +288,11 @@ void Board::makeMove(
       kingIndexes[currType] = move._move_to;
       if (move_to_square.type == black) {
         newState.castle_flag &= 0b0011;
+        zobristDisableCastle(newState.castle_flag);
       }
       if (move_to_square.type == white) {
         newState.castle_flag &= 0b1100;
+        zobristDisableCastle(newState.castle_flag);
       }
     }
 
@@ -306,11 +316,14 @@ void Board::makeMove(
     // }
     if (move_to_square.type == black) {
       newState.castle_flag &= 0b0011;
+      zobristDisableCastle(newState.castle_flag);
     }
     if (move_to_square.type == white) {
       // std::cout << "HERE canceling out the castle" << std::endl;
       // toFenString();
       newState.castle_flag &= 0b1100;
+      // zobristDisableWhiteCastle();
+      zobristDisableCastle(newState.castle_flag);
     }
     kingIndexes[currType] = move._move_to;
   }
@@ -346,10 +359,22 @@ void Board::makeMove(
     newState.enpessant = -1;
   } else {
     // we know enpessant happened
-    std::cout << "before enpessant move made" << zobristKey << std::endl;
-    std::cout << "ep: " << int(newState.enpessant) << std::endl;
+    // std::cout << "before enpessant move made" << zobristKey << std::endl;
+    // std::cout << "ep: " << int(newState.enpessant) << std::endl;
     zobristKey ^= zobristHash.en_pessant[newState.enpessant];
-    std::cout << "after enpessant move made" << zobristKey << std::endl;
+
+    // std::cout << "after enpessant move made" << zobristKey << std::endl;
+  }
+  if (move._isCapture && !enpessantCapture) {
+    zobristKey ^=
+        zobristHash
+            .pieces[pieceTo][oppType][move._move_to]; // remove this from there.
+  } else if (move._isCapture && enpessantCapture) {
+    int offset = currType == white ? 8 : -8;
+    zobristKey ^=
+        zobristHash
+            .pieces[p][oppType]
+                   [move._move_to + offset]; // remove enpessant captured piece
   }
   zobristKey ^= zobristHash.side;
   history.push(move);
@@ -371,65 +396,107 @@ void Board::makeMove(
   // history.back()->printMove();
   // if promotion then turn pawn into queen, king, whatevs
 }
+void Board::zobristDisableBlackCastle() { // this is actually toggling.
+  zobristKey ^= zobristHash.castle_rights[b_king_side];
+  zobristKey ^= zobristHash.castle_rights[b_queen_side];
+}
+void Board::zobristDisableWhiteCastle() {
+  zobristKey ^= zobristHash.castle_rights[w_king_side];
+  zobristKey ^= zobristHash.castle_rights[w_queen_side];
+}
+void Board::zobristDisableCastle(const uint8_t &new_castle_flag) {
+  uint8_t remaining_castle =
+      (~new_castle_flag) &
+      gameStateHistory.peek()
+          .castle_flag; // compare new and old, and make sure you ONLY toggle
+                        // when castle flag is differnt.
+  for (int i = 0; i < 4; i++) {
+    if ((remaining_castle & (1 << i)) == pow(2, i)) {
+      zobristKey ^= zobristHash.castle_rights[i]; // turn off once and for all.
+    }
+  }
+}
 void Board::handleCastleToggle(Move &move, State &newState) {
   // std::cout << "here" << std::endl;
+  // std::cout << "Before Castle Make: " << zobristKey << std::endl;
   if (move._move_from == 63 || move._move_to == 63) {
     // turn off white king side castle
     newState.castle_flag &= 0b1110;
-    zobristKey ^= zobristHash.castle_rights[0];
+    zobristDisableCastle(newState.castle_flag);
+    // zobristKey ^= zobristHash.castle_rights[w_king_side];
   }
   if (move._move_from == 56 || move._move_to == 56) {
     // turn off white queen side castle
     newState.castle_flag &= 0b1101;
-    zobristKey ^= zobristHash.castle_rights[1];
+    zobristDisableCastle(newState.castle_flag);
 
+    // zobristKey ^= zobristHash.castle_rights[w_queen_side];
   }
   if (move._move_from == 0 || move._move_to == 0) {
     // turn off black queen side castle
     newState.castle_flag &= 0b0111;
-    zobristKey ^= zobristHash.castle_rights[3];
+    zobristDisableCastle(newState.castle_flag);
 
+    // zobristKey ^= zobristHash.castle_rights[b_king_side];
   }
   if (move._move_from == 7 || move._move_to == 7) {
     // turn off black king side castle
     // std::cout << "here??" << std::endl;
     newState.castle_flag &= 0b1011;
-    zobristKey ^= zobristHash.castle_rights[2];
+    zobristDisableCastle(newState.castle_flag);
 
+    // zobristKey ^= zobristHash.castle_rights[b_queen_side];
   }
+  // std::cout << "After Castle Make " << zobristKey << std::endl;
+
   // zobristKey ^= newState.castle_flag;
 }
 void Board::unmakeMove(Move &move) {
   // std::cout << "Move to unmake: " << std::endl;
   // display();
   if (gameStateHistory.peek().enpessant != -1) {
-    std::cout << "before enpessant move unmade" << zobristKey << std::endl;
-    std::cout << "ep: " << int(gameStateHistory.peek().enpessant) << std::endl;
+    // std::cout << "before enpessant move unmade" << zobristKey << std::endl;
+    // std::cout << "ep: " << int(gameStateHistory.peek().enpessant) <<
+    // std::endl;
     zobristKey ^= zobristHash.en_pessant[gameStateHistory.peek().enpessant];
-    std::cout << "after enpessant move unmade" << zobristKey << std::endl;
+    // std::cout << "after enpessant move unmade" << zobristKey << std::endl;
   }
+
   auto currentCastleState = gameStateHistory.peek().castle_flag;
   history.pop();
   gameStateHistory.pop();
   auto previousCastleState = gameStateHistory.peek().castle_flag;
+  // std::cout << "Before Castle Un Make: " << zobristKey << std::endl;
   for (int i = 0; i < 4; i++) {
     if ((currentCastleState & (1 << i)) != (previousCastleState & (1 << i))) {
       // restore the old state
+      // std::cout << "difference: " << i << std::endl;
       zobristKey ^= zobristHash.castle_rights[i];
     }
   }
+  // std::cout << "After Castle Un Make " << zobristKey << std::endl;
+
   Square &move_to_square = board[move._move_to];
   Square &move_from_square = board[move._move_from];
   Color oppType = move_to_square.type == white ? black : white;
   Color currType = move_to_square.type;
   // move.printMove();
-  std::cout << " before zobrist move unmade" << zobristKey << std::endl;
+  // std::cout << " before zobrist move unmade" << zobristKey << std::endl;
   zobristKey ^= zobristHash.pieces[move_to_square.piece][currType]
                                   [move._move_to]; // remove piece from Move_to
   zobristKey ^= zobristHash.pieces[move_to_square.piece][currType]
                                   [move._move_from]; // add piece to Move_from
-  std::cout << " after zobrist move unmade" << zobristKey << std::endl;
-
+  // std::cout << " after zobrist move unmade" << zobristKey << std::endl;
+  if (move._isCapture && move._move_to != state.enpessant) {
+    zobristKey ^= zobristHash.pieces[move._capturedPiece][oppType]
+                                    [move._move_to]; // add this to move_t.
+  }
+  if (move._isCapture && move._move_to == state.enpessant) {
+    int offset = currType == white ? 8 : -8;
+    zobristKey ^=
+        zobristHash
+            .pieces[move._capturedPiece][oppType][move._move_to + offset];
+  }
   auto &state =
       gameStateHistory.peek(); // state before the move that was deleted
   zobristKey ^= zobristHash.side;
@@ -541,16 +608,14 @@ void Board::generateZobristKey() {
       Color c = board[i].type;
       zobristKey ^= zobristHash.pieces[p][c][i];
     }
-    if (gameStateHistory.peek().enpessant != -1) {
-      zobristKey ^= zobristHash.en_pessant[i];
-    }
   }
   for (int k = 0; k < 4; k++) {
-    zobristKey ^=
-        zobristHash
-            .castle_rights[k]; // initially all of them are available. ONLY
-                               // WORKS FOR INITIAL POS. NEED TO UPDATE IF YOU
-                               // USE IT FOR DIFFERENT CASTLE RIGHTS!!!!!!!!!!
+    if ((gameStateHistory.peek().castle_flag & (1 << k)) == int(pow(2, k))) {
+      zobristKey ^= zobristHash.castle_rights[k];
+    }
+  }
+  if (gameStateHistory.peek().enpessant != -1) {
+    zobristKey ^= zobristHash.en_pessant[gameStateHistory.peek().enpessant];
   }
   zobristKey ^= zobristHash.side;
   // zobristKey ^= zobristHash.en_pessant;
@@ -563,7 +628,7 @@ void Board::initializeZobristHashing() {
   std::uniform_int_distribution<long> dis;
   for (int i = 0; i < 64; i++) {
     for (int j = 0; j < 6; j++) {
-      zobristHash.pieces[j][Color::white][i] = dis(gen);
+      zobristHash.pieces[j][Color::white][i] = dis(gen); // empty is not a piecetype and therefore isn't hashed. 
       zobristHash.pieces[j][Color::black][i] = dis(gen);
     }
     zobristHash.en_pessant[i] = dis(gen);
@@ -652,14 +717,14 @@ Board::Square Board::getSquare(int num) {
     return board[num];
   }
 }
-void Board::display() {
+void Board::display(std::ostream &out) const {
   for (int i = 0; i < 64; i++) {
     if (i % 8 == 0) {
-      std::cout << std::endl;
+      out << std::endl;
     }
-    std::cout << board[i].c << " ";
+    out << board[i].c << " ";
   }
-  std::cout << std::endl;
+  out << std::endl;
 }
 void Board::displayState(State &state) {
   std::cout << "Castle Flag: " << static_cast<int>(state.castle_flag) << '\n';

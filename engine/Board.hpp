@@ -1,5 +1,7 @@
 #pragma once
 #include <array>
+#include <cstdint>
+#include <iostream>
 #include <string>
 
 #include "move.hpp"
@@ -34,20 +36,25 @@ public:
   struct Zobrist {
     std::array<std::array<std::array<long, 64>, 2>, 6>
         pieces; // [piece type (k,q,r,b,k,p)][black/white][squares]
-    std::array<long, 64> en_pessant; // 64 possible spots for enpessatant
+    std::array<long, 64> en_pessant;   // 64 possible spots for enpessatant
     std::array<long, 4> castle_rights; // 1: wk, 2: wq, 4: bk, 8: bq
     long side;
   };
   Zobrist zobristHash;
   long zobristKey = 0;
+  int w_king_side = 0;
+  int w_queen_side = 1;
+  int b_king_side = 3;
+  int b_queen_side = 2;
 
 public:
   void makeMove(Move &move);   // make move and update the board with the result
   void unmakeMove(Move &move); // undo the move.
   void toggleTurn();
   void displayState(State &state);
-  void display();            // display board for testing purposes
-  Square getSquare(int num); // get piece at index
+  void display(std::ostream &out =
+                   std::cout) const; // display board for testing purposes
+  Square getSquare(int num);         // get piece at index
   void populatePieceList(Color color);
   std::string toFenString();
   std::string squareToNotation(int square);
@@ -68,6 +75,8 @@ private:
       std::string remaining); // this initializes castle enassatns and turns.
   void handleCastleToggle(Move &move, State &newState);
   void initializeZobristHashing();
-
+  void zobristDisableBlackCastle();
+  void zobristDisableWhiteCastle();
+  void zobristDisableCastle(const uint8_t& new_castle_flag);
 };
 } // namespace Engine

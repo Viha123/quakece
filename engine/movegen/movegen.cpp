@@ -219,6 +219,7 @@ void getLegalMovesForPiece(Board &board, int num,
     Move move = pseudolegal[i];
     // std::cout << "board num type: " << board.board[num].type << std::endl;
     if (!move._isCastle) {
+      long prevZKey = board.zobristKey;
       board.makeMove(move);
       // std::cout << "board display after hypothetical move made" << std::endl;
       // board.display();
@@ -227,6 +228,16 @@ void getLegalMovesForPiece(Board &board, int num,
       }
 
       board.unmakeMove(move);
+      long postZKey = board.zobristKey;
+      if (prevZKey != postZKey) {
+        std::cout << "error in the non castle move" << std::endl;
+        move.printMove();
+        board.display();
+        std::cout << "STATE" << std::endl;
+        board.displayState(board.gameStateHistory.peek());
+        std::cout << "END STATE" << std::endl;
+        assert(false);
+      }
       // std::cout << "board display after move unmade" << std::endl;
       // board.display();
     } else {
@@ -249,19 +260,33 @@ void handleKingCheck(Board &board, int offset, Move &move, Color color,
                      FixedStack<Move, 256> &legal) {
   Move checkImmediateRight(move._move_from, move._move_from + offset, false,
                            false, false, e, e);
+  long prevZKey = board.zobristKey;
+
   board.makeMove(checkImmediateRight);
   if (!kingInCheck(board, color)) {
 
     board.unmakeMove(checkImmediateRight);
+    long postZKey = board.zobristKey;
+    if (prevZKey != postZKey) {
+      std::cout << "its a castle move and king is not in check" << std::endl;
+    }
+    prevZKey = board.zobristKey;
     board.makeMove(move);
     // board.display();
     if (!kingInCheck(board, color)) {
       legal.push(move);
     }
     board.unmakeMove(move);
+    postZKey = board.zobristKey;
+    if (prevZKey != postZKey) {
+      std::cout << "its a castle move and king may or may not be in checkk";
+    }
   } else {
-
     board.unmakeMove(checkImmediateRight);
+    long postZKey = board.zobristKey;
+    if (prevZKey != postZKey) {
+      std::cout << "its a castle move and king IS in check" << std::endl;
+    }
   }
 }
 Move pickRandomMove(Board &board, Color color) {
@@ -353,7 +378,6 @@ void orderMoves(FixedStack<Move, 256> &legalMoves, Board &board) {
   // for (auto it = legalMoves.begin(); it != legalMoves.end(); ++it) {
   //   std::cout << getMoveScore(*it, board)<< " ";
   // }
-  
 }
 int getMoveScore(const Move &move,
                  Board &board) { // gets score for move selection sort
