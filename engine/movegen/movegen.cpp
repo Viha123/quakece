@@ -235,6 +235,8 @@ void getLegalMovesForPiece(Board &board, int num,
         board.display();
         std::cout << "STATE" << std::endl;
         board.displayState(board.gameStateHistory.peek());
+        std::string fen = board.toFenString();
+        std::cout << fen << std::endl;
         std::cout << "END STATE" << std::endl;
         assert(false);
       }

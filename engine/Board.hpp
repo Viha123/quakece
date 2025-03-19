@@ -75,8 +75,6 @@ private:
       std::string remaining); // this initializes castle enassatns and turns.
   void handleCastleToggle(Move &move, State &newState);
   void initializeZobristHashing();
-  void zobristDisableBlackCastle();
-  void zobristDisableWhiteCastle();
   void zobristDisableCastle(const uint8_t& new_castle_flag);
 };
 } // namespace Engine

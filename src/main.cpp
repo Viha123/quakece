@@ -67,14 +67,16 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     // std::string whiteQueenSideCastleTest =
     // "r1bqkb1r/ppp1pppp/2n2n2/3p4/3P1B2/2NQ1N2/PPP1PPPP/R3KB1R b KQkq - 0 1";
     std::string testBoard =
-        "r1bqkbnr/p1pppppp/n7/Pp6/8/8/1PPPPPPP/RNBQKBNR w KQkq b6 0 1"; // testing enpessant capture
+        "4k3/8/8/8/8/8/8/4K2R w K - 0 1"; // testing enpessant capture
     Engine::Board board(testBoard);
+    board.displayState(board.gameStateHistory.peek());
     cout << board.zobristKey << endl;
-    Engine::Move a5b6(24,17,false, false, true, Piece::e, Piece::p);
-    Engine::Move a2a4(48, 32, false, false, false, Piece::e, Piece::e);
-    Engine::Move e1c1(60, 58, true, false, false, Piece::e, Piece::e);
-    Engine::Move move(1, 16, false, false, false, Piece::e, Piece::e);
-    board.makeMove(a5b6);
+    Engine::Move move(63,7,false, false, false, e, e);
+    // Engine::Move a5b6(24,17,false, false, true, Piece::e, Piece::p);
+    // Engine::Move a2a4(48, 32, false, false, false, Piece::e, Piece::e);
+    // Engine::Move e1c1(60, 58, true, false, false, Piece::e, Piece::e);
+    // Engine::Move move(1, 16, false, false, false, Piece::e, Piece::e);
+    board.makeMove(move);
     // board.makeMove(move);
     // board.makeMove(a2a4);
     board.display();
@@ -82,7 +84,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     cout << board.zobristKey << endl;
     // board.unmakeMove(a2a4);
     // board.unmakeMove(move);
-    board.unmakeMove(a5b6);
+    board.unmakeMove(move);
     board.display();
     board.displayState(board.gameStateHistory.peek());
     cout << board.zobristKey << endl;
