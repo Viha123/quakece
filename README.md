@@ -11,7 +11,7 @@ This is an attempt to make a Chess Engine that is UCI complient eventually, as w
 ```build/bin/main 2```
 ### To debug:
 - ```cd build```
-- ```cmake -DCMAKE_BUILD_TYPE=Debug ..```
+- ````cmake -DCMAKE_BUILD_TYPE=Debug ..````
 ### To run in debug mode: (in dir outside of build)
 - ```gdb --args build/bin/main 2```
 

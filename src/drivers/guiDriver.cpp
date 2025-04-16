@@ -153,8 +153,6 @@ void guiDriver::play2() {
             blackRunning = true;
           }
           if (player_type == black && validMove) {
-            std::cout << BLUE << "toggled" << RESET << std::endl;
-
             blackRunning = false;
             whiteRunning = true;
           }
@@ -179,7 +177,6 @@ void guiDriver::play2() {
           checkCheckMate();
           // playerTurn = playerTurn == black ? white : black;
           if (computer_type == white) {
-            std::cout << GREEN << "toggled" << RESET << std::endl;
             whiteTimer -= elapsed_seconds;
             updateWindow(window, guiBoard);
             whiteRunning = false;
@@ -193,6 +190,7 @@ void guiDriver::play2() {
           }
         } catch (const std::out_of_range &exc) {
           // std::cout << exc.what();
+          std::cout << exc.what() << std::endl;
           info.add_text("CHECKMATE", INFO_X, INFO_Y);
           updateWindow(window, guiBoard);
           // window.close();
@@ -256,9 +254,8 @@ void guiDriver::play() {
 }
 void guiDriver::checkCheckMate() {
   auto &latestState = board.gameStateHistory.peek();
-  std::cout << "before legal moves" << std::endl;
 
-  board.displayState(latestState);
+  // board.displayState(latestState);
 
   allMoves.clear();
   Engine::getLegalMoves(board, allMoves);

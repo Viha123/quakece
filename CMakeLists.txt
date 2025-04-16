@@ -19,11 +19,12 @@ file(GLOB EXEC_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp
                    ${PROJECT_SOURCE_DIR}/src/drivers/*.cpp
                    ${PROJECT_SOURCE_DIR}/src/tests/*.cpp
                    ${PROJECT_SOURCE_DIR}/engine/eval.cpp
-                   
+                   ${PROJECT_SOURCE_DIR}/engine/TranspositionTable.cpp
                    )
 
 add_executable(main ${EXEC_SRC})
-target_link_libraries(main sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
+find_package(TBB REQUIRED)
+target_link_libraries(main sfml-system sfml-window sfml-graphics sfml-network sfml-audio TBB::tbb)
 target_compile_features(main PRIVATE cxx_std_17)
 
 if(WIN32)

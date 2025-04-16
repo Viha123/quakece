@@ -13,6 +13,11 @@ enum Directions {
   east,
   south,
 };
+enum Flag : BYTE {
+  exact, // exact score
+  alpha, // upper bound (fail low)
+  beta   // lower bound (fail high)
+};
 constexpr char pieceReps[2][7] = {{'P', 'N', 'B', 'R', 'Q', 'K', '.'},
                                   {'p', 'n', 'b', 'r', 'q', 'k', '.'}};
 constexpr bool isSlide[6] = {false, false, true, true, true, true};

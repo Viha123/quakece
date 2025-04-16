@@ -6,6 +6,7 @@
 #include <SFML/Window/Event.hpp>
 #include <bits/stdc++.h>
 #include <cassert>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <ostream>
@@ -26,8 +27,14 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     gui.play();
   } else if (*argv[1] == '1') {
     // gui play against computer
-    guiDriver gui(black, fen); // player play as white
-    gui.play2();
+    try {
+      guiDriver gui(black, fen); // player play as white
+      gui.play2();
+    } catch (std::exception e) {
+      std:;cout << "caught exception" << std::endl;
+      std::cout << e.what() << std::endl;
+    }
+
   } else if (*argv[1] == 'u') {
     // implement UCI protocol
 
@@ -51,7 +58,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
       end = clock();
       double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
       debugFile << "Time taken by d:" << d << " is " << fixed << time_taken
-           << setprecision(5);
+                << setprecision(5);
       debugFile << " sec " << endl;
     }
   } else if (*argv[1] == 'd') {
@@ -71,7 +78,7 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     Engine::Board board(testBoard);
     board.displayState(board.gameStateHistory.peek());
     cout << board.zobristKey << endl;
-    Engine::Move move(63,7,false, false, false, e, e);
+    Engine::Move move(63, 7, false, false, false, e, e);
     // Engine::Move a5b6(24,17,false, false, true, Piece::e, Piece::p);
     // Engine::Move a2a4(48, 32, false, false, false, Piece::e, Piece::e);
     // Engine::Move e1c1(60, 58, true, false, false, Piece::e, Piece::e);
@@ -88,17 +95,6 @@ int main(int argc, char *argv[]) { // 2, 1, c -> completely manual, manual 1
     board.display();
     board.displayState(board.gameStateHistory.peek());
     cout << board.zobristKey << endl;
-
-    // cout << "<______________________________>" << endl;
-    // cout << board.zobristKey << endl;
-    // long key = board.zobristKey;
-    // key ^= board.zobristHash.pieces[0][0][48];
-    // key ^= board.zobristHash.pieces[0][0][32];
-    // cout << key << endl;
-    // key ^= board.zobristHash.pieces[0][0][48];
-    // key ^= board.zobristHash.pieces[0][0][32];
-    // cout << key << endl;
-
   } else if (*argv[1] == 's') { // FixedStack testing
     // std::size_t sizearr = 10;
     FixedStack<int, 10> mystack;

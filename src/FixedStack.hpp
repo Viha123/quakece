@@ -1,4 +1,5 @@
 #include <array>
+#include <iterator>
 #include <stdexcept>
 #pragma once
 // This is a wrapper to the array class. It is a FixedStack with all the stack
@@ -18,6 +19,9 @@ public:
     } else {
       return array[--top];
     }
+  }
+  int getTop() {
+    return top;
   }
   void push(const T &item) {
     if (top >= N) {
@@ -44,17 +48,28 @@ public:
     array[index2] = temp;
   }
   void clear() { top = 0; }
+
+  // Add begin() and end() iterators
+  auto begin() { return array.begin(); } // Iterator to the start of the array
+  auto end() { return array.begin() + top; } // Iterator to the top of the stack
+
+  auto begin() const { return array.begin(); } // Const iterator to the start
+  auto end() const { return array.begin() + top; } // Const iterator to the top
+  auto rbegin() const { return std::make_reverse_iterator(array.begin()); }
+  auto rend() const { return std::make_reverse_iterator(array.end() + top); }
   // class Iterator {
   // public:
   //   using difference_type = std::ptrdiff_t;
   //   using value_type = T;
-  //   Iterator(T* ptr) : m_ptr(ptr) {};                              // default-initializable
-  //   bool operator==(const Iterator& other) const {return m_ptr == other.m_ptr;}; // equality 
-  //   bool operator!=(const Iterator& other) const {return m_ptr != other.m_ptr;}; // equality 
+  //   Iterator(T* ptr) : m_ptr(ptr) {};                              //
+  //   default-initializable bool operator==(const Iterator& other) const
+  //   {return m_ptr == other.m_ptr;}; // equality bool operator!=(const
+  //   Iterator& other) const {return m_ptr != other.m_ptr;}; // equality
 
-  //   T &operator*() const {return m_ptr;};                    // dereferenceable
-  //   Iterator &operator++()                   // pre-incrementable
-  //   {                                        /*do stuff...*/
+  //   T &operator*() const {return m_ptr;};                    //
+  //   dereferenceable Iterator &operator++()                   //
+  //   pre-incrementable {                                        /*do
+  //   stuff...*/
   //     return *this;
   //   }
   //   void operator++(int) // post-incrementable
@@ -66,7 +81,6 @@ public:
   //   // implementation...
   //   T* m_ptr;
   // };
-  // Iterator begin() { return Iterator(array); } 
+  // Iterator begin() { return Iterator(array); }
   // Iterator end() { return Iterator(array + top); }
-
 };
