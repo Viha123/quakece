@@ -261,7 +261,7 @@ int alphabeta_tt(
     moves.push(temp);
   }
 
-  if (moves.size() == 0) {
+  if (moves.size() == 0 && plyFromRoot == 0) {
     // std::cout << "HERE" << std::endl;
     if (kingInCheck(board, board.gameStateHistory.peek().turn)) {
       throw std::out_of_range("Checkmate");
@@ -311,7 +311,7 @@ int alphabeta_tt(
         pv[j + 1] = localPV[j];
       }
       if (plyFromRoot == 0) {
-        std::cout << "getting move from for loop" << std::endl;
+        // std::cout << "getting move from for loop" << std::endl;
         best_move = best_move_in_pos;
       }
     }

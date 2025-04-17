@@ -20,9 +20,6 @@ Engine::Move Computer::makeMove(Engine::Board &board) {
   //                           quiesc_depth); // without transposition tables
   int alpha = std::numeric_limits<int>::min() + 1;
   int beta = std::numeric_limits<int>::max() - 1;
-  // std::cout << "pos: " << alpha << "neg: " << alpha * -1 << std::endl;
-  // std::cout << "pos: " << beta << "neg: " <<  beta * -1 << std::endl;
-  
   Engine::Move best_move;
   int plyFromRoot = 0;
 
@@ -38,7 +35,6 @@ Engine::Move Computer::makeMove(Engine::Board &board) {
   best_move.printMove();
   board.makeMove(best_move);
 
-  // board.display();
   std::cout << nodes << " " << duratio.count() << std::endl;
   return best_move;
 }
