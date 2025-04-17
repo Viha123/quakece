@@ -22,7 +22,7 @@ void TranspositionTable::store(long key, int depth, Flag flag, int eval, int anc
 int TranspositionTable::lookupEvaluation(long key, int depth, int alpha, int beta) {
   auto entry = get(key);
   if (entry) {
-    std::cout << "found something" << std::endl;
+    // std::cout << "found something" << std::endl;
     if (entry->depth >= depth) { // we are able to use this
       int score = entry->eval;
       if (entry->flag == Flag::exact) {

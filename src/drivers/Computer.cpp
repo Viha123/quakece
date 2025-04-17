@@ -18,16 +18,20 @@ Engine::Move Computer::makeMove(Engine::Board &board) {
   // Engine::Move move =
   //     Engine::alphabetaroot(board, depth, nodes,
   //                           quiesc_depth); // without transposition tables
-  int alpha = std::numeric_limits<int>::min();
-  int beta = std::numeric_limits<int>::max();
+  int alpha = std::numeric_limits<int>::min() + 1;
+  int beta = std::numeric_limits<int>::max() - 1;
+  // std::cout << "pos: " << alpha << "neg: " << alpha * -1 << std::endl;
+  // std::cout << "pos: " << beta << "neg: " <<  beta * -1 << std::endl;
+  
   Engine::Move best_move;
+  int plyFromRoot = 0;
+
   int b_score;
   Engine::TranspositionTable tt;
   int best_score =
-      Engine::alphabeta_tt(board, 0, depth, alpha, beta, nodes, quiesc_depth,
+      Engine::alphabeta_tt(board, plyFromRoot, depth, alpha, beta, nodes, quiesc_depth,
                            best_move, best_score, tt);
-  // Engine::Move move = Engine::alphabeta_tt_root(board, depth, nodes,
-  // quiesc_depth, tt);
+
   auto end = std::chrono::high_resolution_clock::now();
   auto duratio =
       std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
