@@ -3,11 +3,13 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 #include "move.hpp"
 
 #include "../Headers/engine.hpp"
 #include "../src/FixedStack.hpp"
+
 // #include <vector>
 namespace Engine {
 class Board {
@@ -22,7 +24,7 @@ public:
     int8_t enpessant = -1;
     Color turn = white; // white to move
   };
-
+  Board(const Board & old_board); // copy constructor
   std::array<Square, 64> board{};
   Board();
   Board(std::string fen);
@@ -75,6 +77,6 @@ private:
       std::string remaining); // this initializes castle enassatns and turns.
   void handleCastleToggle(Move &move, State &newState);
   void initializeZobristHashing();
-  void zobristDisableCastle(const uint8_t& new_castle_flag);
+  void zobristDisableCastle(const uint8_t &new_castle_flag);
 };
 } // namespace Engine

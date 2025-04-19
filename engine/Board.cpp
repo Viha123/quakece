@@ -33,6 +33,25 @@ Board::Board(std::string fen) {
   // initializePieceArrays();
   // populatePieceList();
 }
+Board::Board(const Board &old_board) {
+  // std::cout << "Copying board..." << std::endl;
+
+  this->board = old_board.board;
+  this->history = old_board.history;
+  this->gameStateHistory = old_board.gameStateHistory;
+  this->pieceList = old_board.pieceList;
+  this->zobristHash = old_board.zobristHash;
+  this->zobristKey = old_board.zobristKey;
+  this->kingIndexes = old_board.kingIndexes;
+  this->state = old_board.state;
+  this->w_king_side = old_board.w_king_side;
+  this->w_queen_side = old_board.w_queen_side;
+  this->b_king_side = old_board.b_king_side;
+  this->b_queen_side = old_board.b_queen_side;
+  this->emptySquare = old_board.emptySquare;
+
+  // std::cout << "Board copied successfully!" << std::endl;
+}
 void Board::generateBoardFromFen(std::string fen) {
   std::string token = fen.substr(0, fen.find(" ")); // part 1 of string
   std::string remaining = fen.substr(fen.find(" ") + 1);

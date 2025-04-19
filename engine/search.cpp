@@ -196,9 +196,72 @@ Move alphabetaroot(Board &board, int depth, int &nodes,
       }
     }
   }
-  // for (int i = 0; i < depth; i++) {
-  //   pv[i].printInChess();
-  // }
+  return toMake;
+}
+
+Move alphabetaroot_pp(Board &board, int depth, int &nodes,
+                      int &quiesc_depth) { // max depth will be 16 at all times,
+                                           // so there can be only 16 pv moves
+  FixedStack<Move, 256> moves;
+  int alpha = -1000000000; //-inf
+  int beta = 1000000000;
+  getLegalMoves(board, moves);
+  orderMoves(moves, board);
+  std::array<Move, 16> pv = {};
+
+  if (moves.size() == 0) {
+    if (kingInCheck(board, board.gameStateHistory.peek().turn)) {
+      throw std::out_of_range("Checkmate");
+    } else {
+      throw std::length_error("Stalemate");
+    }
+  }
+  Move toMake = moves[0];
+  // making board private because they are independent instances and board
+  // really shouldn't change outside the parallel part
+  std::array<int, 256> scores;
+#pragma omp parallel for schedule(static) num_threads(4) firstprivate(depth) firstprivate(alpha) firstprivate(beta) firstprivate(nodes) firstprivate(quiesc_depth)
+  for (int i = 0; i < moves.size(); i++) {
+    Move move = moves[i];
+    auto local_board = board;
+    // std::cout << &local_board << " " << &board << std::endl;
+    int thread_id = omp_get_thread_num();
+    // std::cout << "Thread ID: " << thread_id << " is processing move " << i
+    //           << std::endl;
+    local_board.makeMove(move);
+    std::array<Move, 16> localPV = {};
+    int score = -alphabeta(-beta, -alpha, depth - 1, local_board, nodes, 1, localPV,
+                           quiesc_depth);
+    local_board.unmakeMove(move);
+    scores[i] = score;
+    std::cout << score << std::endl;
+  }
+  for (int i = 0; i < moves.size(); i++) {
+    int score = scores[i];
+    Move move = moves[i];
+    if (score >= beta) {
+      // the move is very good, so the opponent will anyways avoid thsi
+      // std::cout << "did n"
+      return move;
+    }
+    if (score > alpha) {
+      // better than what we have so far, acts as max
+      // int lastIndex = board.history.size();
+      // if (lastIndex >= 4 and toMake == board.history[lastIndex - 4]) {
+      //   break; // do not update toMake to be the next best move
+      // }
+      // std::cout << "got to alpha" << std::endl;
+      alpha = score;
+      toMake = move;
+      pv[0] = toMake;
+      // std::cout << depth << " ";
+      // move.printInChess();s = quiescense_search //this is the move to make
+      // for (int j = 0; j < depth - 1; j++) {
+      //   pv[j + 1] = localPV[j];
+      // }
+      // cannot get local pv :((
+    }
+  }
   return toMake;
 }
 int alphabeta_tt(
@@ -206,6 +269,7 @@ int alphabeta_tt(
     int &nodes, int &quiesc_depth, Move &best_move, int &best_score,
     TranspositionTable &tt) { // do not worry about getting pv for now.
   std::array<Move, 16> pv = {};
+  static int count_tt_values = 0;
   // std::cout << "in alphabeta tt" << std::endl;
   const int immediateMateScore = 10000;
   if (plyFromRoot > 0) {
@@ -237,13 +301,12 @@ int alphabeta_tt(
 
       std::cout << "got move from tt " << std::endl;
     }
-    // std::cout << plyFromRoot << " " << tt_result << std::endl;
+    count_tt_values++;
     return tt_result;
   }
   if (plyRemaining == 0) {
     int quiesc_depth = 0;
-    int evaluation =
-        quiescense_search(alpha, beta, board, quiesc_depth, 0, pv);
+    int evaluation = quiescense_search(alpha, beta, board, quiesc_depth, 0, pv);
     // std::cout << "Evaluation evaluated at: " << evaluation << std::endl;
     return evaluation;
   }
@@ -284,14 +347,6 @@ int alphabeta_tt(
                       nodes, quiesc_depth, best_move, best_score, tt);
     board.unmakeMove(move);
 
-    // std::cout << "Move: ";
-    // move.printInChess();
-    // if (plyFromRoot == 0) {
-    //   std::cout << "Score: " << score << ", Alpha: " << alpha
-    //             << ", Beta: " << beta << " plyfromroot: " << plyFromRoot
-    //             << std::endl;
-    // }
-
     if (score >= beta) {
       // best_move = move;
       flag = Flag::beta;
@@ -320,12 +375,5 @@ int alphabeta_tt(
   tt.store(board.zobristKey, plyRemaining, flag, alpha, 0, best_move_in_pos);
   return alpha;
 }
-
-// Move alphabeta_tt_root(Board &board, int plyFromRoot, int plyRemaining,
-//                        int alpha, int beta, int &nodes, int &quiesc_depth,
-//                        Move &best_move, int &best_score,
-//                        TranspositionTable &tt) {
-
-// }
 
 } // namespace Engine

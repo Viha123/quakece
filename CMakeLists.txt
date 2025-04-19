@@ -6,6 +6,10 @@ option(ENABLE_PROFILING "Enable profiling with gprof" OFF)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
+# Enable OpenMP
+find_package(OpenMP REQUIRED)
+
 include(FetchContent)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -24,7 +28,7 @@ file(GLOB EXEC_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp
 
 add_executable(main ${EXEC_SRC})
 find_package(TBB REQUIRED)
-target_link_libraries(main sfml-system sfml-window sfml-graphics sfml-network sfml-audio TBB::tbb)
+target_link_libraries(main sfml-system sfml-window sfml-graphics sfml-network sfml-audio TBB::tbb OpenMP::OpenMP_CXX)
 target_compile_features(main PRIVATE cxx_std_17)
 
 if(WIN32)

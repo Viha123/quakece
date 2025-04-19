@@ -20,9 +20,7 @@ public:
       return array[--top];
     }
   }
-  int getTop() {
-    return top;
-  }
+  int getTop() { return top; }
   void push(const T &item) {
     if (top >= N) {
       throw std::out_of_range("Cannot add more elements to stack");
@@ -49,6 +47,12 @@ public:
   }
   void clear() { top = 0; }
 
+  void set(int index, T value) {
+    if (index < 0 || index >= top) {
+      throw std::out_of_range("Index out of range");
+    }
+    array[index] = value;
+  }
   // Add begin() and end() iterators
   auto begin() { return array.begin(); } // Iterator to the start of the array
   auto end() { return array.begin() + top; } // Iterator to the top of the stack
